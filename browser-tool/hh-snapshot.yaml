@@ -1,0 +1,486 @@
+- link "перейти к поиску" [e1]:
+  - /url: "#a11y-search-input"
+- text: Чтобы сайт был удобнее, используем
+- link "cookies" [e2]:
+  - /url: /article/cookie_policy?hhtmFrom=main
+- button "Понятно" [e3]
+- button "Чаты" [e4]
+- img
+- link [e5]:
+  - /url: /?hhtmFrom=main
+- link "Резюме и профиль 55" [e6]:
+  - /url: /applicant/resumes?hhtmFrom=main&hhtmFromLabel=header
+- link "Отклики 2" [e7]:
+  - /url: /applicant/negotiations?hhtmFrom=main&hhtmFromLabel=header
+- link "Сервисы" [e8]:
+  - /url: /services?hhtmFrom=main&hhtmFromLabel=header
+- link "Карьера" [e9]:
+  - /url: https://career.hh.ru/?hhtmFrom=main&hhtmFromLabel=header
+- button "Помощь" [e10]
+- button "Поиск" [e11]
+- button "Санкт-Петербург" [e12]
+- button [e13]:
+  - img
+- link [e14]:
+  - /url: /applicant/favorite_vacancies?hhtmFrom=main&hhtmFromLabel=header
+- button [e15]
+- button "Создать резюме" [e16]
+- button [e17]
+- text: Профессия, должность или компания
+- combobox "Профессия, должность или компания"
+- group
+- button "Расширенный поиск" [e18]:
+  - img "Расширенный поиск"
+- button "Найти" [e19]
+- button "Ваша активность 0% 0" [e20]:
+  - text: Ваша активность 0%
+  - progressbar
+- link "Отклики и приглашения +2" [e21]:
+  - /url: /applicant/negotiations?hhtmFrom=main
+- link "Просмотры резюме +55" [e22]:
+  - /url: /applicant/resumes?hhtmFrom=main
+- link "Избранные вакансии 1" [e23]:
+  - /url: /applicant/favorite_vacancies?hhtmFrom=main
+- link "Автопоиски" [e24]:
+  - /url: /applicant/autosearch.xml?hhtmFrom=main
+- button "Вакансии для молодёжи Перейти" [e25]
+- button "Как предпочитаете проводить отпуск? Пройти опрос" [e26]
+- button "7 Откликнитесь ещё 7 раз К вакансиям" [e27]:
+  - img
+  - heading "7" [level=3]
+  - text: Откликнитесь ещё 7 раз К вакансиям
+- button "Развитие карьеры и навыков Узнать больше" [e28]
+- button "Проверка ИТ‑заданий Начать" [e29]
+- list:
+  - tablist:
+    - tab "Для вас" [e30] [selected]
+    - tab "Подработка" [e31]
+    - tab "Вахта" [e32]
+    - tab "от 16 лет" [e33]
+    - tab "Удалённая работа" [e34]
+    - tab "Стажировка" [e35]
+- button "Добавить в избранное Скрыть DevOps-инженер Опыт 1-3 года Можно удалённо ПАО Ростелеком 3.8 • 15642 отзыва Новосибирск Откликнуться Связаться" [e36]:
+  - button "Добавить в избранное" [e37]
+  - button "Скрыть" [e38]
+  - link "DevOps-инженер" [e39]:
+    - /url: https://spb.hh.ru/vacancy/132995841?from=applicant_recommended&hhtmFrom=main
+  - text: Опыт 1-3 года Можно удалённо
+  - link "ПАО Ростелеком" [e40]:
+    - /url: /employer/2748?hhtmFrom=main
+  - link [e41]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - link [e42]:
+    - /url: http://hrbrand.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=icon&utm_term=applicant
+  - text: 3.8 • 15642 отзыва Новосибирск
+  - button "Откликнуться" [e43]
+  - button "Связаться" [e44]
+- button "Добавить в избранное Скрыть DevOps-инженер (Junior+/Middle) Опыт 1-3 года Можно удалённо Вакансии Просвещение АО Просвещение 3.8 • 105 отзывов Москва ● Достоевская и еще 3 ● ● ● Откликнуться" [e45]:
+  - button "Добавить в избранное" [e46]
+  - button "Скрыть" [e47]
+  - link "DevOps-инженер (Junior+/Middle)" [e48]:
+    - /url: https://spb.hh.ru/vacancy/132174929?from=applicant_recommended&hhtmFrom=main
+  - text: Опыт 1-3 года Можно удалённо
+  - link "Вакансии Просвещение" [e49]:
+    - /url: /employer/536?hhtmFrom=main
+    - img "Просвещение"
+  - link "АО Просвещение" [e50]:
+    - /url: /employer/536?hhtmFrom=main
+  - link [e51]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - link [e52]:
+    - /url: https://rating.hh.ru/history/rating2025?utm_source=hh.ru&utm_medium=referral&utm_campaign=icon&utm_term=applicant
+  - text: 3.8 • 105 отзывов Москва ● Достоевская и еще 3 ● ● ●
+  - button "Откликнуться" [e53]
+- 'button "Добавить в избранное Скрыть Junior Devops Engineer до 100 000 ₽ за месяц, на руки Опыт 1-3 года Можно удалённо Выплаты: раз в месяц evrone.ru 4.5 • 37 отзывов Москва Откликнуться"':
+  - button "Добавить в избранное" [e54]
+  - button "Скрыть" [e55]
+  - link "Junior Devops Engineer" [e56]:
+    - /url: https://spb.hh.ru/vacancy/132616454?from=applicant_recommended&hhtmFrom=main
+  - text: "до 100 000 ₽ за месяц, на руки Опыт 1-3 года Можно удалённо Выплаты: раз в месяц"
+  - link "evrone.ru" [e57]:
+    - /url: /employer/598471?hhtmFrom=main
+  - link [e58]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - text: 4.5 • 37 отзывов Москва
+  - button "Откликнуться" [e59]
+- 'button "Добавить в избранное Скрыть Специалист по информационным технологиям 70 000 – 90 000 ₽ за месяц, на руки Без опыта Выплаты: два раза в месяц ИП Герасимчук Василий Григорьевич 4.3 • 7 отзывов Санкт-Петербург ● Пролетарская Откликнитесь среди первых Откликнуться Связаться"':
+  - button "Добавить в избранное" [e60]
+  - button "Скрыть" [e61]
+  - link "Специалист по информационным технологиям" [e62]:
+    - /url: https://spb.hh.ru/vacancy/132998230?from=applicant_recommended&hhtmFrom=main
+  - text: "70 000 – 90 000 ₽ за месяц, на руки Без опыта Выплаты: два раза в месяц"
+  - link "ИП Герасимчук Василий Григорьевич" [e63]:
+    - /url: /employer/11973796?hhtmFrom=main
+  - link [e64]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - text: 4.3 • 7 отзывов Санкт-Петербург ● Пролетарская Откликнитесь среди первых
+  - button "Откликнуться" [e65]
+  - button "Связаться" [e66]
+- button "Добавить в избранное Скрыть Devops-инженер (Искусственный интеллект) Опыт 3-6 лет Можно удалённо ООО РСХБ-Интех 4.1 • 261 отзыв Москва ● Теплый Стан Откликнуться" [e67]:
+  - button "Добавить в избранное" [e68]
+  - button "Скрыть" [e69]
+  - link "Devops-инженер (Искусственный интеллект)" [e70]:
+    - /url: https://spb.hh.ru/vacancy/132987237?from=applicant_recommended&hhtmFrom=main
+  - text: Опыт 3-6 лет Можно удалённо
+  - link "ООО РСХБ-Интех" [e71]:
+    - /url: /employer/3131901?hhtmFrom=main
+  - link [e72]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - text: 4.1 • 261 отзыв Москва ● Теплый Стан
+  - button "Откликнуться" [e73]
+- 'button "Добавить в избранное Скрыть Middle DevOps 2 000 – 4 000 $ за месяц, на руки Опыт 3-6 лет Можно удалённо Выплаты: раз в месяц ArtWorkout Москва Откликнуться Связаться"':
+  - button "Добавить в избранное" [e74]
+  - button "Скрыть" [e75]
+  - link "Middle DevOps" [e76]:
+    - /url: https://spb.hh.ru/vacancy/132962079?from=applicant_recommended&hhtmFrom=main
+  - text: "2 000 – 4 000 $ за месяц, на руки Опыт 3-6 лет Можно удалённо Выплаты: раз в месяц"
+  - link "ArtWorkout" [e77]:
+    - /url: /employer/9457433?hhtmFrom=main
+  - link [e78]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - text: Москва
+  - button "Откликнуться" [e79]
+  - button "Связаться" [e80]
+- button "Посмотреть 1091 вакансию" [e81]
+- separator
+- heading "Вакансии дня в Санкт-Петербурге" [level=3]
+- link "Стюард - официант (Высокоскоростной поезд \" [e82]Сапсан\" Санкт-Петербург-Москва) от 86 000 до 130 000 ₽ за месяц до вычета налогов":
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=90212544&contentId=20945&contentPlaceId=0&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=true&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Группа компаний РБЕ (RBE Group)" [e83]:
+  - /url: /employer/834226?hhtmFrom=main
+- button "Откликнуться" [e84]
+- link "Упаковщик (м. Пионерская) от 53 500 до 96 500 ₽ за месяц на руки" [e85]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132994139&contentId=0&contentPlaceId=1&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Британские пекарни" [e86]:
+  - /url: /employer/825?hhtmFrom=main
+- button "Откликнуться" [e87]
+- button "Связаться" [e88]
+- link "Рабочий на обувное производство м. Московские ворота от 70 000 до 100 000 ₽ за месяц до вычета налогов" [e89]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=131413762&contentId=0&contentPlaceId=2&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "ПТК Модерам" [e90]:
+  - /url: /employer/4656?hhtmFrom=main
+- button "Откликнуться" [e91]
+- button "Связаться" [e92]
+- link "Контролер ОТК от 80 000 до 85 000 ₽ за месяц на руки" [e93]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=131671254&contentId=0&contentPlaceId=3&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "ГК Полиграфоформление" [e94]:
+  - /url: /employer/58574?hhtmFrom=main
+- button "Откликнуться" [e95]
+- button "Связаться" [e96]
+- link "Специалист по безопасности от 75 000 до 80 000 ₽ за месяц на руки" [e97]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132910685&contentId=0&contentPlaceId=4&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Деловые Линии" [e98]:
+  - /url: /employer/29413?dpt=29413-29413-office&hhtmFrom=main
+- button "Откликнуться" [e99]
+- link "Продавец-кассир (Центральный район) от 49 500 до 54 000 ₽ за месяц до вычета налогов" [e100]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132994886&contentId=0&contentPlaceId=5&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Улыбка радуги" [e101]:
+  - /url: /employer/40938?dpt=40938-40938-store&hhtmFrom=main
+- button "Откликнуться" [e102]
+- button "Связаться" [e103]
+- link "Продавец-кассир (м. Невский проспект) от 69 676 до 74 676 ₽ за месяц до вычета налогов" [e104]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132634698&contentId=0&contentPlaceId=6&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "буше" [e105]:
+  - /url: /employer/114223?hhtmFrom=main
+- button "Откликнуться" [e106]
+- button "Связаться" [e107]
+- link "Инженер-технолог 100 000 ₽ за месяц на руки" [e108]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132163720&contentId=0&contentPlaceId=7&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Всероссийский научно-исследовательский проектно-конструкторский и технологический институт электромашиностроения" [e109]:
+  - /url: /employer/235288?hhtmFrom=main
+- button "Откликнуться" [e110]
+- link "Водитель штабелера от 90 000 до 100 000 ₽ за месяц на руки" [e111]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132995898&contentId=0&contentPlaceId=8&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "КЕРАМИКА-СЕРВИС" [e112]:
+  - /url: /employer/223277?hhtmFrom=main
+- button "Откликнуться" [e113]
+- button "Связаться" [e114]
+- link "Офис-менеджер 76 000 ₽ за месяц до вычета налогов" [e115]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132663154&contentId=0&contentPlaceId=9&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Лань, Издательский Дом" [e116]:
+  - /url: /employer/483568?hhtmFrom=main
+- button "Откликнуться" [e117]
+- link "Продавец-консультант СГ в магазин женской одежды CHARUEL (ТЦ Лето) от 35 000 до 40 000 ₽ за месяц на руки" [e118]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=131817809&contentId=0&contentPlaceId=10&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Charuel" [e119]:
+  - /url: /employer/176444?hhtmFrom=main
+- button "Откликнуться" [e120]
+- button "Связаться" [e121]
+- link "Хостес в \" [e122]Сплетни\" by Anna Asti от 70 000 до 87 000 ₽ за месяц на руки":
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132995972&contentId=0&contentPlaceId=11&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Федеральная сеть баров" [e123]:
+  - /url: /employer/610907?hhtmFrom=main
+- button "Откликнуться" [e124]
+- link "Графический дизайнер 73 500 ₽ за месяц на руки" [e125]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132995896&contentId=0&contentPlaceId=12&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Строй-Отделка" [e126]:
+  - /url: /employer/577614?hhtmFrom=main
+- button "Откликнуться" [e127]
+- link "Медицинский регистратор 60 900 ₽ за месяц на руки" [e128]:
+  - /url: https://content.hh.ru/api/v1/vacancy_of_the_day/click?vacancyId=132660374&contentId=0&contentPlaceId=13&domainAreaId=2&host=https%3A%2F%2Fspb.hh.ru&turbo=false&location=MAIN_PAGE_BOTTOM&source=vacancies_of_the_day&from=main
+- link "Мой медицинский центр" [e129]:
+  - /url: /employer/610351?hhtmFrom=main
+- button "Откликнуться" [e130]
+- button "Развернуть" [e131]
+- link "Работа в компаниях Санкт-Петербурга" [e132]:
+  - /url: /employers_company?hhtmFrom=main
+  - heading "Работа в компаниях Санкт-Петербурга" [level=3]
+- link [e133]:
+  - /url: http://yandex.ru/adfox/400505/goLink?ad-session-id=5133921778584997122&adfox-version=1&duid=1768470867990927903&efc=1&esc=0&ifd=1&initial-engine-id=gmh&p1=cxlmu&p2=icun&sj=W4pZBPItzQswAIqkkWiaYWmt-Nb6kGrC9bzZSY9GzURRQq7iPQKHLav2-lASitLFcwYIl0yNhM3_t95TSqlBlNXNDuVZjju_cnZVjWLJyIaAvH6fKepHiYE_cOsfPzn4ltrOGbkwaNs4yRlBu0qhRJRu3cB54Rt1yjnQrx6chuS81QqBRpVsocrbHBdc6c0wI1O7Zwtx-icW-_pffMNRYOgiH4FYmQSHJ6_NVKfXRqzhF4EY0HIpSVJPjXUbLED3DLf3VfvBLMFDoJkidi0PVjuihG39IOHax40ouqO-lqXVMglSxvaQQ7S3LazjN0Wl__aDxpTtYKlarrnDA6E5Sb8DFZOog0iOamVwHFSon_QwCNBkfA%3D%3D&ybv=0.1304994&ylv=0.1304994&ytt=229797931253765
+- button "Лента, федеральная розничная сеть 1 294 вакансии" [e134]
+- button "Совкомбанк 1 225 вакансий" [e135]
+- button "Escobar 17 вакансий" [e136]
+- button "ПКО Филберт 9 вакансий" [e137]
+- button "Норникель 833 вакансии" [e138]
+- button "Таймвэб.Клауд 13 вакансий" [e139]
+- button "ВирКрафт Инжиниринг 5 вакансий" [e140]
+- button "Равамет 346 вакансий" [e141]
+- button "Управдом 154 вакансии" [e142]
+- button "ГрандМед 13 вакансий" [e143]
+- button "Smena 9 вакансий" [e144]
+- button "Aurum Queen 4 вакансии" [e145]
+- button "Развернуть" [e146]
+- link "Работа по профессиям в Санкт-Петербурге" [e147]:
+  - /url: /catalog/vacancies
+  - heading "Работа по профессиям в Санкт-Петербурге" [level=2]
+- link "Автомобильный бизнес" [e148]:
+  - /url: /search/vacancy?area=2&professional_role=4&professional_role=5&professional_role=62&professional_role=70&withTopFilterCatalog=true
+- link "Административный персонал" [e149]:
+  - /url: /search/vacancy?area=2&professional_role=8&professional_role=33&professional_role=58&professional_role=76&professional_role=84&professional_role=88&professional_role=93&professional_role=110&withTopFilterCatalog=true
+- link "Безопасность" [e150]:
+  - /url: /search/vacancy?area=2&professional_role=22&professional_role=90&professional_role=95&professional_role=116&professional_role=120&withTopFilterCatalog=true
+- link "Высший и средний менеджмент" [e151]:
+  - /url: /search/vacancy?area=2&professional_role=26&professional_role=36&professional_role=37&professional_role=38&professional_role=166&professional_role=53&professional_role=80&professional_role=87&professional_role=157&professional_role=172&professional_role=170&professional_role=171&professional_role=161&professional_role=125&professional_role=135&withTopFilterCatalog=true
+- link "Добыча сырья" [e152]:
+  - /url: /search/vacancy?area=2&professional_role=27&professional_role=28&professional_role=168&professional_role=63&professional_role=79&professional_role=82&professional_role=49&withTopFilterCatalog=true
+- link "Домашний, обслуживающий персонал" [e153]:
+  - /url: /search/vacancy?area=2&professional_role=8&professional_role=21&professional_role=23&professional_role=32&professional_role=58&professional_role=89&professional_role=90&professional_role=130&withTopFilterCatalog=true
+- link "Закупки" [e154]:
+  - /url: /search/vacancy?area=2&professional_role=66&professional_role=119&withTopFilterCatalog=true
+- link "Информационные технологии" [e155]:
+  - /url: /search/vacancy?area=2&professional_role=156&professional_role=160&professional_role=10&professional_role=12&professional_role=150&professional_role=25&professional_role=165&professional_role=34&professional_role=36&professional_role=73&professional_role=155&professional_role=96&professional_role=164&professional_role=104&professional_role=157&professional_role=107&professional_role=112&professional_role=113&professional_role=148&professional_role=114&professional_role=116&professional_role=121&professional_role=124&professional_role=125&professional_role=126&withTopFilterCatalog=true
+- link "Искусство, развлечения, массмедиа" [e156]:
+  - /url: /search/vacancy?area=2&professional_role=12&professional_role=13&professional_role=20&professional_role=25&professional_role=34&professional_role=41&professional_role=55&professional_role=98&professional_role=103&professional_role=139&withTopFilterCatalog=true
+- link "Маркетинг, реклама, PR" [e157]:
+  - /url: /search/vacancy?area=2&professional_role=1&professional_role=2&professional_role=3&professional_role=10&professional_role=12&professional_role=34&professional_role=37&professional_role=55&professional_role=163&professional_role=68&professional_role=70&professional_role=71&professional_role=99&professional_role=170&withTopFilterCatalog=true
+- link "Медицина, фармацевтика" [e158]:
+  - /url: /search/vacancy?area=2&professional_role=8&professional_role=15&professional_role=19&professional_role=24&professional_role=29&professional_role=42&professional_role=168&professional_role=64&professional_role=65&professional_role=79&professional_role=151&professional_role=133&withTopFilterCatalog=true
+- link "Наука, образование" [e159]:
+  - /url: /search/vacancy?area=2&professional_role=17&professional_role=23&professional_role=168&professional_role=167&professional_role=79&professional_role=101&professional_role=132&withTopFilterCatalog=true
+- link "Продажи, обслуживание клиентов" [e160]:
+  - /url: /search/vacancy?area=2&professional_role=6&professional_role=10&professional_role=154&professional_role=51&professional_role=53&professional_role=54&professional_role=57&professional_role=70&professional_role=71&professional_role=83&professional_role=97&professional_role=105&professional_role=106&professional_role=161&professional_role=151&professional_role=121&professional_role=122&professional_role=129&withTopFilterCatalog=true
+- link "Производство, сервисное обслуживание" [e161]:
+  - /url: /search/vacancy?area=2&professional_role=174&professional_role=44&professional_role=45&professional_role=46&professional_role=48&professional_role=169&professional_role=144&professional_role=149&professional_role=168&professional_role=162&professional_role=63&professional_role=152&professional_role=173&professional_role=79&professional_role=80&professional_role=82&professional_role=85&professional_role=86&professional_role=109&professional_role=111&professional_role=115&professional_role=151&professional_role=49&professional_role=128&professional_role=141&professional_role=143&withTopFilterCatalog=true
+- link "Рабочий персонал" [e162]:
+  - /url: /search/vacancy?area=2&professional_role=5&professional_role=21&professional_role=31&professional_role=52&professional_role=59&professional_role=63&professional_role=173&professional_role=78&professional_role=85&professional_role=86&professional_role=102&professional_role=109&professional_role=111&professional_role=115&professional_role=128&professional_role=131&professional_role=143&withTopFilterCatalog=true
+- link "Розничная торговля" [e163]:
+  - /url: /search/vacancy?area=2&professional_role=9&professional_role=35&professional_role=77&professional_role=97&professional_role=99&professional_role=123&professional_role=127&withTopFilterCatalog=true
+- link "Сельское хозяйство" [e164]:
+  - /url: /search/vacancy?area=2&professional_role=7&professional_role=19&professional_role=43&professional_role=63&professional_role=111&professional_role=49&withTopFilterCatalog=true
+- link "Спортивные клубы, фитнес, салоны красоты" [e165]:
+  - /url: /search/vacancy?area=2&professional_role=8&professional_role=56&professional_role=60&professional_role=61&professional_role=70&professional_role=92&professional_role=138&withTopFilterCatalog=true
+- link "Стратегия, инвестиции, консалтинг" [e166]:
+  - /url: /search/vacancy?area=2&professional_role=10&professional_role=150&professional_role=75&professional_role=107&professional_role=134&withTopFilterCatalog=true
+- link "Страхование" [e167]:
+  - /url: /search/vacancy?area=2&professional_role=11&professional_role=91&professional_role=122&withTopFilterCatalog=true
+- link "Строительство, недвижимость" [e168]:
+  - /url: /search/vacancy?area=2&professional_role=6&professional_role=14&professional_role=154&professional_role=27&professional_role=30&professional_role=34&professional_role=47&professional_role=45&professional_role=46&professional_role=48&professional_role=59&professional_role=63&professional_role=78&professional_role=100&professional_role=102&professional_role=107&professional_role=108&professional_role=109&professional_role=115&professional_role=143&withTopFilterCatalog=true
+- link "Транспорт, логистика, перевозки" [e169]:
+  - /url: /search/vacancy?area=2&professional_role=159&professional_role=21&professional_role=31&professional_role=39&professional_role=52&professional_role=58&professional_role=63&professional_role=67&professional_role=81&professional_role=172&professional_role=131&withTopFilterCatalog=true
+- link "Туризм, гостиницы, рестораны" [e170]:
+  - /url: /search/vacancy?area=2&professional_role=8&professional_role=72&professional_role=74&professional_role=76&professional_role=89&professional_role=94&professional_role=130&professional_role=140&withTopFilterCatalog=true
+- link "Управление персоналом, тренинги" [e171]:
+  - /url: /search/vacancy?area=2&professional_role=17&professional_role=38&professional_role=153&professional_role=69&professional_role=171&professional_role=117&professional_role=118&withTopFilterCatalog=true
+- link "Финансы, бухгалтерия" [e172]:
+  - /url: /search/vacancy?area=2&professional_role=16&professional_role=154&professional_role=18&professional_role=50&professional_role=158&professional_role=57&professional_role=155&professional_role=147&professional_role=134&professional_role=135&professional_role=136&professional_role=137&professional_role=142&withTopFilterCatalog=true
+- link "Юристы" [e173]:
+  - /url: /search/vacancy?area=2&professional_role=166&professional_role=158&professional_role=145&professional_role=146&withTopFilterCatalog=true
+- link "Другое" [e174]:
+  - /url: /search/vacancy?area=2&professional_role=40&withTopFilterCatalog=true
+- heading "Новости" [level=3]
+- img "25 вакансий для тех, кто ищет подработку и хочет получать больше 80 тысяч"
+- link "25 вакансий для тех, кто ищет подработку и хочет получать больше 80 тысяч" [e175]:
+  - /url: https://hh.ru/blog/podrabotka
+- img "Запустили новый раздел «Нетворк» в Сетке"
+- link "Запустили новый раздел «Нетворк» в Сетке" [e176]:
+  - /url: https://hh.ru/blog/razdel-netvork-v-setke
+- img "30 вакансий для тех, кто хочет работать удалённо без опыта"
+- link "30 вакансий для тех, кто хочет работать удалённо без опыта" [e177]:
+  - /url: /article/udalyonka-bez-opyta-15-vakansij-dlya-tekh-kto-hochet-poprobovat-novoe?hhtmFrom=main
+- img "25 предложений для тех, кто хочет работать посменно"
+- link "25 предложений для тех, кто хочет работать посменно" [e178]:
+  - /url: /article/16445?hhtmFrom=main
+- button "Посмотреть все" [e179]
+- heading "Статьи" [level=3]
+- img "6 причин, почему вакансии могут висеть месяцами"
+- link "6 причин, почему вакансии могут висеть месяцами" [e180]:
+  - /url: https://hh.ru/blog/pochemu-visyat-vakansii
+- img "Сколько можно получать на подработках"
+- link "Сколько можно получать на подработках" [e181]:
+  - /url: https://hh.ru/blog/skolko-platyat-na-podrabotke
+- 'img "Сотрудники продаж 2ГИС: работа, которая меняет жизнь"'
+- 'link "Сотрудники продаж 2ГИС: работа, которая меняет жизнь"':
+  - /url: https://my.hh.ru/0e0
+- 'img "ИТ-хаб Т-Банка: локации для работы и вдохновения"'
+- 'link "ИТ-хаб Т-Банка: локации для работы и вдохновения"':
+  - /url: https://my.hh.ru/00c
+- button "Посмотреть все" [e182]
+- img "qr-code-telegram"
+- link [e183]:
+  - /url: https://chatbot.hh.ru/hh-bot/vk?utm_source=hhru&utm_medium=referral&utm_campaign=index_page_bot_applicant
+  - button [e184]
+- link [e185]:
+  - /url: https://chatbot.hh.ru/hh-bot/telegram?utm_source=hhru&utm_medium=referral&utm_campaign=index_page_bot_applicant
+  - button [e186]
+- link [e187]:
+  - /url: https://chatbot.hh.ru/hh-bot/viber?utm_source=hhru&utm_medium=referral&utm_campaign=index_page_bot_applicant
+  - button [e188]
+- heading "Вакансии в мессенджере" [level=3]
+- text: Сканируйте QR-код и выбирайте, куда вам их присылать
+- heading "Вопросы и ответы" [level=3]
+- button "Создание резюме Как создать резюме? Читать 9 минут" [e189]
+- button "Редактирование резюме Настройки видимости резюме Читать 4 минуты" [e190]
+- button "Поиск работы Как отправить сопроводительное письмо работодателю? Читать 2 минуты" [e191]
+- button "Поиск работы Просмотр отклика на вакансию работодателем Читать 2 минуты" [e192]
+- button "Соискателям Какое название должно быть у резюме? Читать 1 минуту" [e193]
+- button "Поиск работы Как узнать, какие компании просматривали мое резюме? Читать 1 минуту" [e194]
+- button "Поиск работы Автопоиск вакансий Читать 2 минуты" [e195]
+- button "Общение с работодателем Общение с работодателем Читать 3 минуты" [e196]
+- button "Создание резюме Как и зачем выбирать специализации в резюме? Читать 2 минуты" [e197]
+- button "Развернуть" [e198]
+- heading "Сканируйте QR-код, чтобы скачать приложение" [level=2]
+- text: Свежие вакансии, ответы на отклики и доступ к резюме — всегда у вас под рукой
+- img
+- text: HeadHunter
+- list:
+  - listitem:
+    - link "О компании" [e199]:
+      - /url: /article/28?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Наши вакансии" [e200]:
+      - /url: /employer/1455?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Реклама на сайте" [e201]:
+      - /url: /article/promoproducts?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Требования к ПО" [e202]:
+      - /url: /article/176?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Безопасный HeadHunter" [e203]:
+      - /url: /safety?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "HeadHunter API" [e204]:
+      - /url: https://dev.hh.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+  - listitem:
+    - link "Партнерам" [e205]:
+      - /url: /partners?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Инвесторам" [e206]:
+      - /url: https://investor.hh.ru/
+  - listitem:
+    - link "Каталог компаний" [e207]:
+      - /url: /employers_company?hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Поиск по вакансиям в Санкт-Петербурге" [e208]:
+      - /url: /vacancies
+  - listitem:
+    - link "Работа рядом с метро" [e209]:
+      - /url: /metro?hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - 'button "Сетка: соцсеть для нетворкинга"'
+- text: Соискателям
+- list:
+  - listitem:
+    - link "hh PRO" [e210]:
+      - /url: /applicant-services/hhpro?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Готовое резюме" [e211]:
+      - /url: /article/expert_resume?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Все сервисы" [e212]:
+      - /url: /services?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Профориентация" [e213]:
+      - /url: /article/proforientation_promo?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Хочу у вас работать" [e214]:
+      - /url: /applicant-services/hhpro?rte=true&from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Производственный календарь" [e215]:
+      - /url: /calendar?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Экспертная рекомендация" [e216]:
+      - /url: /article/resume_audit?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+- text: Новости и статьи
+- list:
+  - listitem:
+    - link "Рынок труда" [e217]:
+      - /url: /articles/labour-market?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "О компаниях в игровой форме" [e218]:
+      - /url: /articles/guide-to-companies/special-projects?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Жизнь в компании" [e219]:
+      - /url: /articles/guide-to-companies/insider?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "ИТ-проекты" [e220]:
+      - /url: /articles/guide-to-companies/it-projects?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Рейтинг работодателей России" [e221]:
+      - /url: https://rating.hh.ru/poll?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+- text: Молодым специалистам
+- list:
+  - listitem:
+    - link "Карьера для молодых специалистов" [e222]:
+      - /url: /students?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Школа программистов" [e223]:
+      - /url: http://school.hh.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+  - listitem:
+    - link "Карьера в некоммерческих организациях" [e224]:
+      - /url: https://nko.hh.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+- list:
+  - listitem:
+    - text: Боты для уведомлений
+    - button "chatBotTelegram" [e225]:
+      - img "chatBotTelegram"
+    - button "chatBotViber" [e226]:
+      - img "chatBotViber"
+    - button "chatBotVk" [e227]:
+      - img "chatBotVk"
+- text: Мобильное приложение
+- list:
+  - listitem:
+    - link "Этика и комплаенс" [e228]:
+      - /url: /article/compliance?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Оказание услуг" [e229]:
+      - /url: /conditions?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Использование сайтов" [e230]:
+      - /url: /terms?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Защита персональных данных" [e231]:
+      - /url: /article/personal_data?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "Пользовательское соглашение" [e232]:
+      - /url: /account/agreement?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+  - listitem:
+    - link "ИТ аккредитация" [e233]:
+      - /url: /article/it-accreditation?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=main
+- text: На информационном ресурсе hh.ru
+- link "применяются рекомендательные технологии" [e234]:
+  - /url: /article/recommendation_technologies?hhtmFrom=main
+- text: (информационные технологии предоставления информации на основе сбора, систематизации и анализа сведений, относящихся к предпочтениям пользователей сети «Интернет», находящихся на территории Российской Федерации)
+- button [e235]
+- button "vk" [e236]:
+  - img "vk"
+- button "dzen" [e237]:
+  - img "dzen"
+- button "telegram" [e238]:
+  - img "telegram"
+- list:
+  - listitem:
+    - button "Русский" [e239]
+- text: © 2026 ООО «Хэдхантер»
+- iframe

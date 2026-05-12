@@ -1,0 +1,10 @@
+{
+  "name": "pi-browser-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "pi-coding-agent browser automation extension with filtered camofox snapshots",
+  "pi": {
+    "extensions": ["./index.ts"]
+  },
+  "dependencies": {}
+}

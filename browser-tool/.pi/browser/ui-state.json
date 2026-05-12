@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "camofoxBaseUrl": "http://192.168.0.105:9377",
+  "userId": "agent",
+  "sessionKey": "key",
+  "debugRawSnapshot": true,
+  "currentTabId": "bced85c0-60be-4ca3-b58a-bd49120f3321"
+}

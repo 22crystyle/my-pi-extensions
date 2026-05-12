@@ -1,0 +1,499 @@
+- text: Мы используем файлы cookie, чтобы обеспечивать правильную работу нашего веб-сайта и анализировать сетевой трафик.
+- link "Правила использования файлов cookie" [e1]:
+  - /url: /article/cookie_policy?hhtmFrom=vacancy
+- button "Понятно" [e2]
+- link [e3]:
+  - /url: /?hhtmFrom=vacancy
+- link "Резюме и профиль 56" [e4]:
+  - /url: /applicant/resumes?hhtmFrom=vacancy&hhtmFromLabel=header
+- link "Отклики 2" [e5]:
+  - /url: /applicant/negotiations?hhtmFrom=vacancy&hhtmFromLabel=header
+- link "Сервисы" [e6]:
+  - /url: /services?hhtmFrom=vacancy&hhtmFromLabel=header
+- link "Карьера" [e7]:
+  - /url: https://career.hh.ru/?hhtmFrom=vacancy&hhtmFromLabel=header
+- button "Помощь" [e8]
+- button "Поиск" [e9]
+- button "Санкт-Петербург" [e10]
+- button [e11]:
+  - img
+- link [e12]:
+  - /url: /applicant/favorite_vacancies?hhtmFrom=vacancy&hhtmFromLabel=header
+- button [e13]
+- button "Создать резюме" [e14]
+- button [e15]
+- heading "Junior Devops Engineer" [level=1]
+- text: до 100 000 ₽ за месяц, на руки
+- paragraph: "Выплаты: раз в месяц"
+- paragraph: "Опыт работы: 1–3 года"
+- text: Полная занятость
+- paragraph: "График: 5/2"
+- text: "Рабочие часы: 8"
+- paragraph: "Формат работы: удалённо"
+- paragraph: Сейчас эту вакансию смотрят 23 человека
+- button "Откликнуться" [e16]
+- button "Добавить в избранное" [e17]:
+  - img "Добавить в избранное"
+- button "Ещё" [e18]:
+  - img "Ещё"
+- paragraph:
+  - strong: Привет!
+  - text: Команда
+  - strong: Evrone
+  - text: занимается продуктовой разработкой стартапов и помогает развиваться взрослому бизнесу в России, США и Европе.
+- paragraph: Мы занимаемся технически сложными, высоконагруженными, наукоёмкими проектами, проектами с большой бизнес логикой или большой серверной инфраструктурой.
+- paragraph:
+  - text: Сейчас ищем
+  - strong: Junior Devops инженера
+  - text: для работы на проекте компании, продуктами которой пользуются миллионы людей каждый день (
+  - strong: входит в ТОП-3 ИТ-гигантов в РФ).
+- paragraph
+- paragraph:
+  - strong: "Какой опыт и знания для нас являются важными:"
+- list:
+  - listitem:
+    - text: — Опыт работы в качестве
+    - strong: Devops инженера на коммерческом проекте от 1 года;
+  - listitem: — Kubernetes. Развертывания, эксплуатация, знание его архитектуры и компонентов;
+  - listitem: — Git;
+- paragraph:
+  - strong: "Будет круто, если у вас есть опыт и знания по:"
+- list:
+  - listitem: — Ansible или Terraform;
+  - listitem: — Prometheus / Grafana;
+  - listitem: — Администрированию Linux;
+  - listitem: — Docker, Docker Compose;
+  - listitem: — CI/CD. Любой из популярных, но лучше GitLabCI и GithubActions.
+  - listitem: — Helm.
+- paragraph:
+  - strong: "Что предлагаем:"
+- list:
+  - listitem:
+    - text: —
+    - paragraph: Удаленную фултайм работу и гибкий график. Достаточно синхронизировать тайм-зоны и иметь пересечения рабочего времени с командой;
+  - listitem:
+    - text: —
+    - paragraph: При формировании команды проекта учитываем профессиональные или личные интересы разработчиков. По желанию меняем проекты, не даем стагнировать;
+  - listitem:
+    - text: —
+    - paragraph: Работу в разновозрастном, разнополом и потрясающе дружном и профессиональном коллективе;
+  - listitem:
+    - text: —
+    - paragraph: Хорошо организованный воркфлоу, отсутствие бюрократии. Работа на доверии.
+- paragraph:
+  - strong: Одна из ценностей Evrone – работа с удовольствием.
+- paragraph:
+  - text: Для этого мы придумали
+  - strong: Evrone Benefits.
+  - text: Каждому из нас выделяется годовой бюджет, автоматически пополняемый каждый новый год вашей работы в Evrone.
+  - strong: "Его можно потратить на полезные категории трат, направленные на:"
+- list:
+  - listitem:
+    - text: —
+    - paragraph: ДМС и здоровье;
+  - listitem:
+    - text: —
+    - paragraph: Спорт и абонемент для фитнеса или инвентарь для спорта;
+  - listitem:
+    - text: —
+    - paragraph: Курсы иностранного языка;
+  - listitem:
+    - text: —
+    - paragraph: Техника для работы и улучшение рабочего места;
+  - listitem:
+    - text: —
+    - paragraph: "Обучение: курсы, тренинги, мастер-классы, семинары, книги и конференции."
+- paragraph:
+  - strong: "Бонусы и премии:"
+- list:
+  - listitem:
+    - text: —
+    - paragraph: Повышение зарплаты по мере роста компетенций (по результатам ассессмента Evrone Challenge);
+  - listitem:
+    - text: —
+    - paragraph: Премии за привлечение новых сотрудников и новых клиентов;
+  - listitem:
+    - text: —
+    - paragraph: Дополнительная премия за выступления на конференциях и митапах;
+  - listitem:
+    - text: —
+    - paragraph: У вас есть возможность принять участие в проведении технических интервью специалистов, которые могут стать вашими коллегами. Проведение интервью оплачивается.
+- paragraph:
+  - strong: "Обучение и рост компетенций:"
+- list:
+  - listitem:
+    - text: —
+    - paragraph: Проводим внутренние митапы по Frontend и мобильной разработке;
+  - listitem:
+    - text: —
+    - paragraph: У нас есть культура менторства. В повседневных задачах и планировании карьеры будет помогать наставник;
+  - listitem:
+    - text: —
+    - paragraph: Развивать профессиональный уровень можно с помощью системы ассессмента Evrone Challenge;
+  - listitem:
+    - text: —
+    - paragraph: Есть внутренняя библиотека с электронными книгами и записанными курсами.
+  - listitem:
+    - text: —
+    - paragraph: Мы активно участвуем в жизни коммьюнити и берем интервью у лидеров мнений.
+- paragraph:
+  - strong: Возможности посещения и участия в мероприятиях
+- list:
+  - listitem:
+    - text: —
+    - paragraph: Если вы хотите выступить на конференции, мы поможем вам подготовиться и оплатим все ваши расходы на поездку и участие;
+  - listitem:
+    - text: —
+    - paragraph: Мы также проводим собственные конференции и митапы и любим собираться на них всем нашим дружным коллективом. Разумеется, все расходы на это оплачиваются компанией.
+- paragraph:
+  - strong: Отдых и развиртуализация
+- paragraph: В Evrone есть несколько событий в году, которые собирают вместе весь наш коллектив. Поэтому, где бы вы ни находились, мы будем рады увидеться лично.
+- heading "Ключевые навыки" [level=2]
+- list:
+  - listitem: DevOps
+  - listitem: Kubernetes
+  - listitem: Git
+  - listitem: Ansible
+  - listitem: Terraform
+  - listitem: Prometheus
+  - listitem: Grafana
+  - listitem: Docker
+  - listitem: CI/CD
+  - listitem: Helm
+- heading "Соискателям с особенностями здоровья" [level=2]:
+  - text: Соискателям с особенностями здоровья
+  - button [e19]
+- list:
+  - listitem: Подходит людям с инвалидностью
+- heading "Задайте вопрос работодателю" [level=2]
+- text: Он получит его с откликом на вакансию
+- checkbox "Где располагается место работы?" [e20]
+- text: Где располагается место работы?
+- checkbox "Какой график работы?" [e21]
+- text: Какой график работы?
+- checkbox "Вакансия открыта?" [e22]
+- text: Вакансия открыта?
+- checkbox "Какая оплата труда?" [e23]
+- text: Какая оплата труда?
+- checkbox "Как с вами связаться?" [e24]
+- text: Как с вами связаться?
+- checkbox "Другой вопрос" [e25]
+- text: Другой вопрос
+- heading "Где предстоит работать" [level=2]
+- text: Запросить точный адрес Москва Вакансия опубликована 11 мая 2026 в Москве
+- button "Откликнуться" [e26]
+- button "Пожаловаться на вакансию" [e27]
+- text: Dream Job Отзывы о компании Не работает с отзывами 4,5 отлично 92% рекомендует
+- button "Оставить отзыв" [e28]
+- text: Что говорят сотрудники Подобрали отзывы по вашей профессии
+- button "DevOps инженер 4,8 Июнь 2025 Хорошее и качественное руководство (техдир выступает на конференциях, открыт к идеям в компании), есть DevRel, который помогает с подготовкой к митапам, хорошо платят и есть программа бенефитов. И приятная культура и атмосфера в компании в целом." [e29]
+- button "Хотите видеть здесь больше отзывов? Дайте знать об этом — попросим работодателя открыть их Показывайте больше отзывов" [e30]:
+  - text: Хотите видеть здесь больше отзывов? Дайте знать об этом — попросим работодателя открыть их
+  - button "Показывайте больше отзывов" [e31]
+- button "Все отзывы на Dream Job" [e32]
+- heading "Курсы по профессии «DevOps-инженер»" [level=6]
+- paragraph: Посмотрите на карьерной платформе от hh.ru
+- button "Посмотреть" [e33]
+- heading "Вам подойдут эти вакансии" [level=2]
+- 'button "Добавить в избранное Скрыть DevOps-инженер Опыт 1-3 года Можно удалённо ПАО Ростелеком 3.8 • 15642 отзыва Новосибирск Администрирование и оптимизация PostgreSQL: настройка бэкапов, репликации, мониторинг запросов, миграции между версиями. Настройка и развитие мониторинга на базе Prometheus и... Опыт работы DevOps-инженером от 1 года. Уверенное владение Linux (желательно Astra Linux) от 6 месяцев. Глубокое понимание работы и... Откликнуться Связаться"':
+  - button "Добавить в избранное" [e34]
+  - button "Скрыть" [e35]
+  - link "DevOps-инженер" [e36]:
+    - /url: https://spb.hh.ru/vacancy/132995841?hhtmFromLabel=suitable_vacancies&hhtmFrom=vacancy
+  - text: Опыт 1-3 года Можно удалённо
+  - link "ПАО Ростелеком" [e37]:
+    - /url: /employer/2748?hhtmFrom=vacancy
+  - link [e38]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - link [e39]:
+    - /url: http://hrbrand.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=icon&utm_term=applicant
+  - text: "3.8 • 15642 отзыва Новосибирск Администрирование и оптимизация PostgreSQL: настройка бэкапов, репликации, мониторинг запросов, миграции между версиями. Настройка и развитие мониторинга на базе Prometheus и... Опыт работы DevOps-инженером от 1 года. Уверенное владение Linux (желательно Astra Linux) от 6 месяцев. Глубокое понимание работы и..."
+  - button "Откликнуться" [e40]
+  - button "Связаться" [e41]
+- button "Добавить в избранное Скрыть DevOps-инженер (Junior+/Middle) Опыт 1-3 года Можно удалённо Вакансии Просвещение АО Просвещение 3.8 • 105 отзывов Москва ● Достоевская и еще 3 ● ● ● Сопровождение и развитие экосистемы сервисов, находящихся на поддержке отдела DevOps. Поддержка эффективного процесса CI/CD для информационных систем и ресурсов... Опыт в DevOps, функциональном или системном инжиниринге. Уверенное знание GNU/Linux и Docker. Опыт работы с CI/CD (предпочтительно GitLab... Откликнуться" [e42]:
+  - button "Добавить в избранное" [e43]
+  - button "Скрыть" [e44]
+  - link "DevOps-инженер (Junior+/Middle)" [e45]:
+    - /url: https://spb.hh.ru/vacancy/132174929?hhtmFromLabel=suitable_vacancies&hhtmFrom=vacancy
+  - text: Опыт 1-3 года Можно удалённо
+  - link "Вакансии Просвещение" [e46]:
+    - /url: /employer/536?hhtmFrom=vacancy
+    - img "Просвещение"
+  - link "АО Просвещение" [e47]:
+    - /url: /employer/536?hhtmFrom=vacancy
+  - link [e48]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - link [e49]:
+    - /url: https://rating.hh.ru/history/rating2025?utm_source=hh.ru&utm_medium=referral&utm_campaign=icon&utm_term=applicant
+  - text: 3.8 • 105 отзывов Москва ● Достоевская и еще 3 ● ● ● Сопровождение и развитие экосистемы сервисов, находящихся на поддержке отдела DevOps. Поддержка эффективного процесса CI/CD для информационных систем и ресурсов... Опыт в DevOps, функциональном или системном инжиниринге. Уверенное знание GNU/Linux и Docker. Опыт работы с CI/CD (предпочтительно GitLab...
+  - button "Откликнуться" [e50]
+- button "Добавить в избранное Скрыть Devops-инженер (Искусственный интеллект) Опыт 3-6 лет Можно удалённо ООО РСХБ-Интех 4.1 • 261 отзыв Москва ● Теплый Стан Разработка ci-cd пайплайнов. Администрирование платформы для разработки моделей машинного обучения (k8s, Docker, JupyterHub, GitLab, MLFlow, Airflow, PosgreSQL... Понимание основ работы операционных систем Linux. Опыт работы с Docker. Знание основ программирования на Bash и Python/Go. Откликнуться" [e51]:
+  - button "Добавить в избранное" [e52]
+  - button "Скрыть" [e53]
+  - link "Devops-инженер (Искусственный интеллект)" [e54]:
+    - /url: https://spb.hh.ru/vacancy/132987237?hhtmFromLabel=suitable_vacancies&hhtmFrom=vacancy
+  - text: Опыт 3-6 лет Можно удалённо
+  - link "ООО РСХБ-Интех" [e55]:
+    - /url: /employer/3131901?hhtmFrom=vacancy
+  - link [e56]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - text: 4.1 • 261 отзыв Москва ● Теплый Стан Разработка ci-cd пайплайнов. Администрирование платформы для разработки моделей машинного обучения (k8s, Docker, JupyterHub, GitLab, MLFlow, Airflow, PosgreSQL... Понимание основ работы операционных систем Linux. Опыт работы с Docker. Знание основ программирования на Bash и Python/Go.
+  - button "Откликнуться" [e57]
+- button "Добавить в избранное Скрыть DevOps-инженер Опыт 1-3 года Вакансии Протей, НТЦ Протей, НТЦ 4.6 • 260 отзывов Санкт-Петербург ● Выборгская Разработка CI/CD процессов. Написание сценариев terraform для автоматического деплоя инфраструктуры в среде виртуализации. Написание ролей Ansible для формирования образов... Глубокое знание ОС Linux. Понимание основ виртуализации. Опыт работы с Cloud решениями. Опыт работы с Ansible. Опыт работы с Terraform. Откликнуться" [e58]:
+  - button "Добавить в избранное" [e59]
+  - button "Скрыть" [e60]
+  - link "DevOps-инженер" [e61]:
+    - /url: https://spb.hh.ru/vacancy/132560129?hhtmFromLabel=suitable_vacancies&hhtmFrom=vacancy
+  - text: Опыт 1-3 года
+  - link "Вакансии Протей, НТЦ" [e62]:
+    - /url: /employer/22863?hhtmFrom=vacancy
+    - img "Протей, НТЦ"
+  - link "Протей, НТЦ" [e63]:
+    - /url: /employer/22863?hhtmFrom=vacancy
+  - link [e64]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - text: 4.6 • 260 отзывов Санкт-Петербург ● Выборгская Разработка CI/CD процессов. Написание сценариев terraform для автоматического деплоя инфраструктуры в среде виртуализации. Написание ролей Ansible для формирования образов... Глубокое знание ОС Linux. Понимание основ виртуализации. Опыт работы с Cloud решениями. Опыт работы с Ansible. Опыт работы с Terraform.
+  - button "Откликнуться" [e65]
+- button "Добавить в избранное Скрыть Администратор DevOps Опыт 1-3 года Можно удалённо Вакансии Русский Свет - IT Русский Свет - IT 3.7 • 735 отзывов Тверь, р-н Московский Поддержка и развитие инфраструктуры на базе Deckhouse Kubernetes Platform, GitLab и Docker / Docker Compose. Настройка и сопровождение CI/CD пайплайнов... Уверенное знание и практический опыт работы с Linux. Базовое понимание принципов информационной безопасности. Базовое понимание принципов работы сетей. Откликнуться" [e66]:
+  - button "Добавить в избранное" [e67]
+  - button "Скрыть" [e68]
+  - link "Администратор DevOps" [e69]:
+    - /url: https://spb.hh.ru/vacancy/132760049?hhtmFromLabel=suitable_vacancies&hhtmFrom=vacancy
+  - text: Опыт 1-3 года Можно удалённо
+  - link "Вакансии Русский Свет - IT" [e70]:
+    - /url: /employer/162038?dpt=162038-162038-it&hhtmFrom=vacancy
+    - img "Русский Свет - IT"
+  - link "Русский Свет - IT" [e71]:
+    - /url: /employer/162038?dpt=162038-162038-it&hhtmFrom=vacancy
+  - link [e72]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - link [e73]:
+    - /url: https://rating.hh.ru/history/rating2025?utm_source=hh.ru&utm_medium=referral&utm_campaign=icon&utm_term=applicant
+  - text: 3.7 • 735 отзывов Тверь, р-н Московский Поддержка и развитие инфраструктуры на базе Deckhouse Kubernetes Platform, GitLab и Docker / Docker Compose. Настройка и сопровождение CI/CD пайплайнов... Уверенное знание и практический опыт работы с Linux. Базовое понимание принципов информационной безопасности. Базовое понимание принципов работы сетей.
+  - button "Откликнуться" [e74]
+- 'button "Добавить в избранное Скрыть DevOps Опыт 1-3 года Вакансии Банк Санкт-Петербург ПАО Банк Санкт-Петербург 4.0 • 738 отзывов Санкт-Петербург ● Новочеркасская Обеспечение бесперебойной работы систем Интернет-банк и Сайт Банка. Настройка проактивного мониторинга сервисов и инфраструктуры. Написание и поддержание работоспособности CI... Знания на уровне администратора ОС семейства Linux/Unix. Понимание сетевых технологий: DNS, Load Balancing, NAT, VPN, TCP/IP. Откликнуться Связаться"':
+  - button "Добавить в избранное" [e75]
+  - button "Скрыть" [e76]
+  - link "DevOps" [e77]:
+    - /url: https://spb.hh.ru/vacancy/132081023?hhtmFromLabel=suitable_vacancies&hhtmFrom=vacancy
+  - text: Опыт 1-3 года
+  - link "Вакансии Банк Санкт-Петербург" [e78]:
+    - /url: /employer/3783?hhtmFrom=vacancy
+    - img "Банк Санкт-Петербург"
+  - link "ПАО Банк Санкт-Петербург" [e79]:
+    - /url: /employer/3783?hhtmFrom=vacancy
+  - link [e80]:
+    - /url: https://feedback.hh.ru/article/details/id/5951
+  - link [e81]:
+    - /url: https://rating.hh.ru/history/rating2025?utm_source=hh.ru&utm_medium=referral&utm_campaign=icon&utm_term=applicant
+  - text: "4.0 • 738 отзывов Санкт-Петербург ● Новочеркасская Обеспечение бесперебойной работы систем Интернет-банк и Сайт Банка. Настройка проактивного мониторинга сервисов и инфраструктуры. Написание и поддержание работоспособности CI... Знания на уровне администратора ОС семейства Linux/Unix. Понимание сетевых технологий: DNS, Load Balancing, NAT, VPN, TCP/IP."
+  - button "Откликнуться" [e82]
+  - button "Связаться" [e83]
+- heading "Вакансии из других подборок" [level=3]
+- list:
+  - listitem:
+    - link "Инженер Linux" [e84]:
+      - /url: /vacancies/inzhener_linux
+  - listitem:
+    - link "Инженер систем мониторинга" [e85]:
+      - /url: /vacancies/inzhener-sistem-monitoringa
+  - listitem:
+    - link "DevOps" [e86]:
+      - /url: /vacancies/devops
+  - listitem:
+    - link "DevOps engineer" [e87]:
+      - /url: /vacancies/devops-engineer
+  - listitem:
+    - link "Системный инженер DevOps" [e88]:
+      - /url: /vacancies/sistemnyj-inzhener-devops
+  - listitem:
+    - link "Senior DevOps engineer" [e89]:
+      - /url: /vacancies/senior-devops-engineer
+  - listitem:
+    - link "Ведущий DevOps-инженер" [e90]:
+      - /url: /vacancies/veduschij-devops-inzhener
+  - listitem:
+    - link "Junior DevOps engineer" [e91]:
+      - /url: /vacancies/junior-devops-engineer
+  - listitem:
+    - link "Site reliability engineer" [e92]:
+      - /url: /vacancies/site-reliability-engineer
+  - listitem:
+    - link "DevOps-специалист" [e93]:
+      - /url: /vacancies/devops-spetsialist
+- link "evrone.ru" [e94]:
+  - /url: /employer/598471?hhtmFrom=vacancy
+  - img "evrone.ru"
+- link "evrone.ru" [e95]:
+  - /url: /employer/598471?hhtmFrom=vacancy
+- link [e96]:
+  - /url: https://feedback.hh.ru/article/details/id/5951
+- text: 4,5
+- button "37 отзывов" [e97]
+- link "Сборщик заказов на склад м. Студенческая от 78 400 до 134 400 ₽ Без опыта Гибкий график Сборщик заказов на склад м. Студенческая ВкусВилл. Даркстор От 78400 руб. до 134400 руб., без опыта, нет штрафов, питание, рядом с домом, ЛМК Перейти" [e98]:
+  - /url: https://adsrv.hh.ru/hb/click?b=2016968&meta=Lh6NuYQRRZRT9iyiUAHvt64jWxw7R2aGvFdFC-O9CfJTyRlUqMU5LxTruioTrNvEh4SskQb7aItotbrlBlgabGcOZ1HeHvZw3MvDIMc2ILamygllnWO_RnzeeYIYkrtHAxNwkTfzK2ZU_ILBLfpL_Mq71F5ymHgsvhXs8-l2SelF4tfkCbu-KwdqEvQgAzUkpdomz3rCwqVKDQ5LIGpjchEYOcY602i29u_nFJr_ARioEW89JjfoN2J_E_pcILK8NF1moUk4sb5q_isjuMuIeHkevlwikfiqYt9_HkEJN83HymPC882b-0z6jDFT-2bLbXF6kaAeXGytgV7Y-c4IYDKXQYnWjAidigJOHmmIYtUVzGtJpZ4zFOY2JhpP4sZZ1ltJ2yXn34JjIrt2qom9ZGHpf1i77M_Dkac9OKuR-bM3KXJ7xP3-df0l_Ttl3M9LFVn5FJRsDVvGlw4wnZXxdgEiOcmtvECe9sOWRvMdyr0qDc6VOscAH8ihJHU8UAQ5ycRuvwKA_qHyFoOMhvJgsWm5-oWODvdykN28qoVkHlhvygLqFnCTAh87d3XFMf-4zk8vJNJe35rCBiNvccBk07O0m61ed2PeQR1QbrIefJE3dj2_ug6A9uBQH-Q-MEaeAguN041gxml5mltF4BK28Lg-DN089HjQhWY9L8O1eN49Ahw7uHZ37XLrYUnX-GCNGDofeypq_5jDbErZpC41ISMqrFOQ-O4LZhikZfbqfenHYazRTGU2uuh436_NJe5fPAwsDQsYZsbnOzd2pM7O10OAexDrKUC1M9QazRe9RxYaB890-fjyhO5WKGjGZQ6une22NBORyZO9M5WM4i2sKeA5M2K0F--xMI1GkIGIy1t7AXmjOdeaVRa1Xo96_WL8k2jvi9AlPnWWlKXPJd5NDWn7KE_WSNaqTM-2DqwdlBxwrOdIvSMEACcPxv94tjIxWaracEBBSdCo9pu3GTbPMvODS39X-1As92EP1dqcJVkxxMQEH1HHVSe0hKYqwMIjELIc5bv_XmmJAfTOazzwLVlR0HvmpbdicflP3F_ufUw%3D
+  - text: Сборщик заказов на склад м. Студенческая от 78 400 до 134 400 ₽ Без опыта Гибкий график
+  - img "Сборщик заказов на склад м. Студенческая"
+  - text: ВкусВилл. Даркстор От 78400 руб. до 134400 руб., без опыта, нет штрафов, питание, рядом с домом, ЛМК
+  - button "Перейти" [e99]
+- link "Продавец-консультант м. Улица 1905 года От 90000 руб. до 110000 руб., нет штрафов, без опыта, рядом с домом, питание, ЛМК Продавец-консультант м. Улица 1905 года Без опыта · Гибкий график" [e100]:
+  - /url: https://adsrv.hh.ru/hb/click?b=2017039&meta=8Pw3h_1GrSTrCRjJIbaaMtl0Hy0yeb4lobszdAVj2miq30N0LyF6UxqPjuEHrRhiMl7kg7dT3uCirKKkQKdHX5oyuekJzfv-zRj2KhOYbGaBcKL8ZGly_qz1GB9cFPYoLHFH1XntG7ypiTIQjjwRQvN7c3x9awSp3FfoV8nh7L1M8JarX4RLTOqA94CT64QKvgZgqMqVEcEQVBMfRFwfWuWbmuCiJZOsVlYHjvHxflBeA5WZx6H5ZmTYrsIHmoWamuK6m3yRxdT0D-DFLQrw7FFs76j96LyM6QixDt6L3ZpdsgPTm3KJQq3rcZ7HacfOIm0WH-k9FMCI6LiTyhR4LSdigzjpLqPba_wmrqr9ZhoNEbqLkFlPxtEtG6G5bPNwEKSD3c_97zIVq9ulG26cfGceHaImCfopqxvgi8XFMAqM71ntzFurR6S-HWMpHVxO8oTkukrzAvjV-oSD-xmByS1jBPY9F_27Urg2EmZXQRqoxHquep9Rbqhfv5mXLCnUJnVg7KlpBYLJ6B7U1j5zqznPLIGlcQk4DC28E8Te09gaH2vYk9KRQy-S8Eab8pJII91LVq3AtsCQ5cdqcYjgdbHWRScAlOeg3Zw93rdWKjLxtXHezX-gbRbgskp7bHz10-90KdsrnWyYotIAsQa-sNzrxudkuuA3K6MMu_yMWs0WRZ81MhcoyC_KV94BXyjabY-cmG6_1J0l9hUJMvBF4322tPeagCQ-lVC5z3xpSsmUoYK699wwqvz9RN7bcgErHn_IRMGjjQkeAJ83cCDrzRiLc1d7pL_QR-J37WILi2EM6mQZu9aOhds0D2-4KURZ2tS3k3UtD2FS4Ip7szU7pAb2k3A9juErllnVsa9nThpk9qu3lJU9OQ1yWBWwETzArMmkpw6JD35-_qnTrjJfG8uVQkZpzTt8Q2DX7nStpsQvG-5oYspQ_joD0rsvgcqGJk8fnwiyUSwHRkoP1g5LVr_-J0sDgqP2BP5CbaoTDiTorEeYOMVLAnLEo806pUezd14wncnQYLlOfDdbr5U5Xw%3D%3D
+  - text: Продавец-консультант м. Улица 1905 года От 90000 руб. до 110000 руб., нет штрафов, без опыта, рядом с домом, питание, ЛМК
+  - img "Продавец-консультант м. Улица 1905 года"
+  - text: Без опыта · Гибкий график
+- link "Продавец-консультант м. Филатов луг От 80000 руб. до 100000 руб., нет штрафов, без опыта, рядом с домом, питание, ЛМК Продавец-консультант м. Филатов луг Без опыта · Гибкий график" [e101]:
+  - /url: https://adsrv.hh.ru/hb/click?b=2017149&meta=VlMOl_aBpQU3U_qzSkORTydLOFcT_EBoEVyqOsLiF3OmW3tLw5jJFpxUafLq4WXQyWExdObjAUTsXBHIbeb0M2oLryBxpa5hyfvFrDrFmhwQMEiXgW0BUMMY4kIW8YcF74ENO3UnfPxWhqE39DictHvExwRdPRRaGlpwTAr56zQSGAXjViycGebEONUrHcOnSvY2iMw5Szz0Wicn1ITGhbRkTqyQnem5g-jFfaqivbJFifOLKNTKLKTyYFxns8ryPvGpeeH_lUIYn1i593xbfh-0WrVAth3f16i5KIEZmuwofwTixq_gRFFGPahzwvTJOuPttjSpkvoYy3yWIPyrsVCae6KaZhA43xFVAEpHeEDtHLnvBAdx23uMq2Fk5etsasbCzpiavyiOUXOrY2ZrfF4OYHX2t8t13PlZ0f7ZzcUtBYvb011TnJM38n4r2Uim04N_qaNgNjnHpvOLD-J13FypeAO2Ch4cfCbVOs_690465ZR7ER5lM0qqSfvka6NhZzaStyYATju1i4jEsfE5T3jtRuzqmDRzN5lpdQdIoAN3611ncBlLGgyOQvKUam-pZJNhCSyQ6XYkFX2RWnI4NztSCcyqlBVNOETd3aVmC00hiz19VcHlutF9_tTRiwZXxLTQz1I6CVKgXLT9sSeYTzzYwAZem9TA33WChYidmhznfEkp8ov3tXkvfv1DxXXLO9o0SE6Vs1iu2wLT1Su-4XHpqIAatv4mKiAl_LGAl6K2TtbhLWrWsAwEtx8tSK8WpS3PhnsEFZP4u5rUjvVRo6Qs-kYKOpUwDb_zMqALh9_67IR_uMW-dM6Q65cMPVkeHtCS6JaSDbBTBerL-f5NyVuq2T-65Pnc2gfsr7Qy3LsqeGe0PVTJXBHOWgQkGbs96BIOiTdhnqHbVBkfTTUg-fIoHkg5yIq6--WLoAnzy3ZiQ39GSvOWps_xP8y8sCkaE0Bt5JzT026v-VfxGLPxq-gplqyOmFD6p9Gm7SUvopyJ5KOlF-j1Dv0js8KSMduh5Aknos8RqGtuWtSQflG0wg%3D%3D
+  - text: Продавец-консультант м. Филатов луг От 80000 руб. до 100000 руб., нет штрафов, без опыта, рядом с домом, питание, ЛМК
+  - img "Продавец-консультант м. Филатов луг"
+  - text: Без опыта · Гибкий график
+- text: Вам могут подойти эти вакансии
+- link "DevOps-инженер з/п не указана" [e102]:
+  - /url: /vacancy/132995841?hhtmFromLabel=suitable_vacancies_sidebar&hhtmFrom=vacancy
+- link "Ростелеком Ростелеком" [e103]:
+  - /url: /employer/2748?hhtmFrom=vacancy
+  - img "Ростелеком"
+  - text: Ростелеком
+- link "DevOps-инженер (Junior+/Middle) з/п не указана" [e104]:
+  - /url: /vacancy/132174929?hhtmFromLabel=suitable_vacancies_sidebar&hhtmFrom=vacancy
+- link "Просвещение Просвещение" [e105]:
+  - /url: /employer/536?hhtmFrom=vacancy
+  - img "Просвещение"
+  - text: Просвещение
+- text: Еще 1 000 подходящих вакансий HeadHunter
+- list:
+  - listitem:
+    - link "О компании" [e106]:
+      - /url: /article/28?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Наши вакансии" [e107]:
+      - /url: /employer/1455?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Реклама на сайте" [e108]:
+      - /url: /article/promoproducts?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Требования к ПО" [e109]:
+      - /url: /article/176?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Безопасный HeadHunter" [e110]:
+      - /url: /safety?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "HeadHunter API" [e111]:
+      - /url: https://dev.hh.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+  - listitem:
+    - link "Партнерам" [e112]:
+      - /url: /partners?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Инвесторам" [e113]:
+      - /url: https://investor.hh.ru/
+  - listitem:
+    - link "Каталог компаний" [e114]:
+      - /url: /employers_company?hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Поиск по вакансиям в Санкт-Петербурге" [e115]:
+      - /url: /vacancies
+  - listitem:
+    - link "Работа рядом с метро" [e116]:
+      - /url: /metro?hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - 'button "Сетка: соцсеть для нетворкинга"'
+- text: Соискателям
+- list:
+  - listitem:
+    - link "hh PRO" [e117]:
+      - /url: /applicant-services/hhpro?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Готовое резюме" [e118]:
+      - /url: /article/expert_resume?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Все сервисы" [e119]:
+      - /url: /services?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Профориентация" [e120]:
+      - /url: /article/proforientation_promo?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Хочу у вас работать" [e121]:
+      - /url: /applicant-services/hhpro?rte=true&from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Производственный календарь" [e122]:
+      - /url: /calendar?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Экспертная рекомендация" [e123]:
+      - /url: /article/resume_audit?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+- text: Новости и статьи
+- list:
+  - listitem:
+    - link "Рынок труда" [e124]:
+      - /url: /articles/labour-market?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "О компаниях в игровой форме" [e125]:
+      - /url: /articles/guide-to-companies/special-projects?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Жизнь в компании" [e126]:
+      - /url: /articles/guide-to-companies/insider?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "ИТ-проекты" [e127]:
+      - /url: /articles/guide-to-companies/it-projects?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Рейтинг работодателей России" [e128]:
+      - /url: https://rating.hh.ru/poll?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+- text: Молодым специалистам
+- list:
+  - listitem:
+    - link "Карьера для молодых специалистов" [e129]:
+      - /url: /students?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Школа программистов" [e130]:
+      - /url: http://school.hh.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+  - listitem:
+    - link "Карьера в некоммерческих организациях" [e131]:
+      - /url: https://nko.hh.ru/?utm_source=hh.ru&utm_medium=referral&utm_campaign=from_footer_new
+- list:
+  - listitem:
+    - text: Боты для уведомлений
+    - button "chatBotTelegram" [e132]:
+      - img "chatBotTelegram"
+    - button "chatBotViber" [e133]:
+      - img "chatBotViber"
+    - button "chatBotVk" [e134]:
+      - img "chatBotVk"
+- text: Мобильное приложение
+- list:
+  - listitem:
+    - link "Этика и комплаенс" [e135]:
+      - /url: /article/compliance?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Оказание услуг" [e136]:
+      - /url: /conditions?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Использование сайтов" [e137]:
+      - /url: /terms?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Защита персональных данных" [e138]:
+      - /url: /article/personal_data?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "Пользовательское соглашение" [e139]:
+      - /url: /account/agreement?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+  - listitem:
+    - link "ИТ аккредитация" [e140]:
+      - /url: /article/it-accreditation?from=footer_new&hhtmFromLabel=footer_new&hhtmFrom=vacancy
+- text: На информационном ресурсе hh.ru
+- link "применяются рекомендательные технологии" [e141]:
+  - /url: /article/recommendation_technologies?hhtmFrom=vacancy
+- text: (информационные технологии предоставления информации на основе сбора, систематизации и анализа сведений, относящихся к предпочтениям пользователей сети «Интернет», находящихся на территории Российской Федерации)
+- button [e142]
+- button "vk" [e143]:
+  - img "vk"
+- button "dzen" [e144]:
+  - img "dzen"
+- button "telegram" [e145]:
+  - img "telegram"
+- list:
+  - listitem:
+    - button "Русский" [e146]
+- text: © 2026 ООО «Хэдхантер» Откликайтесь, чтобы работодатель заметил вас и смог пригласить на собеседование
+- link "Откликнуться" [e147]:
+  - /url: /applicant/vacancy_response?vacancyId=132616454&employerId=598471&hhtmFrom=vacancy
+- button "Закрыть" [e148]
+- img
+- iframe
+- iframe

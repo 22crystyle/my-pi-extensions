@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "rule_mp2o3827_en151zp",
+      "enabled": true,
+      "kind": "subtree",
+      "name": "Область вокруг: Откликнуться",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-12T13:29:22.062Z",
+      "updatedAt": "2026-05-12T13:29:22.062Z",
+      "selector": "a[data-qa=\"vacancy-serp__vacancy_response\"]",
+      "createdFrom": {
+        "candidateLabel": "Откликнуться",
+        "candidateRole": "button",
+        "candidateSelector": "a[data-qa=\"vacancy-serp__vacancy_response\"]",
+        "boundary": "self",
+        "createdAtUrl": "https://spb.hh.ru/"
+      }
+    }
+  ]
+}
