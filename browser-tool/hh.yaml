@@ -1,8 +1,0 @@
-{
-  "url": "https://spb.hh.ru/",
-  "snapshot": "- button \"Откликнуться\" [p1]:\n  - /url: /applicant/vacancy_response?vacancyId=132174929&employerId=536&hhtmFrom=main\n- button \"Откликнуться\" [p2]:\n  - /url: /applicant/vacancy_response?vacancyId=132995841&employerId=2748&hhtmFrom=main\n- button \"Откликнуться\" [p3]:\n  - /url: /applicant/vacancy_response?vacancyId=132616454&employerId=598471&hhtmFrom=main\n- button \"Откликнуться\" [p4]:\n  - /url: /applicant/vacancy_response?vacancyId=132998230&employerId=11973796&hhtmFrom=main\n- button \"Откликнуться\" [p5]:\n  - /url: /applicant/vacancy_response?vacancyId=133006490&employerId=6164545&hhtmFrom=main\n- button \"Откликнуться\" [p6]:\n  - /url: /applicant/vacancy_response?vacancyId=133006787&employerId=64474&hhtmFrom=main",
-  "refsCount": 6,
-  "truncated": false,
-  "totalChars": 716,
-  "hasMore": false
-}
