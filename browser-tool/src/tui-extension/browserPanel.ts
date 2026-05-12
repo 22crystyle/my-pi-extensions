@@ -5,7 +5,7 @@ import type { BrowserToolService } from "../core/browserToolService";
 import type { BrowserRule, BrowserSnapshotInput, BrowserSnapshotResult, SelectorCandidate } from "../core/types";
 import { formatPageMatcher, pageMatcherKey } from "../core/pageMatcher";
 import { fuzzyMatch, truncateMiddle } from "../core/utils";
-import { isBackspace, isEnter, isPrintable, Keys, truncateLine } from "../core/keyboard";
+import { Input, Key, matchesKey, truncateToWidth } from "@mariozechner/pi-tui";
 import { pickPageScope } from "./scopePicker";
 import { boundaryLocatorFromCandidate } from "../core/selectorEngine";
 
@@ -171,6 +171,19 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
     let selected = 0;
     let filter = "";
     let filterMode = false;
+    const filterInput = new Input();
+    filterInput.onSubmit = (value) => {
+      filter = value;
+      filterMode = false;
+      selected = 0;
+      tui.requestRender();
+    };
+    filterInput.onEscape = () => {
+      filter = filterInput.getValue();
+      filterMode = false;
+      selected = 0;
+      tui.requestRender();
+    };
 
     const themed = {
       title: (s: string) => theme.fg("accent", theme.bold(s)),
@@ -203,7 +216,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         selectedItem();
         const lines: string[] = [];
         lines.push(themed.title("Browser Tool") + themed.dim(`  ${state.camofoxBaseUrl}`));
-        lines.push(`${tab === "rules" ? themed.success("[Rules]") : " Rules "} ${tab === "candidates" ? themed.success("[Candidates]") : " Candidates "}  ${filterMode ? themed.warning("/") : "/"}${filter}`);
+        lines.push(`${tab === "rules" ? themed.success("[Rules]") : " Rules "} ${tab === "candidates" ? themed.success("[Candidates]") : " Candidates "}  ${filterMode ? themed.warning("/") : "/"}${filterMode ? filterInput.getValue() : filter}`);
         lines.push(themed.dim("tab switch • ↑↓ select • / filter • c config • esc close"));
         lines.push(themed.dim(tab === "rules" ? "space toggle • e toggle all • d delete • a manual • p preview" : "enter boundary picker • r refresh"));
         lines.push("─".repeat(Math.max(1, Math.min(width, 80))));
@@ -224,7 +237,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
             const count = item.candidate.occurrences.length > 1 ? `  ${item.candidate.occurrences.length} matches` : "";
             text = `${prefix}${marker} ${item.candidate.label}: ${item.candidate.kind}: ${item.candidate.selector}${count}`;
           }
-          lines.push(isSelected ? themed.selected(truncateLine(text, width)) : truncateLine(text, width));
+          lines.push(isSelected ? themed.selected(truncateToWidth(text, width)) : truncateToWidth(text, width));
           actionIndex++;
           if (lines.length > 28) {
             lines.push(themed.dim(`… ${Math.max(0, actionable().length - actionIndex)} more`));
@@ -235,35 +248,34 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         if (actionable().length === 0) {
           lines.push(themed.dim(tab === "rules" ? "No rules. Press a to add a manual subtree rule or switch to Candidates." : "No candidates. Open a browser tab or press r to refresh."));
         }
-        return lines.map((line) => truncateLine(line, width));
+        return lines.map((line) => truncateToWidth(line, width));
       },
       invalidate() {},
       handleInput(data: string) {
         if (filterMode) {
-          if (isEnter(data) || data === Keys.escape) filterMode = false;
-          else if (isBackspace(data)) filter = filter.slice(0, -1);
-          else if (isPrintable(data)) filter += data;
+          filterInput.handleInput(data);
+          filter = filterInput.getValue();
           selected = 0;
           tui.requestRender();
           return;
         }
 
-        if (data === Keys.escape) return done({ type: "close" });
-        if (data === Keys.tab) { tab = tab === "rules" ? "candidates" : "rules"; selected = 0; tui.requestRender(); return; }
-        if (data === "/") { filterMode = true; tui.requestRender(); return; }
-        if (data === "c") return done({ type: "config" });
-        if (data === "r" && tab === "candidates") return done({ type: "refresh" });
-        if (data === Keys.up) { selected = Math.max(0, selected - 1); tui.requestRender(); return; }
-        if (data === Keys.down) { selected = Math.min(Math.max(0, actionable().length - 1), selected + 1); tui.requestRender(); return; }
+        if (matchesKey(data, Key.escape)) return done({ type: "close" });
+        if (matchesKey(data, Key.tab)) { tab = tab === "rules" ? "candidates" : "rules"; selected = 0; tui.requestRender(); return; }
+        if (matchesKey(data, Key.slash)) { filterInput.setValue(filter); filterMode = true; tui.requestRender(); return; }
+        if (matchesKey(data, "c")) return done({ type: "config" });
+        if (matchesKey(data, "r") && tab === "candidates") return done({ type: "refresh" });
+        if (matchesKey(data, Key.up)) { selected = Math.max(0, selected - 1); tui.requestRender(); return; }
+        if (matchesKey(data, Key.down)) { selected = Math.min(Math.max(0, actionable().length - 1), selected + 1); tui.requestRender(); return; }
 
         const current = selectedItem();
         if (tab === "rules") {
-          if (data === "e") return done({ type: "toggle_all" });
-          if (data === "a") return done({ type: "manual_rule" });
-          if (current?.type === "rule" && data === " ") return done({ type: "toggle_rule", ruleId: current.rule.id });
-          if (current?.type === "rule" && data === "d") return done({ type: "delete_rule", ruleId: current.rule.id });
-          if (current?.type === "rule" && data === "p") return done({ type: "preview_rule", rule: current.rule });
-        } else if (current?.type === "candidate" && isEnter(data)) {
+          if (matchesKey(data, "e")) return done({ type: "toggle_all" });
+          if (matchesKey(data, "a")) return done({ type: "manual_rule" });
+          if (current?.type === "rule" && matchesKey(data, Key.space)) return done({ type: "toggle_rule", ruleId: current.rule.id });
+          if (current?.type === "rule" && matchesKey(data, "d")) return done({ type: "delete_rule", ruleId: current.rule.id });
+          if (current?.type === "rule" && matchesKey(data, "p")) return done({ type: "preview_rule", rule: current.rule });
+        } else if (current?.type === "candidate" && matchesKey(data, Key.enter)) {
           return done({ type: "boundary", candidate: current.candidate });
         }
       },
@@ -373,26 +385,26 @@ async function openBoundaryPicker(ctx: ExtensionContext, service: BrowserToolSer
         } else {
           lines.push("Manual mode adds a subtree rule from a custom selector.");
         }
-        return lines.map((line) => truncateLine(line, width));
+        return lines.map((line) => truncateToWidth(line, width));
       },
       invalidate() {},
       handleInput(data: string) {
         const mode = modes[modeIndex];
-        if (data === Keys.escape) return done(undefined);
-        if (data === Keys.left) { modeIndex = Math.max(0, modeIndex - 1); tui.requestRender(); return; }
-        if (data === Keys.right || data === Keys.tab) { modeIndex = Math.min(modes.length - 1, modeIndex + 1); tui.requestRender(); return; }
-        if (data === Keys.up) {
+        if (matchesKey(data, Key.escape)) return done(undefined);
+        if (matchesKey(data, Key.left)) { modeIndex = Math.max(0, modeIndex - 1); tui.requestRender(); return; }
+        if (matchesKey(data, Key.right) || matchesKey(data, Key.tab)) { modeIndex = Math.min(modes.length - 1, modeIndex + 1); tui.requestRender(); return; }
+        if (matchesKey(data, Key.up)) {
           if (mode === "subtree") boundaryIndex = Math.max(0, boundaryIndex - 1);
           else if (mode === "range") endIndex = Math.max(0, endIndex - 1);
           tui.requestRender(); return;
         }
-        if (data === Keys.down) {
+        if (matchesKey(data, Key.down)) {
           if (mode === "subtree") boundaryIndex = Math.min(boundaries.length - 1, boundaryIndex + 1);
           else if (mode === "range") endIndex = Math.min(Math.max(0, samePage.slice(0, 20).length - 1), endIndex + 1);
           tui.requestRender(); return;
         }
-        if (data === "p") return done({ action: "preview", mode, boundary: boundaries[boundaryIndex], endCandidate: samePage[endIndex] });
-        if (isEnter(data)) return done({ action: "add", mode, boundary: boundaries[boundaryIndex], endCandidate: samePage[endIndex] });
+        if (matchesKey(data, "p")) return done({ action: "preview", mode, boundary: boundaries[boundaryIndex], endCandidate: samePage[endIndex] });
+        if (matchesKey(data, Key.enter)) return done({ action: "add", mode, boundary: boundaries[boundaryIndex], endCandidate: samePage[endIndex] });
       },
     };
     return component;
@@ -471,23 +483,23 @@ async function showSnapshotResult(ctx: ExtensionContext, result: BrowserSnapshot
           theme.fg("dim", "↑↓/j/k scroll • g/G top/bottom • e put exact JSON in editor • y put YAML snapshot in editor • esc close"),
           "─".repeat(Math.max(1, Math.min(width, 80))),
         ];
-        for (const line of lines.slice(scroll, scroll + pageSize)) rendered.push(truncateLine(line, width));
+        for (const line of lines.slice(scroll, scroll + pageSize)) rendered.push(truncateToWidth(line, width));
         if (lines.length > pageSize) rendered.push(theme.fg("dim", `─ ${scroll + 1}-${Math.min(lines.length, scroll + pageSize)} of ${lines.length} lines`));
         return rendered;
       },
       invalidate() {},
       handleInput(data: string) {
-        if (data === Keys.escape || data === "q") return done(undefined);
-        if (data === Keys.down || data === "j") { scroll += 1; clampScroll(); tui.requestRender(); return; }
-        if (data === Keys.up || data === "k") { scroll -= 1; clampScroll(); tui.requestRender(); return; }
-        if (data === "g") { scroll = 0; tui.requestRender(); return; }
-        if (data === "G") { scroll = maxScroll(); tui.requestRender(); return; }
-        if (data === "e") {
+        if (matchesKey(data, Key.escape) || matchesKey(data, "q")) return done(undefined);
+        if (matchesKey(data, Key.down) || matchesKey(data, "j")) { scroll += 1; clampScroll(); tui.requestRender(); return; }
+        if (matchesKey(data, Key.up) || matchesKey(data, "k")) { scroll -= 1; clampScroll(); tui.requestRender(); return; }
+        if (matchesKey(data, "g")) { scroll = 0; tui.requestRender(); return; }
+        if (matchesKey(data, Key.shift("g"))) { scroll = maxScroll(); tui.requestRender(); return; }
+        if (matchesKey(data, "e")) {
           ctx.ui.setEditorText(exactToolText);
           ctx.ui.notify("Inserted exact browser_snapshot tool result into editor", "info");
           return;
         }
-        if (data === "y") {
+        if (matchesKey(data, "y")) {
           ctx.ui.setEditorText(result.snapshot);
           ctx.ui.notify("Inserted browser snapshot YAML into editor", "info");
           return;
@@ -501,12 +513,12 @@ async function showText(ctx: ExtensionContext, title: string, text: string): Pro
   await ctx.ui.custom<void>((_tui, theme, _keybindings, done) => ({
     render(width: number) {
       const lines = [theme.fg("accent", theme.bold(title)), theme.fg("dim", "enter/esc close"), "─".repeat(Math.max(1, Math.min(width, 80)))];
-      for (const line of text.split(/\r?\n/).slice(0, 40)) lines.push(truncateLine(line, width));
+      for (const line of text.split(/\r?\n/).slice(0, 40)) lines.push(truncateToWidth(line, width));
       if (text.split(/\r?\n/).length > 40) lines.push(theme.fg("dim", "… preview truncated"));
       return lines;
     },
     invalidate() {},
-    handleInput(data: string) { if (isEnter(data) || data === Keys.escape) done(undefined); },
+    handleInput(data: string) { if (matchesKey(data, Key.enter) || matchesKey(data, Key.escape)) done(undefined); },
   }));
 }
 

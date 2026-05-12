@@ -22,7 +22,7 @@
 - `src/storage/` — workspace-specific storage:
   - `.pi/browser/rules.json`
   - `.pi/browser/ui-state.json`
-- `src/tui-extension/` — TUI panel для Rules/Candidates, boundary picker и выбор page scope.
+- `src/tui-extension/` — TUI panel для Rules/Candidates, boundary picker и выбор page scope; custom input/rendering обрабатывается напрямую через API `@mariozechner/pi-tui`.
 
 ## Snapshot flow
 
