@@ -242,9 +242,25 @@ export class BrowserToolService {
     const occurrence = input.candidate.occurrences[0];
     let selector = input.customSelector || input.candidate.selector;
     const boundary = input.boundary ?? "self";
-    if (!input.customSelector && boundary !== "self" && provider.deriveAncestorSelector && occurrence) {
+    if (!input.customSelector && boundary !== "self" && !provider.deriveAncestorSelector) {
+      throw new BrowserToolError("provider_error", `Provider cannot build ${boundary} selectors from DOM results.`);
+    }
+    if (!input.customSelector && boundary !== "self" && !occurrence) {
+      throw new BrowserToolError("provider_error", `Unable to build ${boundary} selector without a candidate occurrence.`);
+    }
+    if (!input.customSelector && provider.deriveAncestorSelector && occurrence) {
       const levels = boundary === "parent" ? 1 : boundary === "parent+1" ? 2 : boundary === "parent+2" ? 3 : 0;
-      selector = (await provider.deriveAncestorSelector({ tabId: occurrence.tabId, selector: input.candidate.selector, levels })) ?? selector;
+      const derived = await provider.deriveAncestorSelector({
+        tabId: occurrence.tabId,
+        selector: occurrence.selector || input.candidate.selector,
+        levels,
+        occurrenceIndex: occurrence.selectorIndex,
+      });
+      if (derived) selector = derived;
+      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build a stable ${boundary} selector without positional nth-of-type fragments.`);
+    }
+    if (!input.customSelector && !isGeneratedRuleSelectorAllowed(selector)) {
+      throw new BrowserToolError("provider_error", `Generated rule selector is not stable enough: ${selector}`);
     }
 
     const rule: BrowserRule = {
@@ -301,9 +317,22 @@ export class BrowserToolService {
     const occurrence = candidate.occurrences[0];
     if (!occurrence) return "";
     let selector = customSelector || candidate.selector;
-    if (!customSelector && boundary !== "self" && provider.deriveAncestorSelector) {
+    if (!customSelector && boundary !== "self" && !provider.deriveAncestorSelector) {
+      throw new BrowserToolError("provider_error", `Provider cannot build ${boundary} selectors from DOM results.`);
+    }
+    if (!customSelector && provider.deriveAncestorSelector) {
       const levels = boundary === "parent" ? 1 : boundary === "parent+1" ? 2 : boundary === "parent+2" ? 3 : 0;
-      selector = (await provider.deriveAncestorSelector({ tabId: occurrence.tabId, selector: candidate.selector, levels })) ?? selector;
+      const derived = await provider.deriveAncestorSelector({
+        tabId: occurrence.tabId,
+        selector: occurrence.selector || candidate.selector,
+        levels,
+        occurrenceIndex: occurrence.selectorIndex,
+      });
+      if (derived) selector = derived;
+      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build a stable ${boundary} selector without positional nth-of-type fragments.`);
+    }
+    if (!customSelector && !isGeneratedRuleSelectorAllowed(selector)) {
+      throw new BrowserToolError("provider_error", `Generated rule selector is not stable enough: ${selector}`);
     }
     const elements = await provider.resolveSelector({ tabId: occurrence.tabId, selector });
     const nodes: SnapshotNode[] = [];
@@ -414,4 +443,8 @@ function normalizeScrollAmount(amount: BrowserScrollInput["amount"]): number | u
   if (amount === "large") return 1600;
   if (amount === "medium") return 800;
   return undefined;
+}
+
+function isGeneratedRuleSelectorAllowed(selector: string): boolean {
+  return !/:nth-(?:of-type|child)\(/.test(selector) && !/:has-text\(/.test(selector) && !/^text=/.test(selector);
 }

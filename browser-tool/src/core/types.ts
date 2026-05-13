@@ -190,7 +190,7 @@ export interface BrowserProvider {
   materializeElement(input: MaterializeElementInput): Promise<SnapshotNode>;
   getDocumentOrderAccessibleNodes?(tabId: string): Promise<SnapshotNode[]>;
   collectCandidates?(tabId: string): Promise<SelectorCandidate[]>;
-  deriveAncestorSelector?(input: { tabId: string; selector: string; levels: number }): Promise<string | undefined>;
+  deriveAncestorSelector?(input: { tabId: string; selector: string; levels: number; occurrenceIndex?: number }): Promise<string | undefined>;
   validateSelectorInAreas?(input: { tabId: string; selector?: string; text?: string; areaSelectors: string[] }): Promise<ProviderTarget | undefined>;
 
   click(input: ProviderClickInput): Promise<ActionResult>;
@@ -284,6 +284,7 @@ export type CandidateOccurrence = {
   title?: string;
   ref?: string;
   selector: string;
+  selectorIndex?: number;
   visible: boolean;
   enabled?: boolean;
 };

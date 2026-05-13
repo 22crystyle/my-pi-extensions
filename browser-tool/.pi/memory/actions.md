@@ -105,3 +105,16 @@
 Файлы: `src/core/candidatesEngine.ts`, `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`
 Результат: Candidates и связанные списки выбора boundaries отображаются без явной сортировки.
 Как проверить: Открыть `/browser` → Candidates и убедиться, что порядок соответствует порядку сбора provider/DOM; открыть range picker и проверить, что список End идёт в том же порядке.
+
+## 2026-05-13 — устранение text fallback и positional selectors при построении browser rules
+Агент: AI Dev agent
+Действие:
+- Удалён fallback `:has-text(...)`/`text=` из DOM selector resolution в Camofox provider; `queryAllSmart` теперь использует только валидные CSS selectors через `document.querySelectorAll`.
+- Убрана генерация `:has-text(...)` из reusable/unique selectors.
+- Исправлен `resolveSelector`: для non-unique selectors теперь сохраняется исходный selector и индекс DOM-совпадения, чтобы materialize не повторял первый элемент и dedupe не схлопывал список до одного результата.
+- Добавлен `selectorIndex` в candidate occurrences и передача occurrence index в parent-boundary derivation.
+- Переработано построение generated subtree rules: self/parent/parent+1/parent+2 строятся из конкретного DOM occurrence camofox-browser, без persisted `nth-of-type`/`nth-child`; для parent boundaries используется безопасный структурный selector вида `tag:has(> ... candidate selector ...)`, либо стабильный reusable selector.
+- Обновлено существующее правило `rule_mp458mbo_a2w5be5`: positional selector заменён на `span:has(> a[data-qa="serp-item__title"])`.
+Файлы: `src/providers/camofox/camofoxProvider.ts`, `src/core/browserToolService.ts`, `src/core/types.ts`, `.pi/browser/rules.json`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`, `.pi/memory/architecture.md`
+Результат: Новые generated rules больше не сохраняют text fallback и brittle `div:nth-of-type...`; non-unique selectors materialize все DOM-совпадения вместо первого.
+Как проверить: Перезапустить/перезагрузить extension, открыть `hh.ru`, выполнить `browser_snapshot` с включённым `rule_mp458mbo_a2w5be5` и убедиться, что возвращаются все заголовки `a[data-qa="serp-item__title"]` из безопасного parent selector.

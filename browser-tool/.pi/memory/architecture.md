@@ -41,3 +41,7 @@
 ## Action validation
 
 Action tools валидируют `ref`/`selector`/`text` по runtime-only ref map последнего filtered snapshot. URL change делает refs stale. `selector`/`text` разрешаются только если находятся внутри видимых областей или совпадают с entries последнего snapshot.
+
+## Generated rule selectors
+
+Generated subtree rules from Candidates are built from concrete Camofox DOM occurrences. Candidate occurrences may carry a `selectorIndex` for non-unique CSS selectors. Generated persistent rules must not use text pseudo-selectors (`:has-text`/`text=`) or positional `nth-of-type`/`nth-child` selectors. For parent boundaries, the Camofox provider derives safe reusable selectors from DOM attributes/classes or structural CSS `:has(...)` paths anchored to the selected candidate element; if no safe selector can be derived, rule creation/preview fails instead of persisting a brittle selector.

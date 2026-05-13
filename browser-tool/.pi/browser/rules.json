@@ -68,8 +68,8 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-13T14:17:13.466Z",
-      "updatedAt": "2026-05-13T14:17:13.466Z",
-      "selector": "div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+      "updatedAt": "2026-05-13T14:53:40.457Z",
+      "selector": "span:has(> a[data-qa=\"serp-item__title\"])",
       "createdFrom": {
         "candidateLabel": "DevOps Engineer (Gamedev)",
         "candidateRole": "link",

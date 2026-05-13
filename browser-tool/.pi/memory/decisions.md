@@ -106,3 +106,10 @@
 Контекст: Пользователь хочет видеть Candidates и связанные candidate-списки (например, range end picker) в исходном порядке backend/DOM, без алфавитного переупорядочивания.
 Решение: Candidates не сортируются ни в `CandidatesEngine.collect()`, ни при построении TUI списка Candidates. Range end picker использует порядок `collectCandidates()` и не добавляет свою сортировку.
 Причина: Исходный порядок backend/DOM важнее алфавитной группировки для выбора boundaries на странице.
+
+---
+
+Дата: 2026-05-13
+Контекст: Generated browser rules from Candidates could persist text-based pseudo selectors (`:has-text`) or positional `nth-of-type` chains when deriving parent boundaries, causing wrong matches and brittle hh.ru rules.
+Решение: Generated rules must not use text-selector fallbacks (`:has-text`/`text=`) or positional `nth-of-type`/`nth-child` selectors. Camofox provider derives candidate self/parent rules from the concrete DOM occurrence, prefers reusable DOM attributes/classes and uses structural CSS `:has(...)` for exact parent boundaries; if a safe selector cannot be built, rule creation/preview fails instead of persisting a brittle selector.
+Причина: Rules are persistent workspace configuration; they must be based on stable DOM structure returned by the browser provider, not on visible text or incidental DOM positions.

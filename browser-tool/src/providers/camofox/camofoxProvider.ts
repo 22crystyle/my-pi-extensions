@@ -135,10 +135,10 @@ export class CamofoxProvider implements BrowserProvider {
   async collectCandidates(tabId: string): Promise<SelectorCandidate[]> {
     const tab = await this.getTab(tabId);
     const page = buildPageKey(tab?.url ?? "about:blank");
-    const candidates = (await this.internalEvaluate<Array<Omit<SelectorCandidate, "page" | "occurrences"> & { ref?: string }>>({
+    const candidates = (await this.internalEvaluate<Array<Omit<SelectorCandidate, "page" | "occurrences"> & { ref?: string; selectorIndex?: number }>>({
       tabId,
       expression: CANDIDATES_EXPRESSION,
-    }).catch(() => [] as Array<Omit<SelectorCandidate, "page" | "occurrences"> & { ref?: string }>)) ?? [];
+    }).catch(() => [] as Array<Omit<SelectorCandidate, "page" | "occurrences"> & { ref?: string; selectorIndex?: number }>)) ?? [];
     return candidates.map((candidate, index) => ({
       ...candidate,
       id: candidate.id || `cand_${tabId}_${index}`,
@@ -151,16 +151,17 @@ export class CamofoxProvider implements BrowserProvider {
           title: tab?.title,
           ref: candidate.ref,
           selector: candidate.selector,
+          selectorIndex: candidate.selectorIndex,
           visible: true,
         },
       ],
     }));
   }
 
-  async deriveAncestorSelector(input: { tabId: string; selector: string; levels: number }): Promise<string | undefined> {
+  async deriveAncestorSelector(input: { tabId: string; selector: string; levels: number; occurrenceIndex?: number }): Promise<string | undefined> {
     const result = await this.internalEvaluate<{ selector?: string }>({
       tabId: input.tabId,
-      expression: makeAncestorSelectorExpression(input.selector, input.levels),
+      expression: makeAncestorSelectorExpression(input.selector, input.levels, input.occurrenceIndex ?? 0),
     });
     return result.selector;
   }
@@ -238,11 +239,7 @@ export class CamofoxProvider implements BrowserProvider {
 function assignTarget(body: Record<string, unknown>, target: ProviderTarget): void {
   if (target.ref) body.ref = target.ref;
   else if (target.selector) body.selector = target.selector;
-  else if (target.text) body.selector = textSelectorFallback(target.text);
-}
-
-function textSelectorFallback(text: string): string {
-  return `text=${text}`;
+  else if (target.text !== undefined) throw new BrowserToolError("provider_error", "Text targets must be resolved to a concrete selector before reaching CamofoxProvider.");
 }
 
 function tagRule(node: SnapshotNode, ruleId?: string): void {
@@ -254,7 +251,7 @@ function makeResolveSelectorExpression(selector: string): string {
   return wrapDomHelpers(`
     const selector = ${JSON.stringify(selector)};
     const matches = queryAllSmart(selector).filter(isVisible);
-    return matches.map((el) => ({ selector: uniqueSelector(el), index: 0, text: visibleText(el).slice(0, 200), role: inferRole(el), visible: true }));
+    return matches.map((el, index) => ({ selector, index, text: visibleText(el).slice(0, 200), role: inferRole(el), visible: true }));
   `);
 }
 
@@ -267,12 +264,13 @@ function makeMaterializeSelectorExpression(selector: string, index: number): str
   `);
 }
 
-function makeAncestorSelectorExpression(selector: string, levels: number): string {
+function makeAncestorSelectorExpression(selector: string, levels: number, occurrenceIndex: number): string {
   return wrapDomHelpers(`
-    let el = queryAllSmart(${JSON.stringify(selector)}).filter(isVisible)[0];
-    let levels = ${JSON.stringify(levels)};
-    while (el && levels > 0 && el.parentElement && el.parentElement !== document.body) { el = el.parentElement; levels--; }
-    return { selector: el ? reusableSelector(el) : undefined };
+    const selector = ${JSON.stringify(selector)};
+    const matches = queryAllSmart(selector).filter(isVisible);
+    const occurrenceIndex = Math.max(0, Number(${JSON.stringify(occurrenceIndex)}) || 0);
+    const el = matches[occurrenceIndex] || matches[0];
+    return { selector: el ? deriveRuleSelector(el, ${JSON.stringify(levels)}) : undefined };
   `);
 }
 
@@ -332,12 +330,15 @@ const CANDIDATES_EXPRESSION = wrapDomHelpers(`
     const label = labelFor(el, role);
     if (!label && !['input','textarea','select','form','table','list','region'].includes(kind)) continue;
     const selector = reusableSelector(el);
+    if (!selector) continue;
+    const selectorIndex = selectorIndexForElement(el, selector);
     out.push({
       id: 'cand_' + out.length,
       label: label || selector,
       role: role === 'heading' ? 'heading:' + headingLevel(el) : role,
       kind,
       selector,
+      selectorIndex,
       selectorQuality: selectorQuality(selector),
       text: visibleText(el).slice(0, 500),
       ariaLabel: el.getAttribute('aria-label') || undefined,
@@ -363,18 +364,7 @@ function wrapDomHelpers(body: string): string {
 
     function queryAllSmart(selector) {
       if (!selector) return [];
-      try { return Array.from(document.querySelectorAll(selector)); } catch {}
-      const textMatch = String(selector).match(/^(.*):has-text\\(["']?(.+?)["']?\\)$/);
-      if (textMatch) {
-        const base = textMatch[1] || '*';
-        const text = textMatch[2].toLowerCase();
-        try { return Array.from(document.querySelectorAll(base)).filter((el) => visibleText(el).toLowerCase().includes(text)); } catch { return []; }
-      }
-      if (String(selector).startsWith('text=')) {
-        const text = String(selector).slice(5).toLowerCase();
-        return allElements().filter((el) => visibleText(el).toLowerCase().includes(text));
-      }
-      return [];
+      try { return Array.from(document.querySelectorAll(selector)); } catch { return []; }
     }
 
     function isVisible(el) {
@@ -469,63 +459,133 @@ function wrapDomHelpers(body: string): string {
     }
 
     function reusableSelector(el) {
-      const tag = el.tagName.toLowerCase();
-      const stableAttrs = ['data-testid', 'data-test', 'data-qa', 'aria-label'];
-      for (const attr of stableAttrs) {
-        const value = el.getAttribute(attr);
-        if (value) return tag + '[' + attr + '=' + JSON.stringify(value) + ']';
-      }
-      for (const attr of ['name', 'type', 'placeholder', 'href']) {
-        const value = el.getAttribute(attr);
-        if (value && value.length < 120) return tag + '[' + attr + '=' + JSON.stringify(value) + ']';
-      }
-      const text = labelFor(el, inferRole(el));
-      if (text && text.length < 80 && ['button','a','h1','h2','h3','label'].includes(tag)) return tag + ':has-text(' + JSON.stringify(text) + ')';
-      return uniqueSelector(el);
+      return attributeSelector(el, false) || idSelector(el) || classSelector(el, false);
     }
 
     function uniqueSelector(el) {
-      const stableAttrs = ['data-testid', 'data-test', 'data-qa', 'aria-label'];
-      for (const attr of stableAttrs) {
-        const value = el.getAttribute(attr);
-        if (value) {
-          const selector = el.tagName.toLowerCase() + '[' + attr + '=' + JSON.stringify(value) + ']';
-          try { if (document.querySelectorAll(selector).length === 1) return selector; } catch {}
-        }
-      }
-      if (el.id && !/[0-9a-f]{8,}|^ember|^react|^headlessui/i.test(el.id)) {
-        const selector = '#' + cssEscape(el.id);
-        try { if (document.querySelectorAll(selector).length === 1) return selector; } catch {}
-      }
+      return attributeSelector(el, true) || idSelector(el) || classSelector(el, true) || positionalSelector(el);
+    }
+
+    function attributeSelector(el, requireUnique) {
       const tag = el.tagName.toLowerCase();
-      for (const attr of ['name', 'type', 'placeholder', 'href']) {
+      const attrs = ['data-testid', 'data-test', 'data-qa', 'aria-label', 'name', 'type', 'placeholder', 'href'];
+      for (const attr of attrs) {
         const value = el.getAttribute(attr);
-        if (value && value.length < 120) {
-          const selector = tag + '[' + attr + '=' + JSON.stringify(value) + ']';
-          try { if (document.querySelectorAll(selector).length === 1) return selector; } catch {}
+        if (!value || value.length > 160) continue;
+        const selector = tag + '[' + attr + '=' + JSON.stringify(value) + ']';
+        if (!requireUnique || selectorIsUnique(selector)) return selector;
+      }
+      return undefined;
+    }
+
+    function idSelector(el) {
+      if (!el.id || /[0-9a-f]{8,}|^ember|^react|^headlessui/i.test(el.id)) return undefined;
+      const selector = '#' + cssEscape(el.id);
+      return selectorIsUnique(selector) ? selector : undefined;
+    }
+
+    function classSelector(el, requireUnique) {
+      const tag = el.tagName.toLowerCase();
+      const classes = Array.from(el.classList || []).filter(isReusableClassName).slice(0, 3);
+      if (!classes.length) return undefined;
+      const selector = tag + classes.map((c) => '.' + cssEscape(c)).join('');
+      if (!requireUnique || selectorIsUnique(selector)) return selector;
+      return undefined;
+    }
+
+    function isReusableClassName(value) {
+      return Boolean(value)
+        && !/[0-9a-f]{6,}/i.test(value)
+        && !/^css-|^sc-|active|selected/i.test(value)
+        && !/___/.test(value)
+        && !/--[A-Za-z0-9_-]{5,}$/.test(value);
+    }
+
+    function selectorIsUnique(selector) {
+      try { return document.querySelectorAll(selector).length === 1; } catch { return false; }
+    }
+
+    function selectorMatchesElement(el, selector) {
+      return queryAllSmart(selector).includes(el);
+    }
+
+    function selectorIndexForElement(el, selector) {
+      const index = queryAllSmart(selector).filter(isVisible).indexOf(el);
+      return index >= 0 ? index : undefined;
+    }
+
+    function isRuleSafeSelector(selector) {
+      return Boolean(selector) && !/:nth-(?:of-type|child)\\(/.test(selector) && !/:has-text\\(/.test(selector) && !/^text=/.test(selector);
+    }
+
+    function deriveRuleSelector(el, levels) {
+      let ancestor = el;
+      let remaining = Math.max(0, Number(levels) || 0);
+      while (ancestor && remaining > 0 && ancestor.parentElement && ancestor.parentElement !== document.body) {
+        ancestor = ancestor.parentElement;
+        remaining--;
+      }
+      if (!ancestor) return undefined;
+
+      const exact = ruleSelectorForAncestor(ancestor, el);
+      if (exact) return exact;
+      if (levels <= 0) return undefined;
+
+      let node = ancestor.parentElement;
+      while (node && node !== document.body) {
+        const selector = reusableSelector(node);
+        if (selector && isRuleSafeSelector(selector)) return selector;
+        node = node.parentElement;
+      }
+      return undefined;
+    }
+
+    function ruleSelectorForAncestor(ancestor, descendant) {
+      const ownStrong = attributeSelector(ancestor, false) || idSelector(ancestor);
+      if (ownStrong && isRuleSafeSelector(ownStrong)) return ownStrong;
+      if (ancestor === descendant) {
+        const ownClass = classSelector(ancestor, false);
+        return ownClass && isRuleSafeSelector(ownClass) ? ownClass : undefined;
+      }
+
+      const leafSelector = reusableSelector(descendant);
+      if (leafSelector && isRuleSafeSelector(leafSelector)) {
+        const childPath = directChildPathSelector(ancestor, descendant, leafSelector);
+        if (childPath) {
+          const selector = ancestor.tagName.toLowerCase() + ':has(' + childPath + ')';
+          if (selectorMatchesElement(ancestor, selector)) return selector;
         }
       }
-      const text = labelFor(el, inferRole(el));
-      if (text && text.length < 80 && ['button','a','h1','h2','h3'].includes(tag)) {
-        const same = Array.from(document.querySelectorAll(tag)).filter((node) => labelFor(node, inferRole(node)) === text);
-        if (same.length === 1) return tag + ':has-text(' + JSON.stringify(text) + ')';
+
+      const ownClass = classSelector(ancestor, false);
+      return ownClass && isRuleSafeSelector(ownClass) ? ownClass : undefined;
+    }
+
+    function directChildPathSelector(ancestor, descendant, leafSelector) {
+      const segments = [];
+      let node = descendant;
+      while (node && node !== ancestor) {
+        segments.unshift(node === descendant ? leafSelector : node.tagName.toLowerCase());
+        node = node.parentElement;
       }
-      const classes = Array.from(el.classList || []).filter((c) => !/[0-9a-f]{6,}|^css-|^sc-|active|selected/i.test(c)).slice(0, 3);
-      if (classes.length) {
-        const selector = tag + classes.map((c) => '.' + cssEscape(c)).join('');
-        try { if (document.querySelectorAll(selector).length === 1) return selector; } catch {}
-      }
+      if (node !== ancestor || segments.length === 0) return undefined;
+      return '> ' + segments.join(' > ');
+    }
+
+    function positionalSelector(el) {
+      if (el === document.body) return 'body';
       const parts = [];
       let node = el;
-      while (node && node.nodeType === 1 && node !== document.body && parts.length < 5) {
+      while (node && node.nodeType === 1 && node !== document.body) {
         const parent = node.parentElement;
         const nodeTag = node.tagName.toLowerCase();
-        if (!parent) { parts.unshift(nodeTag); break; }
+        if (!parent) break;
         const siblings = Array.from(parent.children).filter((child) => child.tagName === node.tagName);
         const nth = siblings.indexOf(node) + 1;
         parts.unshift(nodeTag + ':nth-of-type(' + nth + ')');
         node = parent;
       }
+      parts.unshift('body');
       return parts.join(' > ');
     }
 
