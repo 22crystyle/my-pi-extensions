@@ -92,3 +92,17 @@
 Контекст: В кастомных TUI вкладках raw escape-sequence equality не покрывала Kitty keyboard protocol / tmux CSI-u последовательности.
 Решение: Custom TUI keyboard handling must import and use `@mariozechner/pi-tui` directly (`matchesKey`/`Key`, built-in input components such as `Input`, `truncateToWidth`) instead of project-local keyboard wrappers, direct terminal decoder helpers, or raw escape-sequence equality.
 Причина: Прямое использование `@mariozechner/pi-tui` обеспечивает совместимую обработку клавиш с built-in input components и избегает хрупких project-local wrappers/raw escape checks.
+
+---
+
+Дата: 2026-05-13
+Контекст: В TUI browser-tool есть несколько scrollable списков: Rules/Candidates, range end picker и preview/export views. Требуется единообразное поведение скроллинга и совместимость с терминалами/Kitty/tmux.
+Решение: TUI list scrolling/navigation must use `@mariozechner/pi-tui` APIs for keyboard matching and width-safe rendering (`matchesKey`, `Key`, `Input`, `truncateToWidth`). For simple ungrouped selection lists prefer built-in pi-tui components such as `SelectList`/`SettingsList`; custom scroll-window logic is allowed only where domain-specific grouping or mixed rows make built-ins unsuitable. Display windows must not truncate the underlying candidate data set (no `slice(0, N)` as a data limit).
+Причина: Это сохраняет совместимость ввода с pi-tui, предотвращает повторение hard-coded ограничений списка и оставляет возможность кастомной отрисовки там, где стандартный список не покрывает UX.
+
+---
+
+Дата: 2026-05-13
+Контекст: Пользователь хочет видеть Candidates и связанные candidate-списки (например, range end picker) в исходном порядке backend/DOM, без алфавитного переупорядочивания.
+Решение: Candidates не сортируются ни в `CandidatesEngine.collect()`, ни при построении TUI списка Candidates. Range end picker использует порядок `collectCandidates()` и не добавляет свою сортировку.
+Причина: Исходный порядок backend/DOM важнее алфавитной группировки для выбора boundaries на странице.

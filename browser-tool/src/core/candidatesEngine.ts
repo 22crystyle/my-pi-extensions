@@ -23,11 +23,7 @@ export class CandidatesEngine {
       }
     }
 
-    return Array.from(grouped.values()).sort((a, b) => {
-      const page = `${a.page.host}${a.page.path}`.localeCompare(`${b.page.host}${b.page.path}`);
-      if (page !== 0) return page;
-      return a.label.localeCompare(b.label);
-    });
+    return Array.from(grouped.values());
   }
 
   private async collectFromTab(tab: TabInfo): Promise<SelectorCandidate[]> {

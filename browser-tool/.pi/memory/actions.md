@@ -90,6 +90,18 @@
 - Добавлен scroll-window для всех end-кандидатов страницы с индикаторами above/below и счётчиком позиции.
 - Добавлены переходы `PgUp`/`PgDn`/`Home`/`End` для списков, обработка клавиш остаётся через `@mariozechner/pi-tui` (`matchesKey`, `Key`), ширина строк — через `truncateToWidth`.
 - Проверено, что остальные TUI scroll-места в `browserPanel.ts` используют pi-tui key matching/width helpers, raw escape-sequence handling в проекте не найден.
-Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
+- Зафиксировано архитектурное решение по TUI list scrolling/navigation в `.pi/memory/decisions.md`.
+Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`
 Результат: В `range` picker можно добраться до всех доступных end-кандидатов страницы, а не только до первых 20.
 Как проверить: Открыть `/browser` → Candidates → выбрать кандидат → range → End, пройти список стрелками или `PgDn` до элементов после первых 20; проверить, что отображаются индикаторы remaining candidates.
+
+## 2026-05-13 — удаление сортировки Candidates
+Агент: AI Dev agent
+Действие:
+- Убрана сортировка результата `CandidatesEngine.collect()` по странице и label.
+- Убрана сортировка групп страниц при построении TUI списка Candidates.
+- Range end picker оставлен без отдельной сортировки и теперь наследует исходный порядок `collectCandidates()`.
+- Зафиксировано решение о сохранении backend/DOM порядка candidate-списков в `.pi/memory/decisions.md`.
+Файлы: `src/core/candidatesEngine.ts`, `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`
+Результат: Candidates и связанные списки выбора boundaries отображаются без явной сортировки.
+Как проверить: Открыть `/browser` → Candidates и убедиться, что порядок соответствует порядку сбора provider/DOM; открыть range picker и проверить, что список End идёт в том же порядке.

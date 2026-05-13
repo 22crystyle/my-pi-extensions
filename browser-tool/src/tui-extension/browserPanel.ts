@@ -604,7 +604,7 @@ function buildCandidateItems(candidates: SelectorCandidate[]): PanelItem[] {
     groups.set(key, list);
   }
   const out: PanelItem[] = [];
-  for (const [page, items] of Array.from(groups.entries()).sort()) {
+  for (const [page, items] of groups.entries()) {
     out.push({ type: "header", label: page, search: page });
     for (const candidate of items) out.push({ type: "candidate", candidate, search: `${candidate.label} ${candidate.role ?? ""} ${candidate.selector} ${candidate.href ?? ""} ${candidate.occurrences.map((occ) => `${occ.title ?? ""} ${occ.url}`).join(" ")}` });
   }
