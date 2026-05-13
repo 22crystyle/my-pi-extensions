@@ -169,6 +169,9 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
   return ctx.ui.custom<PanelAction | undefined>((tui, theme, _keybindings, done) => {
     let tab: "rules" | "candidates" = "rules";
     let selected = 0;
+    let scroll = 0;
+    const pageSize = 20;
+
     let filter = "";
     let filterMode = false;
     const filterInput = new Input();
@@ -222,11 +225,24 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         lines.push("─".repeat(Math.max(1, Math.min(width, 80))));
 
         let actionIndex = 0;
+        let lastHeader = "";
+        let printedHeaderForCurrentGroup = false;
+
+        // Auto-scroll logic to keep the selected item in view
+        const actionableItems = actionable();
+        if (selected >= scroll + pageSize) {
+          scroll = selected - pageSize + 1;
+        } else if (selected < scroll) {
+          scroll = selected;
+        }
+
         for (const item of list) {
           if (item.type === "header") {
-            lines.push(themed.muted(`Page: ${item.label}`));
+            lastHeader = item.label;
+            printedHeaderForCurrentGroup = false;
             continue;
           }
+
           const isSelected = actionIndex === selected;
           const prefix = isSelected ? "> " : "  ";
           const marker = item.type === "rule" ? (item.rule.enabled ? "[x]" : "[ ]") : "[+]";
@@ -237,12 +253,20 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
             const count = item.candidate.occurrences.length > 1 ? `  ${item.candidate.occurrences.length} matches` : "";
             text = `${prefix}${marker} ${item.candidate.label}: ${item.candidate.kind}: ${item.candidate.selector}${count}`;
           }
-          lines.push(isSelected ? themed.selected(truncateToWidth(text, width)) : truncateToWidth(text, width));
-          actionIndex++;
-          if (lines.length > 28) {
-            lines.push(themed.dim(`… ${Math.max(0, actionable().length - actionIndex)} more`));
-            break;
+
+          if (actionIndex >= scroll && actionIndex < scroll + pageSize) {
+            if (!printedHeaderForCurrentGroup) {
+              lines.push(themed.muted(`Page: ${lastHeader}`));
+              printedHeaderForCurrentGroup = true;
+            }
+            lines.push(isSelected ? themed.selected(truncateToWidth(text, width)) : truncateToWidth(text, width));
           }
+          
+          actionIndex++;
+        }
+
+        if (actionableItems.length > scroll + pageSize) {
+          lines.push(themed.dim(`… ${actionableItems.length - (scroll + pageSize)} more`));
         }
 
         if (actionable().length === 0) {

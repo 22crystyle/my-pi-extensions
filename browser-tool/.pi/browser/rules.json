@@ -14,7 +14,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-12T13:29:22.062Z",
-      "updatedAt": "2026-05-12T13:29:22.062Z",
+      "updatedAt": "2026-05-13T07:49:40.371Z",
       "selector": "a[data-qa=\"vacancy-serp__vacancy_response\"]",
       "createdFrom": {
         "candidateLabel": "Откликнуться",
@@ -23,6 +23,36 @@
         "boundary": "self",
         "createdAtUrl": "https://spb.hh.ru/"
       }
+    },
+    {
+      "id": "rule_mp3rltl8_zbm2c1p",
+      "enabled": true,
+      "kind": "range",
+      "name": "Диапазон: DevOps-инженер",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/vacancy/:id",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-13T07:55:34.796Z",
+      "updatedAt": "2026-05-13T07:55:34.796Z",
+      "start": {
+        "role": "heading",
+        "headingLevel": 1,
+        "text": "DevOps-инженер",
+        "selector": "h1[data-qa=\"vacancy-title\"]",
+        "occurrence": 1
+      },
+      "end": {
+        "role": "list",
+        "text": "CI/CD Linux Docker Kubernetes",
+        "selector": "ul.vacancy-skill-list--JsTYRZ5o6dsoavK7",
+        "occurrence": 1
+      },
+      "includeStart": true,
+      "includeEnd": false
     }
   ]
 }
