@@ -228,13 +228,9 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         let lastHeader = "";
         let printedHeaderForCurrentGroup = false;
 
-        // Auto-scroll logic to keep the selected item in view
+        // Auto-scroll logic to keep the selected item in view.
         const actionableItems = actionable();
-        if (selected >= scroll + pageSize) {
-          scroll = selected - pageSize + 1;
-        } else if (selected < scroll) {
-          scroll = selected;
-        }
+        scroll = keepSelectedInView(selected, scroll, pageSize, actionableItems.length);
 
         for (const item of list) {
           if (item.type === "header") {
@@ -289,8 +285,12 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         if (matchesKey(data, Key.slash)) { filterInput.setValue(filter); filterMode = true; tui.requestRender(); return; }
         if (matchesKey(data, "c")) return done({ type: "config" });
         if (matchesKey(data, "r") && tab === "candidates") return done({ type: "refresh" });
-        if (matchesKey(data, Key.up)) { selected = Math.max(0, selected - 1); tui.requestRender(); return; }
-        if (matchesKey(data, Key.down)) { selected = Math.min(Math.max(0, actionable().length - 1), selected + 1); tui.requestRender(); return; }
+        if (matchesKey(data, Key.up)) { selected = clampIndex(selected - 1, actionable().length); tui.requestRender(); return; }
+        if (matchesKey(data, Key.down)) { selected = clampIndex(selected + 1, actionable().length); tui.requestRender(); return; }
+        if (matchesKey(data, Key.pageUp)) { selected = clampIndex(selected - pageSize, actionable().length); tui.requestRender(); return; }
+        if (matchesKey(data, Key.pageDown)) { selected = clampIndex(selected + pageSize, actionable().length); tui.requestRender(); return; }
+        if (matchesKey(data, Key.home)) { selected = 0; tui.requestRender(); return; }
+        if (matchesKey(data, Key.end)) { selected = clampIndex(actionable().length - 1, actionable().length); tui.requestRender(); return; }
 
         const current = selectedItem();
         if (tab === "rules") {
@@ -382,12 +382,14 @@ async function openBoundaryPicker(ctx: ExtensionContext, service: BrowserToolSer
     let modeIndex = 0;
     let boundaryIndex = 0;
     let endIndex = 0;
+    let endScroll = 0;
+    const endPageSize = 20;
 
     const component = {
       render(width: number): string[] {
         const lines: string[] = [];
         lines.push(theme.fg("accent", theme.bold(`Boundary picker: ${candidate.label}`)));
-        lines.push(theme.fg("dim", "←→ mode • ↑↓ option • p preview • enter add • esc cancel"));
+        lines.push(theme.fg("dim", "←→ mode • ↑↓ option • PgUp/PgDn jump • p preview • enter add • esc cancel"));
         lines.push(`Page: ${formatPageMatcher(candidate.page)}`);
         lines.push(`Candidate: ${candidate.kind}: ${candidate.selector}`);
         lines.push("─".repeat(Math.max(1, Math.min(width, 80))));
@@ -398,14 +400,22 @@ async function openBoundaryPicker(ctx: ExtensionContext, service: BrowserToolSer
           lines.push("Subtree boundary:");
           for (let i = 0; i < boundaries.length; i++) lines.push(`${i === boundaryIndex ? ">" : " "} ${boundaries[i]}`);
         } else if (modes[modeIndex] === "range") {
+          const ends = samePage;
+          endIndex = clampIndex(endIndex, ends.length);
+          endScroll = keepSelectedInView(endIndex, endScroll, endPageSize, ends.length);
+          const start = endScroll;
+          const end = Math.min(start + endPageSize, ends.length);
+
           lines.push(`Start: ${candidate.label}`);
-          lines.push("End:");
-          const ends = samePage.slice(0, 20);
+          lines.push(`End (${ends.length} candidates):`);
           if (!ends.length) lines.push(theme.fg("warning", "  No other boundary candidates on this page."));
-          for (let i = 0; i < ends.length; i++) {
+          if (start > 0) lines.push(theme.fg("dim", `  … ${start} above`));
+          for (let i = start; i < end; i++) {
             const item = ends[i];
             lines.push(`${i === endIndex ? ">" : " "} ${item.kind}: ${truncateMiddle(item.label, 60)}  ${truncateMiddle(item.selector, 70)}`);
           }
+          if (end < ends.length) lines.push(theme.fg("dim", `  … ${ends.length - end} below`));
+          if (ends.length) lines.push(theme.fg("dim", `  (${endIndex + 1}/${ends.length})`));
         } else {
           lines.push("Manual mode adds a subtree rule from a custom selector.");
         }
@@ -418,15 +428,19 @@ async function openBoundaryPicker(ctx: ExtensionContext, service: BrowserToolSer
         if (matchesKey(data, Key.left)) { modeIndex = Math.max(0, modeIndex - 1); tui.requestRender(); return; }
         if (matchesKey(data, Key.right) || matchesKey(data, Key.tab)) { modeIndex = Math.min(modes.length - 1, modeIndex + 1); tui.requestRender(); return; }
         if (matchesKey(data, Key.up)) {
-          if (mode === "subtree") boundaryIndex = Math.max(0, boundaryIndex - 1);
-          else if (mode === "range") endIndex = Math.max(0, endIndex - 1);
+          if (mode === "subtree") boundaryIndex = clampIndex(boundaryIndex - 1, boundaries.length);
+          else if (mode === "range") endIndex = clampIndex(endIndex - 1, samePage.length);
           tui.requestRender(); return;
         }
         if (matchesKey(data, Key.down)) {
-          if (mode === "subtree") boundaryIndex = Math.min(boundaries.length - 1, boundaryIndex + 1);
-          else if (mode === "range") endIndex = Math.min(Math.max(0, samePage.slice(0, 20).length - 1), endIndex + 1);
+          if (mode === "subtree") boundaryIndex = clampIndex(boundaryIndex + 1, boundaries.length);
+          else if (mode === "range") endIndex = clampIndex(endIndex + 1, samePage.length);
           tui.requestRender(); return;
         }
+        if (mode === "range" && matchesKey(data, Key.pageUp)) { endIndex = clampIndex(endIndex - endPageSize, samePage.length); tui.requestRender(); return; }
+        if (mode === "range" && matchesKey(data, Key.pageDown)) { endIndex = clampIndex(endIndex + endPageSize, samePage.length); tui.requestRender(); return; }
+        if (mode === "range" && matchesKey(data, Key.home)) { endIndex = 0; tui.requestRender(); return; }
+        if (mode === "range" && matchesKey(data, Key.end)) { endIndex = clampIndex(samePage.length - 1, samePage.length); tui.requestRender(); return; }
         if (matchesKey(data, "p")) return done({ action: "preview", mode, boundary: boundaries[boundaryIndex], endCandidate: samePage[endIndex] });
         if (matchesKey(data, Key.enter)) return done({ action: "add", mode, boundary: boundaries[boundaryIndex], endCandidate: samePage[endIndex] });
       },
@@ -550,6 +564,20 @@ type PanelItem =
   | { type: "header"; label: string; search: string }
   | { type: "rule"; rule: BrowserRule; search: string }
   | { type: "candidate"; candidate: SelectorCandidate; search: string };
+
+function clampIndex(index: number, count: number): number {
+  if (count <= 0) return 0;
+  return Math.max(0, Math.min(count - 1, index));
+}
+
+function keepSelectedInView(selected: number, scroll: number, pageSize: number, total: number): number {
+  const safePageSize = Math.max(1, pageSize);
+  const maxScroll = Math.max(0, total - safePageSize);
+  let next = scroll;
+  if (selected >= next + safePageSize) next = selected - safePageSize + 1;
+  else if (selected < next) next = selected;
+  return Math.max(0, Math.min(maxScroll, next));
+}
 
 function buildRuleItems(rules: BrowserRule[]): PanelItem[] {
   const groups = new Map<string, BrowserRule[]>();

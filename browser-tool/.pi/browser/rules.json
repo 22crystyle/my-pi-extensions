@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "rule_mp3rltl8_zbm2c1p",
+      "id": "rule_mp3vcwuq_8nykyar",
       "enabled": true,
       "kind": "range",
       "name": "Диапазон: DevOps-инженер",
@@ -36,8 +36,8 @@
         "hash": "ignore"
       },
       "source": "candidate",
-      "createdAt": "2026-05-13T07:55:34.796Z",
-      "updatedAt": "2026-05-13T07:55:34.796Z",
+      "createdAt": "2026-05-13T09:40:37.586Z",
+      "updatedAt": "2026-05-13T09:40:37.586Z",
       "start": {
         "role": "heading",
         "headingLevel": 1,
@@ -46,9 +46,10 @@
         "occurrence": 1
       },
       "end": {
-        "role": "list",
-        "text": "CI/CD Linux Docker Kubernetes",
-        "selector": "ul.vacancy-skill-list--JsTYRZ5o6dsoavK7",
+        "role": "heading",
+        "headingLevel": 2,
+        "text": "Задайте вопрос работодателю",
+        "selector": "h2[data-qa=\"title\"]",
         "occurrence": 1
       },
       "includeStart": true,

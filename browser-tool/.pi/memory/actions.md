@@ -81,3 +81,15 @@
 Файлы: `src/tui-extension/browserPanel.ts`
 Результат: При выборе элементов, находящихся ниже видимой области в `/browser`, список автоматически прокручивается.
 Как проверить: Открыть `/browser`, дойти до конца видимого списка и убедиться, что список сдвигается вверх, не позволяя курсору уйти за экран.
+
+## 2026-05-13 — исправление списка end-кандидатов в range picker
+Агент: AI Dev agent
+Действие:
+- Прочитаны `.pi/memory/architecture.md`, `.pi/memory/decisions.md`, `.pi/memory/actions.md` и документация pi TUI (`docs/tui.md`).
+- Убрано ограничение `samePage.slice(0, 20)` из выбора `End` в `range` mode boundary picker.
+- Добавлен scroll-window для всех end-кандидатов страницы с индикаторами above/below и счётчиком позиции.
+- Добавлены переходы `PgUp`/`PgDn`/`Home`/`End` для списков, обработка клавиш остаётся через `@mariozechner/pi-tui` (`matchesKey`, `Key`), ширина строк — через `truncateToWidth`.
+- Проверено, что остальные TUI scroll-места в `browserPanel.ts` используют pi-tui key matching/width helpers, raw escape-sequence handling в проекте не найден.
+Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
+Результат: В `range` picker можно добраться до всех доступных end-кандидатов страницы, а не только до первых 20.
+Как проверить: Открыть `/browser` → Candidates → выбрать кандидат → range → End, пройти список стрелками или `PgDn` до элементов после первых 20; проверить, что отображаются индикаторы remaining candidates.
