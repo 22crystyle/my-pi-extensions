@@ -13,7 +13,6 @@ export class RulesEngine {
     const elements = await this.provider.resolveSelector({
       tabId,
       selector: rule.selector,
-      fallbackSelectors: rule.fallbackSelectors,
     });
 
     const nodes: SnapshotNode[] = [];

@@ -130,7 +130,7 @@ export type RawSnapshotInput = {
 
 export type RawSnapshotResult = BrowserSnapshotResult;
 
-export type ResolveSelectorInput = { tabId: string; selector: string; fallbackSelectors?: string[] };
+export type ResolveSelectorInput = { tabId: string; selector: string };
 export type ResolvedElement = { selector: string; index: number; text?: string; role?: string; visible?: boolean };
 
 export type MaterializeElementInput = { tabId: string; element: ResolvedElement; includeChildren: boolean; ruleId?: string };
@@ -223,14 +223,6 @@ export type BaseRule = {
 export type SubtreeRule = BaseRule & {
   kind: "subtree";
   selector: string;
-  fallbackSelectors?: string[];
-  createdFrom?: {
-    candidateLabel?: string;
-    candidateRole?: string;
-    candidateSelector?: string;
-    boundary: "self" | "parent" | "parent+1" | "parent+2" | "custom";
-    createdAtUrl: string;
-  };
 };
 
 export type BoundaryLocator = {
@@ -268,7 +260,7 @@ export type SelectorCandidate = {
     | "list"
     | "region";
   selector: string;
-  selectorQuality: "stable" | "ok" | "fragile";
+  selectorQuality: "stable" | "ok";
   text?: string;
   ariaLabel?: string;
   placeholder?: string;

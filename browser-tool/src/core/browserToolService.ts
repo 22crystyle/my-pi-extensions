@@ -257,10 +257,7 @@ export class BrowserToolService {
         occurrenceIndex: occurrence.selectorIndex,
       });
       if (derived) selector = derived;
-      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build a stable ${boundary} selector without positional nth-of-type fragments.`);
-    }
-    if (!input.customSelector && !isGeneratedRuleSelectorAllowed(selector)) {
-      throw new BrowserToolError("provider_error", `Generated rule selector is not stable enough: ${selector}`);
+      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build ${boundary} selector from DOM result.`);
     }
 
     const rule: BrowserRule = {
@@ -273,13 +270,6 @@ export class BrowserToolService {
       createdAt: now,
       updatedAt: now,
       selector,
-      createdFrom: {
-        candidateLabel: input.candidate.label,
-        candidateRole: input.candidate.role,
-        candidateSelector: input.candidate.selector,
-        boundary,
-        createdAtUrl: occurrence?.url ?? "",
-      },
     };
     await this.rulesStore.addRule(rule);
     return rule;
@@ -329,10 +319,7 @@ export class BrowserToolService {
         occurrenceIndex: occurrence.selectorIndex,
       });
       if (derived) selector = derived;
-      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build a stable ${boundary} selector without positional nth-of-type fragments.`);
-    }
-    if (!customSelector && !isGeneratedRuleSelectorAllowed(selector)) {
-      throw new BrowserToolError("provider_error", `Generated rule selector is not stable enough: ${selector}`);
+      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build ${boundary} selector from DOM result.`);
     }
     const elements = await provider.resolveSelector({ tabId: occurrence.tabId, selector });
     const nodes: SnapshotNode[] = [];
@@ -443,8 +430,4 @@ function normalizeScrollAmount(amount: BrowserScrollInput["amount"]): number | u
   if (amount === "large") return 1600;
   if (amount === "medium") return 800;
   return undefined;
-}
-
-function isGeneratedRuleSelectorAllowed(selector: string): boolean {
-  return !/:nth-(?:of-type|child)\(/.test(selector) && !/:has-text\(/.test(selector) && !/^text=/.test(selector);
 }

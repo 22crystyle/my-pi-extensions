@@ -113,3 +113,10 @@
 Контекст: Generated browser rules from Candidates could persist text-based pseudo selectors (`:has-text`) or positional `nth-of-type` chains when deriving parent boundaries, causing wrong matches and brittle hh.ru rules.
 Решение: Generated rules must not use text-selector fallbacks (`:has-text`/`text=`) or positional `nth-of-type`/`nth-child` selectors. Camofox provider derives candidate self/parent rules from the concrete DOM occurrence, prefers reusable DOM attributes/classes and uses structural CSS `:has(...)` for exact parent boundaries; if a safe selector cannot be built, rule creation/preview fails instead of persisting a brittle selector.
 Причина: Rules are persistent workspace configuration; they must be based on stable DOM structure returned by the browser provider, not on visible text or incidental DOM positions.
+
+---
+
+Дата: 2026-05-13
+Контекст: Пересмотрено решение от 2026-05-13 «Generated browser rules from Candidates could persist text-based pseudo selectors (`:has-text`) or positional `nth-of-type` chains...» после требования убрать обратную совместимость и лишние защитные правила.
+Решение: Generated rule pipeline не содержит отдельного blacklist/compatibility guard для `nth-*`, `:has-text` или `text=`. Вместо этого Camofox provider строит generated selectors только из DOM occurrence через reusable DOM attributes/classes и structural CSS `:has(...)`; manual/custom selectors остаются выбором пользователя и не блокируются project-level проверками.
+Причина: Если проект сам не генерирует запрещённые формы selectors, отдельное правило-охранник является лишней логикой и мешает ручному выбору пользователя.

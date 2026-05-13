@@ -118,3 +118,17 @@
 Файлы: `src/providers/camofox/camofoxProvider.ts`, `src/core/browserToolService.ts`, `src/core/types.ts`, `.pi/browser/rules.json`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`, `.pi/memory/architecture.md`
 Результат: Новые generated rules больше не сохраняют text fallback и brittle `div:nth-of-type...`; non-unique selectors materialize все DOM-совпадения вместо первого.
 Как проверить: Перезапустить/перезагрузить extension, открыть `hh.ru`, выполнить `browser_snapshot` с включённым `rule_mp458mbo_a2w5be5` и убедиться, что возвращаются все заголовки `a[data-qa="serp-item__title"]` из безопасного parent selector.
+
+## 2026-05-13 — удаление compatibility/guard мусора после исправления rule selector generation
+Агент: AI Dev agent
+Действие:
+- Пересмотрено действие от 2026-05-13 «устранение text fallback и positional selectors при построении browser rules».
+- Удалены compatibility fields `fallbackSelectors` из rule/provider типов и materialization path.
+- Удалены generated-selector blacklist guards из core/provider; manual/custom selectors больше не ограничиваются этими проверками.
+- Удалены `createdFrom`/`candidateSelector` metadata из rule schema и текущего `.pi/browser/rules.json`.
+- Удалены disabled старые rules из `.pi/browser/rules.json`.
+- Убрана генерация positional `nth-of-type` selector в Camofox `uniqueSelector` и удалены остаточные `nth-*` normalization/quality branches.
+- Удалены неиспользуемые stub/parser файлы.
+Файлы: `src/core/browserToolService.ts`, `src/core/rulesEngine.ts`, `src/core/types.ts`, `src/core/selectorEngine.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/providers/camofox/camofoxSnapshotParser.ts`, `src/tui-extension/candidatesTab.ts`, `src/tui-extension/rangePicker.ts`, `src/tui-extension/rulesTab.ts`, `.pi/browser/rules.json`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`, `.pi/memory/architecture.md`
+Результат: В проекте не осталось обратной совместимости для старых selector fallbacks/rule metadata и лишних guard rules; persisted rules сведены к текущему активному правилу.
+Как проверить: `rg "fallbackSelectors|createdFrom|candidateSelector|has-text|text=|nth-of-type|nth-child|fragile|positionalSelector|isGeneratedRuleSelectorAllowed|isRuleSafeSelector" src .pi/browser/rules.json` не должен находить проектный код/правила; `find src -type f` не содержит удалённые stub/parser файлы.

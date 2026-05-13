@@ -107,15 +107,10 @@ export class CamofoxProvider implements BrowserProvider {
   }
 
   async resolveSelector(input: ResolveSelectorInput): Promise<ResolvedElement[]> {
-    const selectors = [input.selector, ...(input.fallbackSelectors ?? [])].filter(Boolean);
-    for (const selector of selectors) {
-      const elements = await this.internalEvaluate<ResolvedElement[]>({
-        tabId: input.tabId,
-        expression: makeResolveSelectorExpression(selector),
-      }).catch(() => [] as ResolvedElement[]);
-      if (elements.length) return elements;
-    }
-    return [];
+    return this.internalEvaluate<ResolvedElement[]>({
+      tabId: input.tabId,
+      expression: makeResolveSelectorExpression(input.selector),
+    }).catch(() => [] as ResolvedElement[]);
   }
 
   async materializeElement(input: MaterializeElementInput): Promise<SnapshotNode> {
@@ -463,7 +458,7 @@ function wrapDomHelpers(body: string): string {
     }
 
     function uniqueSelector(el) {
-      return attributeSelector(el, true) || idSelector(el) || classSelector(el, true) || positionalSelector(el);
+      return attributeSelector(el, true) || idSelector(el) || classSelector(el, true);
     }
 
     function attributeSelector(el, requireUnique) {
@@ -514,10 +509,6 @@ function wrapDomHelpers(body: string): string {
       return index >= 0 ? index : undefined;
     }
 
-    function isRuleSafeSelector(selector) {
-      return Boolean(selector) && !/:nth-(?:of-type|child)\\(/.test(selector) && !/:has-text\\(/.test(selector) && !/^text=/.test(selector);
-    }
-
     function deriveRuleSelector(el, levels) {
       let ancestor = el;
       let remaining = Math.max(0, Number(levels) || 0);
@@ -534,7 +525,7 @@ function wrapDomHelpers(body: string): string {
       let node = ancestor.parentElement;
       while (node && node !== document.body) {
         const selector = reusableSelector(node);
-        if (selector && isRuleSafeSelector(selector)) return selector;
+        if (selector) return selector;
         node = node.parentElement;
       }
       return undefined;
@@ -542,14 +533,11 @@ function wrapDomHelpers(body: string): string {
 
     function ruleSelectorForAncestor(ancestor, descendant) {
       const ownStrong = attributeSelector(ancestor, false) || idSelector(ancestor);
-      if (ownStrong && isRuleSafeSelector(ownStrong)) return ownStrong;
-      if (ancestor === descendant) {
-        const ownClass = classSelector(ancestor, false);
-        return ownClass && isRuleSafeSelector(ownClass) ? ownClass : undefined;
-      }
+      if (ownStrong) return ownStrong;
+      if (ancestor === descendant) return classSelector(ancestor, false);
 
       const leafSelector = reusableSelector(descendant);
-      if (leafSelector && isRuleSafeSelector(leafSelector)) {
+      if (leafSelector) {
         const childPath = directChildPathSelector(ancestor, descendant, leafSelector);
         if (childPath) {
           const selector = ancestor.tagName.toLowerCase() + ':has(' + childPath + ')';
@@ -557,8 +545,7 @@ function wrapDomHelpers(body: string): string {
         }
       }
 
-      const ownClass = classSelector(ancestor, false);
-      return ownClass && isRuleSafeSelector(ownClass) ? ownClass : undefined;
+      return classSelector(ancestor, false);
     }
 
     function directChildPathSelector(ancestor, descendant, leafSelector) {
@@ -572,26 +559,9 @@ function wrapDomHelpers(body: string): string {
       return '> ' + segments.join(' > ');
     }
 
-    function positionalSelector(el) {
-      if (el === document.body) return 'body';
-      const parts = [];
-      let node = el;
-      while (node && node.nodeType === 1 && node !== document.body) {
-        const parent = node.parentElement;
-        const nodeTag = node.tagName.toLowerCase();
-        if (!parent) break;
-        const siblings = Array.from(parent.children).filter((child) => child.tagName === node.tagName);
-        const nth = siblings.indexOf(node) + 1;
-        parts.unshift(nodeTag + ':nth-of-type(' + nth + ')');
-        node = parent;
-      }
-      parts.unshift('body');
-      return parts.join(' > ');
-    }
 
     function selectorQuality(selector) {
       if (/data-testid|data-test|data-qa|aria-label|^#[^ >]+$/.test(selector)) return 'stable';
-      if (/:nth-of-type|:nth-child/.test(selector)) return 'fragile';
       return 'ok';
     }
 

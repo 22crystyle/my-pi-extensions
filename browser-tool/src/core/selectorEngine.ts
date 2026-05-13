@@ -13,11 +13,7 @@ export function candidateGroupingKey(candidate: SelectorCandidate): string {
 }
 
 export function normalizeSelectorForGrouping(selector: string): string {
-  return selector
-    .replace(/:nth-of-type\(\d+\)/g, ":nth-of-type(n)")
-    .replace(/:nth-child\(\d+\)/g, ":nth-child(n)")
-    .replace(/\s+/g, " ")
-    .trim();
+  return selector.replace(/\s+/g, " ").trim();
 }
 
 export function boundaryLocatorFromCandidate(candidate: SelectorCandidate) {
