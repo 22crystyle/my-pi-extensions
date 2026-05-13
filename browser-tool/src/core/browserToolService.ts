@@ -29,7 +29,7 @@ import type {
 import { normalizeLabel, nowIso, randomId } from "./utils";
 import { renderCamofoxLikeYaml } from "../providers/camofox/camofoxYamlRenderer";
 import { CandidatesEngine } from "./candidatesEngine";
-import { boundaryLocatorFromCandidate } from "./selectorEngine";
+import { rangeEndBoundaryLocatorFromCandidate, rangeStartBoundaryLocatorFromCandidate } from "./selectorEngine";
 import { RulesStore } from "../storage/rulesStore";
 import { UiStateStore } from "../storage/uiStateStore";
 
@@ -229,8 +229,8 @@ export class BrowserToolService {
         source: "candidate",
         createdAt: now,
         updatedAt: now,
-        start: boundaryLocatorFromCandidate(input.candidate),
-        end: input.endCandidate ? boundaryLocatorFromCandidate(input.endCandidate) : { role: "heading", occurrence: 2 },
+        start: rangeStartBoundaryLocatorFromCandidate(input.candidate),
+        end: input.endCandidate ? rangeEndBoundaryLocatorFromCandidate(input.endCandidate) : { role: "heading", occurrence: 2, match: "structure" },
         includeStart: true,
         includeEnd: false,
       };

@@ -113,3 +113,17 @@
 Контекст: Generated browser rules from Candidates could persist text-based pseudo selectors (`:has-text`) or positional `nth-of-type` chains when deriving parent boundaries, causing wrong matches and brittle hh.ru rules.
 Решение: Generated rules must not use text-selector fallbacks (`:has-text`/`text=`) or positional `nth-of-type`/`nth-child` selectors. Camofox provider derives candidate self/parent rules from the concrete DOM occurrence, prefers reusable DOM attributes/classes and uses structural CSS `:has(...)` for exact parent boundaries; if a safe selector cannot be built, rule creation/preview fails instead of persisting a brittle selector.
 Причина: Rules are persistent workspace configuration; they must be based on stable DOM structure returned by the browser provider, not on visible text or incidental DOM positions.
+
+---
+
+Дата: 2026-05-13
+Контекст: `range` snapshot materialization built a separate flat DOM-derived node list, which produced synthetic `group` rows, lost indentation, and made constrained snapshots differ structurally from the full camofox accessibility snapshot.
+Решение: `range` rules are materialized from a single provider snapshot tree (`BrowserProvider.getSnapshotTree`) by preorder boundary lookup and tree clipping. The old flat document-order DOM accessible list is not used for `range`.
+Причина: `range` is a visibility projection over the same snapshot that the agent sees, so it must preserve the source accessibility hierarchy, refs and role/text rendering instead of reinterpreting the DOM.
+
+---
+
+Дата: 2026-05-13
+Контекст: Boundary matching treated selector match as an unconditional success before checking role/text, so a stale vacancy title boundary could still match another vacancy only because `h1[data-qa="vacancy-title"]` matched.
+Решение: Boundary locators use explicit `match` modes: `all`, `selector`, `text`, `structure`. Default matching requires all provided fields; selector/text are no longer an implicit OR. Generated range locators avoid DOM selectors and target snapshot-tree roles/text/structure.
+Причина: Persistent range boundaries must be deterministic and must not silently ignore text constraints when a generic selector matches.

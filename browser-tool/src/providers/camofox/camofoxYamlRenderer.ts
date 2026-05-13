@@ -1,7 +1,7 @@
 import type { SnapshotNode } from "../../core/types";
 import { escapeYamlString, maybeQuoteScalar, normalizeWhitespace } from "../../core/utils";
 
-const INLINE_TEXT_ROLES = new Set(["text", "strong", "emphasis", "code"]);
+const SCALAR_TEXT_ROLES = new Set(["text", "strong", "emphasis", "code", "paragraph", "listitem"]);
 
 export function renderCamofoxLikeYaml(nodes: SnapshotNode[]): string {
   const lines: string[] = [];
@@ -38,9 +38,7 @@ function renderLine(node: SnapshotNode): string {
   const attrText = attrs.length ? ` [${attrs.join("] [")}]` : "";
 
   if (!value) return `${role}${attrText}`;
-  if (role === "text") return `text: ${maybeQuoteScalar(value)}`;
-  if (role === "paragraph" && !(node.children && node.children.length)) return `paragraph: "${escapeYamlString(value)}"${attrText}`;
-  if (INLINE_TEXT_ROLES.has(role)) return `${role}: ${maybeQuoteScalar(value)}${attrText}`;
+  if (SCALAR_TEXT_ROLES.has(role) && !(node.children && node.children.length)) return `${role}: ${maybeQuoteScalar(value)}${attrText}`;
   return `${role} "${escapeYamlString(value)}"${attrText}`;
 }
 
