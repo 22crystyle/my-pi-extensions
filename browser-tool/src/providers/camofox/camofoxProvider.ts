@@ -24,6 +24,7 @@ import { BrowserToolError } from "../../core/errors";
 import { buildPageKey } from "../../core/pageMatcher";
 import { CamofoxClient } from "./camofoxClient";
 import { mapTab } from "./camofoxMapper";
+import { parseCamofoxLikeYaml } from "./camofoxSnapshotParser";
 
 export type CamofoxProviderOptions = {
   userId: string;
@@ -106,6 +107,20 @@ export class CamofoxProvider implements BrowserProvider {
     };
   }
 
+  async getSnapshotTree(tabId: string): Promise<SnapshotNode[]> {
+    const chunks: string[] = [];
+    let offset = 0;
+    for (let i = 0; i < 50; i++) {
+      const raw = await this.getRawSnapshot({ tabId, offset });
+      chunks.push(raw.snapshot ?? "");
+      if (!raw.hasMore) break;
+      const nextOffset = raw.nextOffset ?? offset + (raw.snapshot ?? "").length;
+      if (nextOffset <= offset) break;
+      offset = nextOffset;
+    }
+    return parseCamofoxLikeYaml(chunks.join(""));
+  }
+
   async resolveSelector(input: ResolveSelectorInput): Promise<ResolvedElement[]> {
     return this.internalEvaluate<ResolvedElement[]>({
       tabId: input.tabId,
@@ -121,10 +136,6 @@ export class CamofoxProvider implements BrowserProvider {
     const node = nodes?.[0] ?? { role: "group", selector: input.element.selector, children: [] };
     tagRule(node, input.ruleId);
     return node;
-  }
-
-  async getDocumentOrderAccessibleNodes(tabId: string): Promise<SnapshotNode[]> {
-    return (await this.internalEvaluate<SnapshotNode[]>({ tabId, expression: DOCUMENT_ORDER_EXPRESSION }).catch(() => [] as SnapshotNode[])) ?? [];
   }
 
   async collectCandidates(tabId: string): Promise<SelectorCandidate[]> {
@@ -307,13 +318,6 @@ function makeScrollWindowExpression(direction: string, amount: number): string {
     return { ok: true };
   `);
 }
-
-const DOCUMENT_ORDER_EXPRESSION = wrapDomHelpers(`
-  return allElements()
-    .filter((el) => isVisible(el) && isAccessibleElement(el))
-    .map((el) => nodeFromElement(el, false))
-    .filter((node) => node.name || node.text || node.role !== 'group');
-`);
 
 const CANDIDATES_EXPRESSION = wrapDomHelpers(`
   const out = [];

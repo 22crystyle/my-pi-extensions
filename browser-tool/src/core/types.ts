@@ -186,9 +186,9 @@ export interface BrowserProvider {
   navigate(input: NavigateInput): Promise<NavigationResult>;
 
   getRawSnapshot(input: RawSnapshotInput): Promise<RawSnapshotResult>;
+  getSnapshotTree?(tabId: string): Promise<SnapshotNode[]>;
   resolveSelector(input: ResolveSelectorInput): Promise<ResolvedElement[]>;
   materializeElement(input: MaterializeElementInput): Promise<SnapshotNode>;
-  getDocumentOrderAccessibleNodes?(tabId: string): Promise<SnapshotNode[]>;
   collectCandidates?(tabId: string): Promise<SelectorCandidate[]>;
   deriveAncestorSelector?(input: { tabId: string; selector: string; levels: number; occurrenceIndex?: number }): Promise<string | undefined>;
   validateSelectorInAreas?(input: { tabId: string; selector?: string; text?: string; areaSelectors: string[] }): Promise<ProviderTarget | undefined>;
@@ -231,6 +231,7 @@ export type BoundaryLocator = {
   role?: string;
   headingLevel?: number;
   occurrence?: number;
+  match?: "all" | "selector" | "text" | "structure";
 };
 
 export type RangeRule = BaseRule & {

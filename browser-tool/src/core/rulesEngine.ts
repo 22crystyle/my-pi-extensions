@@ -1,4 +1,5 @@
 import type { BrowserProvider, BrowserRule, BoundaryLocator, RangeRule, SnapshotNode, SubtreeRule } from "./types";
+import { clipSnapshotTreeByPreorderRange, flattenSnapshotTree } from "./snapshotMaterializer";
 import { normalizeLabel } from "./utils";
 
 export class RulesEngine {
@@ -27,18 +28,19 @@ export class RulesEngine {
   }
 
   async materializeRangeRule(tabId: string, rule: RangeRule): Promise<SnapshotNode[]> {
-    if (!this.provider.getDocumentOrderAccessibleNodes) return [];
-    const docOrderNodes = await this.provider.getDocumentOrderAccessibleNodes(tabId);
-    const startIndex = findBoundaryIndex(docOrderNodes, rule.start);
-    const endIndex = findBoundaryIndex(docOrderNodes, rule.end, startIndex + 1);
+    if (!this.provider.getSnapshotTree) return [];
+    const tree = await this.provider.getSnapshotTree(tabId);
+    const flatNodes = flattenSnapshotTree(tree).map((entry) => entry.node);
+    const startIndex = findBoundaryIndex(flatNodes, rule.start);
+    const endIndex = findBoundaryIndex(flatNodes, rule.end, startIndex + 1);
 
     if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex) return [];
 
     const from = rule.includeStart ? startIndex : startIndex + 1;
     const to = rule.includeEnd ? endIndex + 1 : endIndex;
-    const sliced = docOrderNodes.slice(from, to);
-    for (const node of sliced) tagNode(node, rule.id, "range");
-    return sliced;
+    const clipped = clipSnapshotTreeByPreorderRange(tree, from, to);
+    for (const node of clipped) tagNode(node, rule.id, "range");
+    return clipped;
   }
 }
 
@@ -62,20 +64,27 @@ export function findBoundaryIndex(nodes: SnapshotNode[], boundary: BoundaryLocat
 }
 
 function matchesBoundary(node: SnapshotNode, boundary: BoundaryLocator): boolean {
-  if (boundary.selector && node.selector === boundary.selector) return true;
+  const mode = boundary.match ?? "all";
+  const selectorMatches = Boolean(boundary.selector && node.selector === boundary.selector);
+  const structureMatches = (!boundary.role || roleMatches(node, boundary.role))
+    && (!boundary.headingLevel || node.level === boundary.headingLevel);
+  const textMatches = boundaryTextMatches(node, boundary);
 
-  if (boundary.role && !roleMatches(node, boundary.role)) return false;
-  if (boundary.headingLevel && node.level !== boundary.headingLevel) return false;
+  if (mode === "selector") return selectorMatches;
+  if (mode === "structure") return structureMatches;
+  if (mode === "text") return structureMatches && textMatches;
 
+  if (boundary.selector && !selectorMatches) return false;
+  if (!structureMatches) return false;
+  if (boundary.text && !textMatches) return false;
+  return Boolean(boundary.selector || boundary.role || boundary.headingLevel || boundary.text);
+}
+
+function boundaryTextMatches(node: SnapshotNode, boundary: BoundaryLocator): boolean {
+  if (!boundary.text) return true;
   const nodeText = normalizeLabel(node.name ?? node.text);
   const boundaryText = normalizeLabel(boundary.text);
-
-  if (boundary.text && boundary.role) {
-    return nodeText === boundaryText || nodeText.includes(boundaryText) || boundaryText.includes(nodeText);
-  }
-  if (boundary.text) return nodeText === boundaryText || nodeText.includes(boundaryText);
-  if (boundary.role) return true;
-  return false;
+  return Boolean(boundaryText && (nodeText === boundaryText || nodeText.includes(boundaryText) || boundaryText.includes(nodeText)));
 }
 
 function roleMatches(node: SnapshotNode, role: string): boolean {

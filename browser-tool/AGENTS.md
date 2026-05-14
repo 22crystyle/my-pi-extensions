@@ -72,3 +72,11 @@ AI Dev агент обязан читать этот файл перед люб�
 ## Правила обновления
 
 Если агент обнаруживает новую информацию о структуре проекта, backend/browser-провайдерах, TUI-интерфейсах, контрактах tool API, ограничениях контекста или сценариях автоматизации — он обязан обновить соответствующие файлы в `.pi/memory/`.
+
+---
+
+## Snapshot range rules
+
+- `range` rules должны работать как проекция/clip единого camofox-like accessibility snapshot tree, а не как отдельный плоский DOM-сбор через `document.querySelectorAll('body *')`.
+- При materialize `range` нужно сохранять иерархию исходного snapshot: списки, параграфы, inline-узлы и action refs не должны превращаться в плоский набор top-level строк.
+- Boundary matching для `range` не должен трактовать `selector` и `text` как неявный OR. Если нужны разные режимы, использовать явный `BoundaryLocator.match`: `all`, `selector`, `text`, `structure`.

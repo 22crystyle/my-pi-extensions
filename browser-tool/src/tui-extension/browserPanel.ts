@@ -7,7 +7,7 @@ import { formatPageMatcher, pageMatcherKey } from "../core/pageMatcher";
 import { fuzzyMatch, truncateMiddle } from "../core/utils";
 import { Input, Key, matchesKey, truncateToWidth } from "@mariozechner/pi-tui";
 import { pickPageScope } from "./scopePicker";
-import { boundaryLocatorFromCandidate } from "../core/selectorEngine";
+import { rangeEndBoundaryLocatorFromCandidate, rangeStartBoundaryLocatorFromCandidate } from "../core/selectorEngine";
 
 export function registerBrowserPanel(pi: ExtensionAPI, getService: (ctx: ExtensionContext) => BrowserToolService): void {
   pi.registerCommand("browser", {
@@ -495,8 +495,8 @@ async function previewCandidateRange(service: BrowserToolService, start: Selecto
     source: "candidate",
     createdAt: now,
     updatedAt: now,
-    start: boundaryLocatorFromCandidate(start),
-    end: boundaryLocatorFromCandidate(end),
+    start: rangeStartBoundaryLocatorFromCandidate(start),
+    end: rangeEndBoundaryLocatorFromCandidate(end),
     includeStart: true,
     includeEnd: false,
   });

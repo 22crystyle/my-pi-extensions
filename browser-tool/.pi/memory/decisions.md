@@ -117,6 +117,19 @@
 ---
 
 Дата: 2026-05-13
+Контекст: `range` snapshot materialization built a separate flat DOM-derived node list, which produced synthetic `group` rows, lost indentation, and made constrained snapshots differ structurally from the full camofox accessibility snapshot.
+Решение: `range` rules are materialized from a single provider snapshot tree (`BrowserProvider.getSnapshotTree`) by preorder boundary lookup and tree clipping. The old flat document-order DOM accessible list is not used for `range`.
+Причина: `range` is a visibility projection over the same snapshot that the agent sees, so it must preserve the source accessibility hierarchy, refs and role/text rendering instead of reinterpreting the DOM.
+
+---
+
+Дата: 2026-05-13
+Контекст: Boundary matching treated selector match as an unconditional success before checking role/text, so a stale vacancy title boundary could still match another vacancy only because `h1[data-qa="vacancy-title"]` matched.
+Решение: Boundary locators use explicit `match` modes: `all`, `selector`, `text`, `structure`. Default matching requires all provided fields; selector/text are no longer an implicit OR. Generated range locators avoid DOM selectors and target snapshot-tree roles/text/structure.
+Причина: Persistent range boundaries must be deterministic and must not silently ignore text constraints when a generic selector matches.
+---
+
+Дата: 2026-05-13
 Контекст: Пересмотрено решение от 2026-05-13 «Generated browser rules from Candidates could persist text-based pseudo selectors (`:has-text`) or positional `nth-of-type` chains...» после требования убрать обратную совместимость и лишние защитные правила.
 Решение: Generated rule pipeline не содержит отдельного blacklist/compatibility guard для `nth-*`, `:has-text` или `text=`. Вместо этого Camofox provider строит generated selectors только из DOM occurrence через reusable DOM attributes/classes и structural CSS `:has(...)`; manual/custom selectors остаются выбором пользователя и не блокируются project-level проверками.
 Причина: Если проект сам не генерирует запрещённые формы selectors, отдельное правило-охранник является лишней логикой и мешает ручному выбору пользователя.

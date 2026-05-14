@@ -1,5 +1,10 @@
 # Архитектура browser-tool
 
+## Dev shell
+
+- `flake.nix` — Nix flakes dev shell для локальной разработки/диагностики. Добавляет Node.js, TypeScript compiler, `tsx`, `jq`, `yq` и `pi-coding-agent`; запускается через `nix develop`.
+- При входе в dev shell создаётся ignored symlink `node_modules -> $BROWSER_TOOL_NIX_NODE_MODULES` на Nix-built node_modules tree с `@mariozechner/pi-coding-agent`, `@mariozechner/pi-tui`, `@types/node` и `tsx`, чтобы standalone TypeScript/Node tooling мог резолвить pi runtime packages без `npm install`.
+
 ## Entry point
 
 - `index.ts` — pi extension entry point. Регистрирует ровно шесть agent-facing browser tools и команды TUI:
@@ -31,6 +36,8 @@
 2. строит `PageMatcher` текущей страницы;
 3. загружает enabled rules из `.pi/browser/rules.json`;
 4. материализует `subtree` и `range` rules в `SnapshotNode[]`;
+   - `subtree` materialization использует provider selector resolution и DOM subtree materializer;
+   - `range` materialization получает единый camofox-like accessibility snapshot tree через `BrowserProvider.getSnapshotTree()`, строит preorder index, находит boundaries и делает tree clip с сохранением исходной вложенности;
 5. дедуплицирует nodes;
 6. присваивает public refs и сохраняет runtime-only ref map;
 7. рендерит camofox-like YAML;
@@ -44,4 +51,6 @@ Action tools валидируют `ref`/`selector`/`text` по runtime-only ref 
 
 ## Generated rule selectors
 
-Generated subtree rules from Candidates are built from concrete Camofox DOM occurrences. Candidate occurrences may carry a `selectorIndex` for non-unique CSS selectors. The Camofox selector builder uses browser CSS selectors directly (`document.querySelectorAll`) and derives candidate/parent selectors from reusable DOM attributes/classes or structural CSS `:has(...)` paths anchored to the selected DOM occurrence. Manual rules remain raw user-provided CSS selectors.
+Generated subtree rules from Candidates are built from concrete Camofox DOM occurrences. Candidate occurrences may carry a `selectorIndex` for non-unique CSS selectors. Generated persistent subtree rules must not use text pseudo-selectors (`:has-text`/`text=`) or positional `nth-of-type`/`nth-child` selectors. For parent boundaries, the Camofox provider derives safe reusable selectors from DOM attributes/classes or structural CSS `:has(...)` paths anchored to the selected candidate element; if no safe selector can be derived, rule creation/preview fails instead of persisting a brittle selector.
+
+Generated range rules are snapshot-tree boundaries, not DOM selectors. Range start/end locators use explicit `BoundaryLocator.match` modes (`structure`, `text`, `selector`, `all`) and must not rely on implicit selector/text OR semantics. For hh vacancy pages, the vacancy content range starts at the first level-1 heading by structure and ends at the level-2 heading `Задайте вопрос работодателю` by text.

@@ -119,6 +119,64 @@
 Результат: Новые generated rules больше не сохраняют text fallback и brittle `div:nth-of-type...`; non-unique selectors materialize все DOM-совпадения вместо первого.
 Как проверить: Перезапустить/перезагрузить extension, открыть `hh.ru`, выполнить `browser_snapshot` с включённым `rule_mp458mbo_a2w5be5` и убедиться, что возвращаются все заголовки `a[data-qa="serp-item__title"]` из безопасного parent selector.
 
+## 2026-05-13 — перевод range snapshot на clipping accessibility tree
+Агент: AI Dev agent
+Действие:
+- Заменена materialization `range` rules с плоского DOM-derived списка на tree clipping единого camofox-like snapshot tree.
+- Добавлен provider contract `getSnapshotTree()`; Camofox provider получает полный raw snapshot по continuation chunks и парсит его в `SnapshotNode[]`.
+- Добавлены preorder flatten/clip helpers для сохранения родительской вложенности при вырезании диапазона.
+- Усилен parser camofox-like YAML для refs, heading levels, `/url`, quoted/scalar/container строк.
+- Изменён renderer scalar roles (`paragraph`, `listitem`, `text`, `strong`, etc.) ближе к camofox-like YAML, чтобы clipped range не превращал элементы списка в synthetic quoted nodes.
+- Добавлен `BoundaryLocator.match` и убран implicit selector/text OR в boundary matching.
+- Generated range boundaries теперь не сохраняют DOM selector: start для `h1` использует structural match, end использует text match.
+- Обновлено hh vacancy range rule `rule_mp3vcwuq_8nykyar` на structural `h1` start и text `h2` end.
+- Обновлены `AGENTS.md`, `.pi/memory/architecture.md`, `.pi/memory/decisions.md`.
+Файлы: `src/core/rulesEngine.ts`, `src/core/snapshotMaterializer.ts`, `src/core/selectorEngine.ts`, `src/core/types.ts`, `src/core/browserToolService.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/providers/camofox/camofoxSnapshotParser.ts`, `src/providers/camofox/camofoxYamlRenderer.ts`, `src/tui-extension/browserPanel.ts`, `.pi/browser/rules.json`, `AGENTS.md`, `.pi/memory/actions.md`, `.pi/memory/architecture.md`, `.pi/memory/decisions.md`
+Результат: `range` snapshots сохраняют исходную иерархию, не создают плоские непонятные `group` из DOM wrappers и больше не матчят stale text boundary только по generic selector.
+Как проверить: Выполнить `/browser-snapshot hh-vacancy-costraint.yaml`, затем `yq -r ".snapshot" hh-vacancy-costraint.yaml > hh-vacancy-costraint-snap.yaml`; сравнить с участком полного `hh-vacancy-snap.yaml` от `h1` до `Задайте вопрос работодателю`: должна сохраниться вложенность списков/параграфов, не должно быть DOM-wrapper `group` строк.
+
+## 2026-05-13 — добавление Nix dev shell
+Агент: AI Dev agent
+Действие:
+- Создан `devshell.nix` для локального dev-окружения на NixOS/Nix.
+- В dev shell добавлены Node.js, TypeScript compiler, `jq` и `yq`.
+- Обновлена архитектурная память с указанием dev shell файла и команды запуска.
+Файлы: `devshell.nix`, `.pi/memory/actions.md`, `.pi/memory/architecture.md`
+Результат: Проект можно открыть в воспроизводимом Nix shell для локальной диагностики и TypeScript/Node-инструментов.
+Как проверить: Выполнить `nix-shell devshell.nix`, затем `node --version`, `npm --version`, `tsc --version`, `jq --version`, `yq --version`.
+
+## 2026-05-13 — замена classic devshell на flake
+Агент: AI Dev agent
+Действие:
+- Создан `flake.nix` с `devShells.default` для flakes-enabled NixOS.
+- Удалён `devshell.nix`, так как пользователь использует flakes.
+- Обновлена архитектурная память с командой `nix develop`.
+Файлы: `flake.nix`, `devshell.nix`, `.pi/memory/actions.md`, `.pi/memory/architecture.md`
+Результат: Dev shell проекта теперь запускается через flakes.
+Как проверить: Выполнить `nix develop`, затем `node --version`, `npm --version`, `tsc --version`, `jq --version`, `yq --version`.
+
+## 2026-05-13 — исправление flake dev shell для nixpkgs без nodePackages
+Агент: AI Dev agent
+Действие:
+- Исправлена ошибка `nodePackages has been removed` в `flake.nix`.
+- `pkgs.nodePackages.typescript` заменён на top-level `pkgs.typescript`, совместимый с текущим `nixos-unstable`.
+- Проверен `nix flake check --no-build`.
+Файлы: `flake.nix`, `.pi/memory/actions.md`
+Результат: `devShells.default` успешно вычисляется на текущем nixpkgs.
+Как проверить: Выполнить `nix flake check --no-build`, затем `nix develop`.
+
+## 2026-05-13 — добавление pi/tsx/node typings в flake dev shell
+Агент: AI Dev agent
+Действие:
+- В `flake.nix` добавлены `pkgs.tsx` и `pkgs.pi-coding-agent`.
+- Добавлен Nix-built synthetic node_modules tree с symlink на `@mariozechner/pi-coding-agent`, `@mariozechner/pi-tui`, `@types/node` и `tsx` из `pi-coding-agent` package closure.
+- Shell hook теперь экспортирует `BROWSER_TOOL_NIX_NODE_MODULES`, `NODE_PATH` и создаёт/обновляет локальный symlink `node_modules` на Nix-built tree.
+- В `.gitignore` добавлен `node_modules`, чтобы generated symlink не попадал в git.
+- Проверены `nix flake check --no-build`, `nix develop` и resolution pi packages через generated `node_modules`.
+Файлы: `flake.nix`, `.gitignore`, `.pi/memory/actions.md`, `.pi/memory/architecture.md`
+Результат: `nix develop` предоставляет `tsx`, `@types/node`, `@mariozechner/pi-coding-agent` и `@mariozechner/pi-tui` без npm install.
+Как проверить: Выполнить `nix develop --command bash -lc 'tsx --version && test -e node_modules/@mariozechner/pi-coding-agent/package.json && test -e node_modules/@mariozechner/pi-tui/package.json && test -e node_modules/@types/node/package.json'`.
+
 ## 2026-05-13 — удаление compatibility/guard мусора после исправления rule selector generation
 Агент: AI Dev agent
 Действие:
@@ -128,7 +186,7 @@
 - Удалены `createdFrom`/`candidateSelector` metadata из rule schema и текущего `.pi/browser/rules.json`.
 - Удалены disabled старые rules из `.pi/browser/rules.json`.
 - Убрана генерация positional `nth-of-type` selector в Camofox `uniqueSelector` и удалены остаточные `nth-*` normalization/quality branches.
-- Удалены неиспользуемые stub/parser файлы.
-Файлы: `src/core/browserToolService.ts`, `src/core/rulesEngine.ts`, `src/core/types.ts`, `src/core/selectorEngine.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/providers/camofox/camofoxSnapshotParser.ts`, `src/tui-extension/candidatesTab.ts`, `src/tui-extension/rangePicker.ts`, `src/tui-extension/rulesTab.ts`, `.pi/browser/rules.json`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`, `.pi/memory/architecture.md`
-Результат: В проекте не осталось обратной совместимости для старых selector fallbacks/rule metadata и лишних guard rules; persisted rules сведены к текущему активному правилу.
-Как проверить: `rg "fallbackSelectors|createdFrom|candidateSelector|has-text|text=|nth-of-type|nth-child|fragile|positionalSelector|isGeneratedRuleSelectorAllowed|isRuleSafeSelector" src .pi/browser/rules.json` не должен находить проектный код/правила; `find src -type f` не содержит удалённые stub/parser файлы.
+- Удалены неиспользуемые stub/parser файлы, кроме `camofoxSnapshotParser.ts`, который сохранён для snapshot-tree range materialization.
+Файлы: `src/core/browserToolService.ts`, `src/core/rulesEngine.ts`, `src/core/types.ts`, `src/core/selectorEngine.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/tui-extension/candidatesTab.ts`, `src/tui-extension/rangePicker.ts`, `src/tui-extension/rulesTab.ts`, `.pi/browser/rules.json`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`, `.pi/memory/architecture.md`
+Результат: В проекте не осталось обратной совместимости для старых selector fallbacks/rule metadata и лишних guard rules; persisted rules очищены от legacy metadata.
+Как проверить: `rg "fallbackSelectors|createdFrom|candidateSelector|has-text|text=|nth-of-type|nth-child|fragile|positionalSelector|isGeneratedRuleSelectorAllowed|isRuleSafeSelector" src .pi/browser/rules.json` не должен находить проектный код/правила, кроме допустимых упоминаний в memory/docs.
