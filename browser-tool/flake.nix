@@ -28,6 +28,7 @@
           packages = [
             pkgs.nodejs_22
             pkgs.typescript
+            pkgs.python3
             pkgs.tsx
             pkgs.jq
             pkgs.yq

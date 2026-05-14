@@ -170,6 +170,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
     let tab: "rules" | "candidates" = "rules";
     let selected = 0;
     let scroll = 0;
+    let candidateGroupByRule = false;
     const pageSize = 20;
 
     let filter = "";
@@ -198,7 +199,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
     };
 
     function items(): PanelItem[] {
-      const source = tab === "rules" ? buildRuleItems(rules) : buildCandidateItems(candidates);
+      const source = tab === "rules" ? buildRuleItems(rules) : buildCandidateItems(candidates, candidateGroupByRule);
       const visible = filter ? source.filter((item) => item.type === "header" || fuzzyMatch(item.search, filter)) : source;
       return visible.filter((item, index, array) => item.type !== "header" || array[index + 1]?.type !== "header");
     }
@@ -219,9 +220,10 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         selectedItem();
         const lines: string[] = [];
         lines.push(themed.title("Browser Tool") + themed.dim(`  ${state.camofoxBaseUrl}`));
-        lines.push(`${tab === "rules" ? themed.success("[Rules]") : " Rules "} ${tab === "candidates" ? themed.success("[Candidates]") : " Candidates "}  ${filterMode ? themed.warning("/") : "/"}${filterMode ? filterInput.getValue() : filter}`);
+        const candidatesTitle = candidateGroupByRule ? "[Candidates grouped]" : "[Candidates]";
+        lines.push(`${tab === "rules" ? themed.success("[Rules]") : " Rules "} ${tab === "candidates" ? themed.success(candidatesTitle) : " Candidates "}  ${filterMode ? themed.warning("/") : "/"}${filterMode ? filterInput.getValue() : filter}`);
         lines.push(themed.dim("tab switch • ↑↓ select • / filter • c config • esc close"));
-        lines.push(themed.dim(tab === "rules" ? "space toggle • e toggle all • d delete • a manual • p preview" : "enter boundary picker • r refresh"));
+        lines.push(themed.dim(tab === "rules" ? "space toggle • e toggle all • d delete • a manual • p preview" : `enter boundary picker • g group by rule ${candidateGroupByRule ? "off" : "on"} • r refresh`));
         lines.push("─".repeat(Math.max(1, Math.min(width, 80))));
 
         let actionIndex = 0;
@@ -246,8 +248,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
           if (item.type === "rule") {
             text = `${prefix}${marker} ${item.rule.name}  ${describeRule(item.rule)}`;
           } else {
-            const count = item.candidate.occurrences.length > 1 ? `  ${item.candidate.occurrences.length} matches` : "";
-            text = `${prefix}${marker} ${item.candidate.label}: ${item.candidate.kind}: ${item.candidate.selector}${count}`;
+            text = `${prefix}${marker} ${formatCandidatePanelItem(item)}`;
           }
 
           if (actionIndex >= scroll && actionIndex < scroll + pageSize) {
@@ -285,6 +286,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         if (matchesKey(data, Key.slash)) { filterInput.setValue(filter); filterMode = true; tui.requestRender(); return; }
         if (matchesKey(data, "c")) return done({ type: "config" });
         if (matchesKey(data, "r") && tab === "candidates") return done({ type: "refresh" });
+        if (matchesKey(data, "g") && tab === "candidates") { candidateGroupByRule = !candidateGroupByRule; selected = 0; scroll = 0; tui.requestRender(); return; }
         if (matchesKey(data, Key.up)) { selected = clampIndex(selected - 1, actionable().length); tui.requestRender(); return; }
         if (matchesKey(data, Key.down)) { selected = clampIndex(selected + 1, actionable().length); tui.requestRender(); return; }
         if (matchesKey(data, Key.pageUp)) { selected = clampIndex(selected - pageSize, actionable().length); tui.requestRender(); return; }
@@ -563,7 +565,10 @@ async function showText(ctx: ExtensionContext, title: string, text: string): Pro
 type PanelItem =
   | { type: "header"; label: string; search: string }
   | { type: "rule"; rule: BrowserRule; search: string }
-  | { type: "candidate"; candidate: SelectorCandidate; search: string };
+  | { type: "candidate"; candidate: SelectorCandidate; search: string; count: number; grouped: boolean };
+
+const CANDIDATE_TEXT_MAX = 80;
+const CANDIDATE_RULE_MAX = 90;
 
 function clampIndex(index: number, count: number): number {
   if (count <= 0) return 0;
@@ -595,20 +600,65 @@ function buildRuleItems(rules: BrowserRule[]): PanelItem[] {
   return out;
 }
 
-function buildCandidateItems(candidates: SelectorCandidate[]): PanelItem[] {
-  const groups = new Map<string, SelectorCandidate[]>();
+function buildCandidateItems(candidates: SelectorCandidate[], groupByRule: boolean): PanelItem[] {
+  const pageGroups = new Map<string, PanelItem[]>();
+  const ruleGroups = new Map<string, Extract<PanelItem, { type: "candidate" }>>();
+
   for (const candidate of candidates) {
-    const key = formatPageMatcher(candidate.page);
-    const list = groups.get(key) ?? [];
-    list.push(candidate);
-    groups.set(key, list);
+    const page = formatPageMatcher(candidate.page);
+    const items = pageGroups.get(page) ?? [];
+    if (!pageGroups.has(page)) pageGroups.set(page, items);
+
+    const count = Math.max(1, candidate.occurrences.length);
+    const search = candidateSearchText(candidate);
+    if (!groupByRule) {
+      items.push({ type: "candidate", candidate, count, grouped: false, search });
+      continue;
+    }
+
+    const key = `${page}\u0000${candidateRuleGroupingKey(candidate)}`;
+    const existing = ruleGroups.get(key);
+    if (existing) {
+      existing.count += count;
+      existing.search += ` ${search}`;
+      continue;
+    }
+
+    const item: Extract<PanelItem, { type: "candidate" }> = { type: "candidate", candidate, count, grouped: true, search };
+    ruleGroups.set(key, item);
+    items.push(item);
   }
+
   const out: PanelItem[] = [];
-  for (const [page, items] of groups.entries()) {
+  for (const [page, items] of pageGroups.entries()) {
     out.push({ type: "header", label: page, search: page });
-    for (const candidate of items) out.push({ type: "candidate", candidate, search: `${candidate.label} ${candidate.role ?? ""} ${candidate.selector} ${candidate.href ?? ""} ${candidate.occurrences.map((occ) => `${occ.title ?? ""} ${occ.url}`).join(" ")}` });
+    out.push(...items);
   }
   return out;
+}
+
+function candidateSearchText(candidate: SelectorCandidate): string {
+  return `${candidate.label} ${candidate.role ?? ""} ${candidate.kind} ${candidateRuleName(candidate)} ${candidate.href ?? ""} ${candidate.occurrences.map((occ) => `${occ.title ?? ""} ${occ.url}`).join(" ")}`;
+}
+
+function candidateRuleGroupingKey(candidate: SelectorCandidate): string {
+  return candidateRuleName(candidate);
+}
+
+function candidateRuleName(candidate: SelectorCandidate): string {
+  return candidate.selector;
+}
+
+function formatCandidatePanelItem(item: Extract<PanelItem, { type: "candidate" }>): string {
+  const rule = truncateMiddle(candidateRuleName(item.candidate), CANDIDATE_RULE_MAX);
+  const text = truncateMiddle(candidateText(item.candidate), CANDIDATE_TEXT_MAX);
+  const prefix = item.grouped ? `Count: ${item.count}, ` : "";
+  const matches = !item.grouped && item.count > 1 ? `, Matches: ${item.count}` : "";
+  return `${prefix}Rule: ${rule}, Text: ${text}${matches}`;
+}
+
+function candidateText(candidate: SelectorCandidate): string {
+  return candidate.label || candidate.text || candidate.ariaLabel || candidate.placeholder || "";
 }
 
 function describeRule(rule: BrowserRule): string {

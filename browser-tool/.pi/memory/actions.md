@@ -190,3 +190,14 @@
 Файлы: `src/core/browserToolService.ts`, `src/core/rulesEngine.ts`, `src/core/types.ts`, `src/core/selectorEngine.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/tui-extension/candidatesTab.ts`, `src/tui-extension/rangePicker.ts`, `src/tui-extension/rulesTab.ts`, `.pi/browser/rules.json`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`, `.pi/memory/architecture.md`
 Результат: В проекте не осталось обратной совместимости для старых selector fallbacks/rule metadata и лишних guard rules; persisted rules очищены от legacy metadata.
 Как проверить: `rg "fallbackSelectors|createdFrom|candidateSelector|has-text|text=|nth-of-type|nth-child|fragile|positionalSelector|isGeneratedRuleSelectorAllowed|isRuleSafeSelector" src .pi/browser/rules.json` не должен находить проектный код/правила, кроме допустимых упоминаний в memory/docs.
+
+## 2026-05-14 — группировка Candidates по будущему rule selector
+Агент: AI Dev agent
+Действие:
+- Добавлена горячая клавиша `g` во вкладке `/browser` → Candidates для переключения grouped-view.
+- В grouped-view кандидаты объединяются по тому же rule selector, который используется как базовое generated subtree rule (`candidate.selector`), без сортировки и с сохранением порядка первого появления.
+- В строках Candidates правило/selector вынесены перед текстом.
+- Текст кандидатов обрезается до фиксированной длины; grouped-view отображает формат `Count: <n>, Rule: <selector>, Text: <truncatedText>`.
+Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
+Результат: Во вкладке Candidates можно быстро увидеть, какие элементы создадут одинаковое правило, и избежать выбора слишком широких/одинаковых selectors; порядок элементов остаётся backend/DOM order.
+Как проверить: Открыть `/browser` → Candidates, нажать `g`; проверить строки вида `Count: ..., Rule: ..., Text: ...`, повторно нажать `g` для обычного вида `Rule: ..., Text: ...`.
