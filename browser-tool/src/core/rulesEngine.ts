@@ -1,47 +1,124 @@
-import type { BrowserProvider, BrowserRule, BoundaryLocator, RangeRule, SnapshotNode, SubtreeRule } from "./types";
-import { clipSnapshotTreeByPreorderRange, flattenSnapshotTree } from "./snapshotMaterializer";
+import type { BrowserProvider, BrowserRule, BoundaryLocator, RangeRule, ResolvedElement, SnapshotNode, SubtreeRule } from "./types";
+import {
+  findBestSnapshotMatch,
+  flattenSnapshotTree,
+  indexSnapshotTree,
+  projectSnapshotTreeByIntervals,
+  type IndexedSnapshotEntry,
+  type VisibilityInterval,
+} from "./snapshotMaterializer";
 import { normalizeLabel } from "./utils";
 
 export class RulesEngine {
   constructor(private readonly provider: BrowserProvider) {}
 
   async materializeRule(tabId: string, rule: BrowserRule): Promise<SnapshotNode[]> {
-    if (rule.kind === "subtree") return this.materializeSubtreeRule(tabId, rule);
-    return this.materializeRangeRule(tabId, rule);
+    return this.materializeRules(tabId, [rule]);
+  }
+
+  async materializeRules(tabId: string, rules: BrowserRule[]): Promise<SnapshotNode[]> {
+    if (!this.provider.getSnapshotTree) return [];
+    const tree = await this.provider.getSnapshotTree(tabId);
+    const entries = indexSnapshotTree(tree);
+    const intervals: VisibilityInterval[] = [];
+
+    for (const rule of rules) {
+      if (rule.kind === "subtree") {
+        intervals.push(...await this.subtreeIntervals(tabId, rule, entries));
+      } else {
+        const interval = this.rangeInterval(rule, entries);
+        if (interval) intervals.push(interval);
+      }
+    }
+
+    return projectSnapshotTreeByIntervals(tree, normalizeIntervals(intervals));
   }
 
   async materializeSubtreeRule(tabId: string, rule: SubtreeRule): Promise<SnapshotNode[]> {
-    const elements = await this.provider.resolveSelector({
-      tabId,
-      selector: rule.selector,
-    });
-
-    const nodes: SnapshotNode[] = [];
-    for (const element of elements) {
-      const node = await this.provider.materializeElement({ tabId, element, includeChildren: true, ruleId: rule.id });
-      tagNode(node, rule.id, "subtree");
-      node.isAreaRoot = true;
-      node.actionAllowed = true;
-      nodes.push(node);
-    }
-    return nodes;
+    return this.materializeRules(tabId, [rule]);
   }
 
   async materializeRangeRule(tabId: string, rule: RangeRule): Promise<SnapshotNode[]> {
-    if (!this.provider.getSnapshotTree) return [];
-    const tree = await this.provider.getSnapshotTree(tabId);
-    const flatNodes = flattenSnapshotTree(tree).map((entry) => entry.node);
+    return this.materializeRules(tabId, [rule]);
+  }
+
+  private async subtreeIntervals(tabId: string, rule: SubtreeRule, entries: IndexedSnapshotEntry[]): Promise<VisibilityInterval[]> {
+    const elements = await this.provider.resolveSelector({ tabId, selector: rule.selector });
+    const used = new Set<number>();
+    const intervals: VisibilityInterval[] = [];
+    let cursor = 0;
+
+    for (const element of elements) {
+      const match = locateElement(entries, element, cursor, used);
+      if (!match) continue;
+      used.add(match.index);
+      cursor = match.index + 1;
+      intervals.push({
+        from: match.index,
+        to: match.endIndex,
+        rootIndex: match.index,
+        ruleId: rule.id,
+        source: "subtree",
+        selector: rule.selector,
+        specificity: pageSpecificity(rule.page),
+      });
+    }
+
+    return intervals;
+  }
+
+  private rangeInterval(rule: RangeRule, entries: IndexedSnapshotEntry[]): VisibilityInterval | undefined {
+    const flatNodes = entries.map((entry) => entry.node);
     const startIndex = findBoundaryIndex(flatNodes, rule.start);
     const endIndex = findBoundaryIndex(flatNodes, rule.end, startIndex + 1);
 
-    if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex) return [];
+    if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex) return undefined;
 
     const from = rule.includeStart ? startIndex : startIndex + 1;
     const to = rule.includeEnd ? endIndex + 1 : endIndex;
-    const clipped = clipSnapshotTreeByPreorderRange(tree, from, to);
-    for (const node of clipped) tagNode(node, rule.id, "range");
-    return clipped;
+    return { from, to, ruleId: rule.id, source: "range", specificity: pageSpecificity(rule.page) };
   }
+}
+
+function locateElement(entries: IndexedSnapshotEntry[], element: ResolvedElement, cursor: number, used: Set<number>): IndexedSnapshotEntry | undefined {
+  const byUrlAndName = findBestSnapshotMatch({
+    entries,
+    role: element.role,
+    name: element.name,
+    text: element.text,
+    url: element.url,
+    startAt: cursor,
+    used,
+  });
+  if (byUrlAndName) return byUrlAndName;
+
+  return findBestSnapshotMatch({
+    entries,
+    role: element.role,
+    name: element.name,
+    text: element.text,
+    startAt: cursor,
+    used,
+  });
+}
+
+function normalizeIntervals(intervals: VisibilityInterval[]): VisibilityInterval[] {
+  return intervals
+    .filter((interval) => interval.to > interval.from)
+    .sort((left, right) => left.from - right.from || right.to - left.to || (right.specificity ?? 0) - (left.specificity ?? 0));
+}
+
+function pageSpecificity(page: { host: string; path: string; query?: unknown; hash?: unknown }): number {
+  let score = 0;
+  if (page.host && page.host !== "*" && page.host !== "all") score += page.host.startsWith("*.") ? 200 : 300;
+  if (page.path && page.path !== "*" && page.path !== "/*") {
+    if (page.path.endsWith("/*")) score += 150;
+    else if (page.path.includes(":id") || page.path.includes(":hash")) score += 250;
+    else score += 300;
+  }
+  if (page.query && page.query !== "ignore") score += 30;
+  if (page.hash && page.hash !== "ignore") score += 10;
+  return score;
 }
 
 export function tagNode(node: SnapshotNode, ruleId: string, source: "range" | "subtree"): void {

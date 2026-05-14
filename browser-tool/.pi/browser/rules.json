@@ -3,7 +3,7 @@
   "rules": [
     {
       "id": "rule_mp5buhtj_78kgscm",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: Сейчас смотрят 7 человек DevOps-инженер Опыт 1-3 года ООО НЕОС 4.8 • 4 отзыва Санкт-Петербург, р-н Приморский Подходит по навыкам на 60% Проводить, автоматизировать и документировать развёртывание (обновление) наших решений (Big Data/DWH) (в т.ч. подготовка Docker-образов). Отвечать за работоспособность... Опыт работы с Ansible. Опыт работы с Docker/Docker-compose/Swarm. Базовое знание SQL и Python/bash. Опыт базового администрирования... Откликнуться",
       "page": {
@@ -14,12 +14,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-14T10:09:57.930Z",
-      "updatedAt": "2026-05-14T10:09:57.930Z",
+      "updatedAt": "2026-05-14T12:12:14.106Z",
       "selector": "div[data-qa=\"vacancy-serp__vacancy\"]"
     },
     {
       "id": "rule_mp5bw3bj_7tuvmwk",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: DevOps-инженер",
       "page": {
@@ -30,8 +30,131 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-14T10:11:12.452Z",
-      "updatedAt": "2026-05-14T10:11:12.452Z",
+      "updatedAt": "2026-05-14T12:12:12.417Z",
       "selector": "a[data-qa=\"serp-item__title\"]"
+    },
+    {
+      "id": "rule_mp5f0fyt_4czekos",
+      "enabled": false,
+      "kind": "range",
+      "name": "Диапазон: DevOps-инженер",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/vacancy/:id",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-14T11:38:34.325Z",
+      "updatedAt": "2026-05-14T12:12:20.018Z",
+      "start": {
+        "role": "heading",
+        "headingLevel": 1,
+        "occurrence": 1,
+        "match": "structure"
+      },
+      "end": {
+        "role": "heading",
+        "headingLevel": 2,
+        "text": "Задайте вопрос работодателю",
+        "occurrence": 1,
+        "match": "text"
+      },
+      "includeStart": true,
+      "includeEnd": false
+    },
+    {
+      "id": "rule_mp5f1r9x_v0sp1fy",
+      "enabled": false,
+      "kind": "subtree",
+      "name": "Область вокруг: Откликнуться",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/vacancy/:id",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-14T11:39:35.625Z",
+      "updatedAt": "2026-05-14T12:12:18.586Z",
+      "selector": "a[data-qa=\"vacancy-response-link-top\"]"
+    },
+    {
+      "id": "rule_mp5f85nh_jc72jdx",
+      "enabled": false,
+      "kind": "subtree",
+      "name": "Область вокруг: textarea[data-qa=\"vacancy-response-popup-form-letter-input\"]",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/vacancy/:id",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-14T11:44:34.195Z",
+      "updatedAt": "2026-05-14T12:12:17.467Z",
+      "selector": "textarea[data-qa=\"vacancy-response-popup-form-letter-input\"]"
+    },
+    {
+      "id": "rule_mp5fdiqh_u0zdb8h",
+      "enabled": false,
+      "kind": "subtree",
+      "name": "Область вокруг: Откликнуться",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/vacancy/:id",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-14T11:48:44.433Z",
+      "updatedAt": "2026-05-14T12:12:15.781Z",
+      "selector": "button[data-qa=\"vacancy-response-submit-popup\"]"
+    },
+    {
+      "id": "rule_mp5flhg2_fy24nvj",
+      "enabled": false,
+      "kind": "range",
+      "name": "Диапазон: Отклик на вакансию",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/applicant/vacancy_response",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-14T11:54:56.018Z",
+      "updatedAt": "2026-05-14T12:12:10.777Z",
+      "start": {
+        "role": "heading",
+        "headingLevel": 1,
+        "occurrence": 1,
+        "match": "structure"
+      },
+      "end": {
+        "role": "link",
+        "text": "О компании",
+        "occurrence": 1,
+        "match": "text"
+      },
+      "includeStart": true,
+      "includeEnd": false
+    },
+    {
+      "id": "rule_mp5g32pt_qjfn3kd",
+      "enabled": true,
+      "kind": "subtree",
+      "name": "Область вокруг: В этой вакансии нужно будет тесно работать с технологиями Big Data (Hadoop). Прошу вас ответить на 1 вопрос Ответьте на вопросы Есть ли у вас опыт работы/знания/проходили ли вы обучение по Hadoop? Да Нет Резюме для отклика DevOps-инженер Сопроводительное письмо Добавить Откликнуться",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/applicant/vacancy_response",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-14T12:08:36.727Z",
+      "updatedAt": "2026-05-14T12:12:35.904Z",
+      "selector": "form[name=\"vacancy_response\"]"
     }
   ]
 }

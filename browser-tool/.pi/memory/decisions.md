@@ -133,3 +133,10 @@
 Контекст: Пересмотрено решение от 2026-05-13 «Generated browser rules from Candidates could persist text-based pseudo selectors (`:has-text`) or positional `nth-of-type` chains...» после требования убрать обратную совместимость и лишние защитные правила.
 Решение: Generated rule pipeline не содержит отдельного blacklist/compatibility guard для `nth-*`, `:has-text` или `text=`. Вместо этого Camofox provider строит generated selectors только из DOM occurrence через reusable DOM attributes/classes и structural CSS `:has(...)`; manual/custom selectors остаются выбором пользователя и не блокируются project-level проверками.
 Причина: Если проект сам не генерирует запрещённые формы selectors, отдельное правило-охранник является лишней логикой и мешает ручному выбору пользователя.
+
+---
+
+Дата: 2026-05-14
+Контекст: Несколько subtree rules на одной странице (`div[data-qa="vacancy-serp__vacancy"]` и `a[data-qa="serp-item__title"]`) рендерились блоками по порядку правил, из-за чего title links отделялись от vacancy card hierarchy.
+Решение: Snapshot materialization для всех matching rules страницы строит единый provider snapshot tree, превращает subtree/range rules в preorder visibility intervals и рендерит projection исходного дерева. DOM selector resolution для subtree используется только для поиска anchor nodes в source snapshot tree; отдельная DOM-materialization per rule больше не формирует agent-facing YAML.
+Причина: Camofox raw snapshot уже содержит правильный accessibility order/nesting, а agent-facing filtered snapshot должен сохранять этот порядок и корректно объединять пересекающиеся page rules без дублей.

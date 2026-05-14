@@ -201,3 +201,16 @@
 Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
 Результат: Во вкладке Candidates можно быстро увидеть, какие элементы создадут одинаковое правило, и избежать выбора слишком широких/одинаковых selectors; порядок элементов остаётся backend/DOM order.
 Как проверить: Открыть `/browser` → Candidates, нажать `g`; проверить строки вида `Count: ..., Rule: ..., Text: ...`, повторно нажать `g` для обычного вида `Rule: ..., Text: ...`.
+
+## 2026-05-14 — сохранение порядка и вложенности camofox snapshot для subtree rules
+Агент: AI Dev agent
+Действие:
+- Переведён `browser_snapshot` с последовательной склейки materialized results каждого rule на единый `RulesEngine.materializeRules()`.
+- `subtree` и `range` rules теперь применяются как preorder visibility intervals поверх одного `BrowserProvider.getSnapshotTree()`.
+- Для `subtree` rules DOM selector resolution используется только для поиска anchor elements; anchors сопоставляются с узлами camofox snapshot по role/name/text/url и document order.
+- Добавлена projection исходного snapshot tree с union пересекающихся rules, сохранением исходной вложенности и дедупликацией.
+- `CamofoxProvider.resolveSelector()` теперь возвращает `name` и absolute `url` для более точного сопоставления DOM anchors с accessibility snapshot nodes.
+- Обновлены архитектурная память и решение по обработке пересекающихся page rules.
+Файлы: `src/core/browserToolService.ts`, `src/core/rulesEngine.ts`, `src/core/snapshotMaterializer.ts`, `src/core/types.ts`, `src/providers/camofox/camofoxProvider.ts`, `.pi/memory/actions.md`, `.pi/memory/architecture.md`, `.pi/memory/decisions.md`
+Результат: Для hh vacancy list карточки и вложенные title links рендерятся в порядке/иерархии исходного camofox snapshot, а не блоками по порядку правил.
+Как проверить: Выполнить `browser_snapshot` на `https://spb.hh.ru/vacancies` с rules `div[data-qa="vacancy-serp__vacancy"]` и `a[data-qa="serp-item__title"]`; проверить, что `link` находится внутри соответствующего `button` vacancy card. Дополнительно: `nix develop -c tsc --noEmit --target ES2022 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck index.ts` сейчас доходит до существующей unrelated ошибки `src/providers/camofox/camofoxClient.ts:57`.

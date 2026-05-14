@@ -257,7 +257,19 @@ function makeResolveSelectorExpression(selector: string): string {
   return wrapDomHelpers(`
     const selector = ${JSON.stringify(selector)};
     const matches = queryAllSmart(selector).filter(isVisible);
-    return matches.map((el, index) => ({ selector, index, text: visibleText(el).slice(0, 200), role: inferRole(el), visible: true }));
+    return matches.map((el, index) => {
+      const role = inferRole(el);
+      const rawUrl = el instanceof HTMLAnchorElement ? el.getAttribute('href') || undefined : undefined;
+      return {
+        selector,
+        index,
+        text: visibleText(el).slice(0, 1000),
+        name: labelFor(el, role).slice(0, 1000),
+        role,
+        url: rawUrl ? new URL(rawUrl, document.baseURI).href : undefined,
+        visible: true
+      };
+    });
   `);
 }
 

@@ -117,11 +117,7 @@ export class BrowserToolService {
     }
 
     const materializer = new RulesEngine(provider);
-    const nodes: SnapshotNode[] = [];
-    for (const rule of rules) {
-      const materialized = await materializer.materializeRule(tab.id, rule).catch(() => [] as SnapshotNode[]);
-      nodes.push(...materialized);
-    }
+    const nodes: SnapshotNode[] = await materializer.materializeRules(tab.id, rules).catch(() => [] as SnapshotNode[]);
 
     const deduped = dedupeSnapshotNodes(nodes);
     const refMap = assignRefsAndBuildMap({ nodes: deduped, tabId: tab.id, url: currentUrl, page: pageKey, provider: "camofox" });

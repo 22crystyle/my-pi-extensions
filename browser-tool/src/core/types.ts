@@ -131,7 +131,7 @@ export type RawSnapshotInput = {
 export type RawSnapshotResult = BrowserSnapshotResult;
 
 export type ResolveSelectorInput = { tabId: string; selector: string };
-export type ResolvedElement = { selector: string; index: number; text?: string; role?: string; visible?: boolean };
+export type ResolvedElement = { selector: string; index: number; text?: string; name?: string; role?: string; url?: string; visible?: boolean };
 
 export type MaterializeElementInput = { tabId: string; element: ResolvedElement; includeChildren: boolean; ruleId?: string };
 
