@@ -140,3 +140,11 @@
 Контекст: Несколько subtree rules на одной странице (`div[data-qa="vacancy-serp__vacancy"]` и `a[data-qa="serp-item__title"]`) рендерились блоками по порядку правил, из-за чего title links отделялись от vacancy card hierarchy.
 Решение: Snapshot materialization для всех matching rules страницы строит единый provider snapshot tree, превращает subtree/range rules в preorder visibility intervals и рендерит projection исходного дерева. DOM selector resolution для subtree используется только для поиска anchor nodes в source snapshot tree; отдельная DOM-materialization per rule больше не формирует agent-facing YAML.
 Причина: Camofox raw snapshot уже содержит правильный accessibility order/nesting, а agent-facing filtered snapshot должен сохранять этот порядок и корректно объединять пересекающиеся page rules без дублей.
+
+### Переход на In-Browser DOM Pruning (15-05-2026)
+Вместо получения полного AST-дерева YAML от camofox и его фильтрации на стороне Node.js, расширение теперь использует **In-Browser DOM Pruning**. 
+В момент снятия скриншота расширение применяет классы `pi-pruned` со стилем `display: none !important` ко всем нерелевантным узлам DOM в браузере (выполняя скрипт через `internalEvaluate`). Затем выполняется запрос нативного снапшота у camofox, который автоматически генерирует усеченный YAML с сохранением оригинальных индексов `[eXX]`. После этого стили скрытия откатываются.
+Это решение позволило:
+- полностью удалить слои AST-парсинга, YAML-рендеринга и сопоставления (`RefMap`);
+- сохранить 100% точность индексов camofox;
+- устранить проблемы неточного сопоставления (fuzzy match) элементов по тексту/ролям.

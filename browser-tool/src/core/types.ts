@@ -130,11 +130,6 @@ export type RawSnapshotInput = {
 
 export type RawSnapshotResult = BrowserSnapshotResult;
 
-export type ResolveSelectorInput = { tabId: string; selector: string };
-export type ResolvedElement = { selector: string; index: number; text?: string; name?: string; role?: string; url?: string; visible?: boolean };
-
-export type MaterializeElementInput = { tabId: string; element: ResolvedElement; includeChildren: boolean; ruleId?: string };
-
 export type ProviderTarget = { ref?: string; selector?: string; text?: string };
 
 export type ProviderClickInput = {
@@ -158,24 +153,6 @@ export type ProviderScrollInput = { tabId: string; target?: ProviderTarget; dire
 export type ActionResult = { ok: boolean; url?: string; navigation?: boolean };
 export type InternalEvaluateInput = { tabId: string; expression: string };
 
-export type SnapshotNode = {
-  role: string;
-  name?: string;
-  text?: string;
-  ref?: string;
-  providerRef?: string;
-  selector?: string;
-  url?: string;
-  level?: number;
-  attrs?: Record<string, string | number | boolean | undefined>;
-  children?: SnapshotNode[];
-  actionAllowed?: boolean;
-  ruleId?: string;
-  source?: "raw" | "dom" | "range" | "subtree";
-  sourceKey?: string;
-  isAreaRoot?: boolean;
-};
-
 export interface BrowserProvider {
   name: string;
   capabilities: BrowserCapabilities;
@@ -186,12 +163,9 @@ export interface BrowserProvider {
   navigate(input: NavigateInput): Promise<NavigationResult>;
 
   getRawSnapshot(input: RawSnapshotInput): Promise<RawSnapshotResult>;
-  getSnapshotTree?(tabId: string): Promise<SnapshotNode[]>;
-  resolveSelector(input: ResolveSelectorInput): Promise<ResolvedElement[]>;
-  materializeElement(input: MaterializeElementInput): Promise<SnapshotNode>;
+  pruneDomForSnapshot?(tabId: string, rules: BrowserRule[]): Promise<void>;
+  restoreDom?(tabId: string): Promise<void>;
   collectCandidates?(tabId: string): Promise<SelectorCandidate[]>;
-  deriveAncestorSelector?(input: { tabId: string; selector: string; levels: number; occurrenceIndex?: number }): Promise<string | undefined>;
-  validateSelectorInAreas?(input: { tabId: string; selector?: string; text?: string; areaSelectors: string[] }): Promise<ProviderTarget | undefined>;
 
   click(input: ProviderClickInput): Promise<ActionResult>;
   type(input: ProviderTypeInput): Promise<ActionResult>;
@@ -280,29 +254,6 @@ export type CandidateOccurrence = {
   selectorIndex?: number;
   visible: boolean;
   enabled?: boolean;
-};
-
-export type RefMapEntry = {
-  publicRef: string;
-  provider: "camofox";
-  providerRef?: string;
-  selector?: string;
-  text?: string;
-  role?: string;
-  tabId: string;
-  url: string;
-  page: PageMatcher;
-  ruleId: string;
-  actionAllowed: boolean;
-  isAreaRoot?: boolean;
-};
-
-export type RefMap = {
-  tabId: string;
-  url: string;
-  page: PageMatcher;
-  entries: Record<string, RefMapEntry>;
-  areaSelectors: string[];
 };
 
 export type UiState = {

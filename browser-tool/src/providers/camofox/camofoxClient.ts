@@ -54,7 +54,7 @@ export class CamofoxClient {
     const text = await response.text();
     const data = text ? safeJson(text) : {};
     if (!response.ok) {
-      const message = typeof data?.error === "string" ? data.error : `${method} ${path} failed with HTTP ${response.status}`;
+      const message = typeof (data as any)?.error === "string" ? (data as any).error : `${method} ${path} failed with HTTP ${response.status}`;
       throw new BrowserToolError("provider_error", message, data);
     }
     return data as T;

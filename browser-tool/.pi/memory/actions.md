@@ -214,3 +214,9 @@
 Файлы: `src/core/browserToolService.ts`, `src/core/rulesEngine.ts`, `src/core/snapshotMaterializer.ts`, `src/core/types.ts`, `src/providers/camofox/camofoxProvider.ts`, `.pi/memory/actions.md`, `.pi/memory/architecture.md`, `.pi/memory/decisions.md`
 Результат: Для hh vacancy list карточки и вложенные title links рендерятся в порядке/иерархии исходного camofox snapshot, а не блоками по порядку правил.
 Как проверить: Выполнить `browser_snapshot` на `https://spb.hh.ru/vacancies` с rules `div[data-qa="vacancy-serp__vacancy"]` и `a[data-qa="serp-item__title"]`; проверить, что `link` находится внутри соответствующего `button` vacancy card. Дополнительно: `nix develop -c tsc --noEmit --target ES2022 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck index.ts` сейчас доходит до существующей unrelated ошибки `src/providers/camofox/camofoxClient.ts:57`.
+
+### 15-05-2026: Рефакторинг архитектуры Browser Tool
+- Удален парсинг AST и генерация YAML на стороне Node.js.
+- Добавлен механизм In-Browser DOM Pruning через `camofoxProvider.pruneDomForSnapshot`.
+- Убран слой RefMap: инструменты теперь используют нативные ID (eXX) camofox напрямую.
+- Обновлены `browserToolService.ts` и `camofoxProvider.ts`.

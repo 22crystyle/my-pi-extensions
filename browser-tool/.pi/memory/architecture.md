@@ -35,22 +35,16 @@
 1. получает текущую/указанную вкладку через provider;
 2. строит `PageMatcher` текущей страницы;
 3. загружает enabled rules из `.pi/browser/rules.json`;
-4. получает единый camofox-like accessibility snapshot tree через `BrowserProvider.getSnapshotTree()`;
-5. превращает все matching `subtree` и `range` rules страницы в preorder visibility intervals поверх этого source tree;
-   - `subtree` materialization использует provider selector resolution только для поиска DOM anchors и затем fuzzy-сопоставляет их с узлами source snapshot tree по role/text/name/url в исходном порядке;
-   - `range` materialization использует те же preorder индексы source tree для поиска boundaries;
-   - пересекающиеся rules объединяются как union intervals; порядок YAML всегда определяется source tree, а не порядком rules;
-6. строит projection source tree с сохранением исходной вложенности выбранных областей и без дублей;
-7. дедуплицирует nodes;
-8. присваивает public refs и сохраняет runtime-only ref map;
-9. рендерит camofox-like YAML;
-10. возвращает continuation chunks для больших snapshots.
+4. вызывает метод `pruneDomForSnapshot` у провайдера для скрытия (через `display: none` или `aria-hidden`) неактуальных узлов DOM в браузере;
+5. делает запрос `GET /tabs/{tabId}/snapshot` у `camofox`, получая уже отфильтрованный YAML-ответ с нативными индексами `[eXX]`;
+6. вызывает метод `restoreDom` у провайдера для восстановления исходного состояния страницы;
+7. возвращает полученный YAML или continuation chunks для больших snapshots.
 
 Если нет matching enabled rules, возвращается пустой snapshot без объяснения причин. Raw snapshot passthrough доступен только при `debugRawSnapshot` в UI state.
 
 ## Action validation
 
-Action tools валидируют `ref`/`selector`/`text` по runtime-only ref map последнего filtered snapshot. URL change делает refs stale. `selector`/`text` разрешаются только если находятся внутри видимых областей или совпадают с entries последнего snapshot.
+Action tools (`browser_click`, `browser_type`, `browser_scroll`) передают `ref` или `selector` напрямую провайдеру. Текстовые `text` селекторы больше не поддерживаются для action. Валидация происходит на стороне `camofox-browser`.
 
 ## Generated rule selectors
 

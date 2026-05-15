@@ -75,8 +75,8 @@ AI Dev агент обязан читать этот файл перед люб�
 
 ---
 
-## Snapshot range rules
+## Snapshot rules
 
-- `range` rules должны работать как проекция/clip единого camofox-like accessibility snapshot tree, а не как отдельный плоский DOM-сбор через `document.querySelectorAll('body *')`.
-- При materialize `range` нужно сохранять иерархию исходного snapshot: списки, параграфы, inline-узлы и action refs не должны превращаться в плоский набор top-level строк.
-- Boundary matching для `range` не должен трактовать `selector` и `text` как неявный OR. Если нужны разные режимы, использовать явный `BoundaryLocator.match`: `all`, `selector`, `text`, `structure`.
+- Фильтрация DOM для снапшотов происходит через механизм **In-Browser DOM Pruning**. Провайдер временно скрывает нерелевантные узлы (через `display: none`) перед запросом снимка у `camofox`, а затем восстанавливает их.
+- Это позволяет использовать нативные индексы `[eXX]` от `camofox` и обходиться без промежуточного AST-парсинга на стороне Node.js.
+- Action tools (`browser_click`, `browser_type`, `browser_scroll`) оперируют `ref` (нативными) или `selector`. Текстовые `text` цели не поддерживаются провайдером напрямую.

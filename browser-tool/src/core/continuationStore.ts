@@ -1,11 +1,9 @@
-import type { RefMap } from "./types";
 import { randomId } from "./utils";
 
 export type ContinuationEntry = {
   id: string;
   url: string;
   text: string;
-  refMap: RefMap;
   createdAt: number;
 };
 
@@ -13,9 +11,9 @@ export class ContinuationStore {
   private entries = new Map<string, ContinuationEntry>();
   constructor(private readonly maxAgeMs = 15 * 60 * 1000) {}
 
-  create(url: string, text: string, refMap: RefMap): ContinuationEntry {
+  create(url: string, text: string): ContinuationEntry {
     this.gc();
-    const entry = { id: randomId("cont"), url, text, refMap, createdAt: Date.now() };
+    const entry = { id: randomId("cont"), url, text, createdAt: Date.now() };
     this.entries.set(entry.id, entry);
     return entry;
   }

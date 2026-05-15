@@ -2,9 +2,9 @@ import type {
   ActionResult,
   BrowserCapabilities,
   BrowserProvider,
+  BrowserRule,
   CreateTabInput,
   InternalEvaluateInput,
-  MaterializeElementInput,
   NavigateInput,
   NavigationResult,
   ProviderClickInput,
@@ -14,17 +14,13 @@ import type {
   ProviderTypeInput,
   RawSnapshotInput,
   RawSnapshotResult,
-  ResolvedElement,
-  ResolveSelectorInput,
   SelectorCandidate,
-  SnapshotNode,
   TabInfo,
 } from "../../core/types";
 import { BrowserToolError } from "../../core/errors";
 import { buildPageKey } from "../../core/pageMatcher";
 import { CamofoxClient } from "./camofoxClient";
 import { mapTab } from "./camofoxMapper";
-import { parseCamofoxLikeYaml } from "./camofoxSnapshotParser";
 
 export type CamofoxProviderOptions = {
   userId: string;
@@ -107,35 +103,84 @@ export class CamofoxProvider implements BrowserProvider {
     };
   }
 
-  async getSnapshotTree(tabId: string): Promise<SnapshotNode[]> {
-    const chunks: string[] = [];
-    let offset = 0;
-    for (let i = 0; i < 50; i++) {
-      const raw = await this.getRawSnapshot({ tabId, offset });
-      chunks.push(raw.snapshot ?? "");
-      if (!raw.hasMore) break;
-      const nextOffset = raw.nextOffset ?? offset + (raw.snapshot ?? "").length;
-      if (nextOffset <= offset) break;
-      offset = nextOffset;
-    }
-    return parseCamofoxLikeYaml(chunks.join(""));
+  async pruneDomForSnapshot(tabId: string, rules: BrowserRule[]): Promise<void> {
+    if (rules.length === 0) return;
+
+    const expression = wrapDomHelpers(`
+      const rules = ${JSON.stringify(rules)};
+      
+      let style = document.getElementById('pi-prune-style');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = 'pi-prune-style';
+        style.innerHTML = '.pi-pruned { display: none !important; }';
+        document.head.appendChild(style);
+      }
+
+      document.querySelectorAll('body *').forEach(el => el.classList.add('pi-pruned'));
+
+      const unprune = (el) => {
+        if (!el) return;
+        el.classList.remove('pi-pruned');
+        el.querySelectorAll('*').forEach(child => child.classList.remove('pi-pruned'));
+        let curr = el.parentElement;
+        while (curr && curr !== document.body && curr !== document.documentElement) {
+          curr.classList.remove('pi-pruned');
+          curr = curr.parentElement;
+        }
+      };
+
+      for (const rule of rules) {
+        if (rule.kind === 'subtree' && rule.selector) {
+          queryAllSmart(rule.selector).forEach(unprune);
+        } else if (rule.kind === 'range') {
+          const findLocator = (loc) => {
+            if (loc.selector) return queryAllSmart(loc.selector)[0];
+            if (loc.text) {
+              const textLower = loc.text.toLowerCase();
+              for (const el of allElements()) {
+                if (visibleText(el).toLowerCase().includes(textLower)) return el;
+              }
+            }
+            return null;
+          };
+
+          const startEl = findLocator(rule.start);
+          const endEl = findLocator(rule.end);
+          
+          if (startEl && endEl) {
+             const all = allElements();
+             let inRange = false;
+             for (const el of all) {
+               if (el === startEl) {
+                 if (rule.includeStart) unprune(el);
+                 inRange = true;
+                 continue;
+               }
+               if (el === endEl) {
+                 if (rule.includeEnd) unprune(el);
+                 inRange = false;
+                 break;
+               }
+               if (inRange) unprune(el);
+             }
+          }
+        }
+      }
+      return true;
+    `);
+
+    await this.internalEvaluate({ tabId, expression });
   }
 
-  async resolveSelector(input: ResolveSelectorInput): Promise<ResolvedElement[]> {
-    return this.internalEvaluate<ResolvedElement[]>({
-      tabId: input.tabId,
-      expression: makeResolveSelectorExpression(input.selector),
-    }).catch(() => [] as ResolvedElement[]);
-  }
-
-  async materializeElement(input: MaterializeElementInput): Promise<SnapshotNode> {
-    const nodes = await this.internalEvaluate<SnapshotNode[]>({
-      tabId: input.tabId,
-      expression: makeMaterializeSelectorExpression(input.element.selector, input.element.index),
-    }).catch(() => [] as SnapshotNode[]);
-    const node = nodes?.[0] ?? { role: "group", selector: input.element.selector, children: [] };
-    tagRule(node, input.ruleId);
-    return node;
+  async restoreDom(tabId: string): Promise<void> {
+    const expression = wrapDomHelpers(`
+      const style = document.getElementById('pi-prune-style');
+      if (style) style.remove();
+      document.querySelectorAll('.pi-pruned').forEach(el => el.classList.remove('pi-pruned'));
+      return true;
+    `);
+    await this.internalEvaluate({ tabId, expression }).catch(() => {});
   }
 
   async collectCandidates(tabId: string): Promise<SelectorCandidate[]> {
@@ -162,22 +207,6 @@ export class CamofoxProvider implements BrowserProvider {
         },
       ],
     }));
-  }
-
-  async deriveAncestorSelector(input: { tabId: string; selector: string; levels: number; occurrenceIndex?: number }): Promise<string | undefined> {
-    const result = await this.internalEvaluate<{ selector?: string }>({
-      tabId: input.tabId,
-      expression: makeAncestorSelectorExpression(input.selector, input.levels, input.occurrenceIndex ?? 0),
-    });
-    return result.selector;
-  }
-
-  async validateSelectorInAreas(input: { tabId: string; selector?: string; text?: string; areaSelectors: string[] }): Promise<ProviderTarget | undefined> {
-    const result = await this.internalEvaluate<{ selector?: string } | undefined>({
-      tabId: input.tabId,
-      expression: makeValidateInAreasExpression(input.selector, input.text, input.areaSelectors),
-    });
-    return result?.selector ? { selector: result.selector } : undefined;
   }
 
   async click(input: ProviderClickInput): Promise<ActionResult> {
@@ -246,65 +275,6 @@ function assignTarget(body: Record<string, unknown>, target: ProviderTarget): vo
   if (target.ref) body.ref = target.ref;
   else if (target.selector) body.selector = target.selector;
   else if (target.text !== undefined) throw new BrowserToolError("provider_error", "Text targets must be resolved to a concrete selector before reaching CamofoxProvider.");
-}
-
-function tagRule(node: SnapshotNode, ruleId?: string): void {
-  if (ruleId) node.ruleId = ruleId;
-  for (const child of node.children ?? []) tagRule(child, ruleId);
-}
-
-function makeResolveSelectorExpression(selector: string): string {
-  return wrapDomHelpers(`
-    const selector = ${JSON.stringify(selector)};
-    const matches = queryAllSmart(selector).filter(isVisible);
-    return matches.map((el, index) => {
-      const role = inferRole(el);
-      const rawUrl = el instanceof HTMLAnchorElement ? el.getAttribute('href') || undefined : undefined;
-      return {
-        selector,
-        index,
-        text: visibleText(el).slice(0, 1000),
-        name: labelFor(el, role).slice(0, 1000),
-        role,
-        url: rawUrl ? new URL(rawUrl, document.baseURI).href : undefined,
-        visible: true
-      };
-    });
-  `);
-}
-
-function makeMaterializeSelectorExpression(selector: string, index: number): string {
-  return wrapDomHelpers(`
-    const selector = ${JSON.stringify(selector)};
-    const index = ${JSON.stringify(index)};
-    const el = queryAllSmart(selector).filter(isVisible)[index];
-    return el ? [nodeFromElement(el, true)] : [];
-  `);
-}
-
-function makeAncestorSelectorExpression(selector: string, levels: number, occurrenceIndex: number): string {
-  return wrapDomHelpers(`
-    const selector = ${JSON.stringify(selector)};
-    const matches = queryAllSmart(selector).filter(isVisible);
-    const occurrenceIndex = Math.max(0, Number(${JSON.stringify(occurrenceIndex)}) || 0);
-    const el = matches[occurrenceIndex] || matches[0];
-    return { selector: el ? deriveRuleSelector(el, ${JSON.stringify(levels)}) : undefined };
-  `);
-}
-
-function makeValidateInAreasExpression(selector: string | undefined, text: string | undefined, areaSelectors: string[]): string {
-  return wrapDomHelpers(`
-    const selector = ${JSON.stringify(selector)};
-    const text = ${JSON.stringify(text)};
-    const areaSelectors = ${JSON.stringify(areaSelectors)};
-    const areas = areaSelectors.length ? areaSelectors.flatMap((s) => queryAllSmart(s)) : [];
-    const candidates = selector ? queryAllSmart(selector) : allElements().filter((el) => visibleText(el).toLowerCase().includes(String(text || '').toLowerCase()));
-    for (const candidate of candidates) {
-      if (!isVisible(candidate)) continue;
-      if (areas.some((area) => area === candidate || area.contains(candidate))) return { selector: uniqueSelector(candidate) };
-    }
-    return undefined;
-  `);
 }
 
 function makeScrollSelectorExpression(selector: string, direction: string, amount: number): string {

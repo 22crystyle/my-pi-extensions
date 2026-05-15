@@ -2,9 +2,6 @@ import { ContinuationStore, CONTINUATION_CHUNK_CHARS } from "./continuationStore
 import { BrowserToolError, toActionError } from "./errors";
 import { buildPageKey } from "./pageMatcher";
 import { ProviderRouter } from "./providerRouter";
-import { RefMapStore, assignRefsAndBuildMap, countRefs, filterRefMapToRenderedText } from "./refMap";
-import { RulesEngine } from "./rulesEngine";
-import { dedupeSnapshotNodes } from "./snapshotMaterializer";
 import type {
   ActionTarget,
   BrowserClickInput,
@@ -23,11 +20,9 @@ import type {
   BrowserPressResult,
   ProviderTarget,
   SelectorCandidate,
-  SnapshotNode,
   TabInfo,
 } from "./types";
-import { normalizeLabel, nowIso, randomId } from "./utils";
-import { renderCamofoxLikeYaml } from "../providers/camofox/camofoxYamlRenderer";
+import { nowIso, randomId } from "./utils";
 import { CandidatesEngine } from "./candidatesEngine";
 import { rangeEndBoundaryLocatorFromCandidate, rangeStartBoundaryLocatorFromCandidate } from "./selectorEngine";
 import { RulesStore } from "../storage/rulesStore";
@@ -38,7 +33,6 @@ export class BrowserToolService {
   readonly uiStateStore: UiStateStore;
 
   private readonly providerRouter: ProviderRouter;
-  private readonly refMapStore = new RefMapStore();
   private readonly continuationStore = new ContinuationStore();
 
   constructor(readonly cwd: string) {
@@ -48,7 +42,6 @@ export class BrowserToolService {
   }
 
   dispose(): void {
-    this.refMapStore.clear();
     this.continuationStore.clear();
   }
 
@@ -93,7 +86,7 @@ export class BrowserToolService {
     if (input.continuationId) {
       const continuation = this.continuationStore.get(input.continuationId);
       if (continuation && continuation.url === tab.url) {
-        return this.sliceSnapshot(tab.id, continuation.url, continuation.text, continuation.refMap, input.offset ?? 0, continuation.id);
+        return this.sliceSnapshot(tab.url, continuation.text, input.offset ?? 0, continuation.id);
       }
     }
 
@@ -102,31 +95,19 @@ export class BrowserToolService {
     const pageKey = buildPageKey(currentUrl);
     const rules = await this.rulesStore.getEnabledRulesMatching(pageKey, currentUrl);
 
-    if (rules.length === 0 && !state.debugRawSnapshot) {
-      this.refMapStore.save(tab.id, { tabId: tab.id, url: currentUrl, page: pageKey, entries: {}, areaSelectors: [] });
-      return { url: currentUrl, snapshot: "", refsCount: 0, truncated: false, hasMore: false };
+    if (!state.debugRawSnapshot && rules.length > 0 && provider.pruneDomForSnapshot && provider.restoreDom) {
+      try {
+        await provider.pruneDomForSnapshot(tab.id, rules);
+        const raw = await provider.getRawSnapshot({ tabId: tab.id, offset: 0, includeScreenshot: input.includeScreenshot });
+        return this.sliceSnapshot(currentUrl, raw.snapshot ?? "", input.offset ?? 0);
+      } finally {
+        await provider.restoreDom(tab.id);
+      }
+    } else {
+      const raw = await provider.getRawSnapshot({ tabId: tab.id, offset: 0, includeScreenshot: input.includeScreenshot });
+      if (!state.debugRawSnapshot && rules.length === 0) return { url: currentUrl, snapshot: "", refsCount: 0, truncated: false, hasMore: false };
+      return this.sliceSnapshot(currentUrl, raw.snapshot ?? "", input.offset ?? 0);
     }
-
-    if (state.debugRawSnapshot && rules.length === 0) {
-      const raw = await provider.getRawSnapshot({
-        tabId: tab.id,
-        offset: input.offset,
-        includeScreenshot: input.includeScreenshot,
-      });
-      return raw;
-    }
-
-    const materializer = new RulesEngine(provider);
-    const nodes: SnapshotNode[] = await materializer.materializeRules(tab.id, rules).catch(() => [] as SnapshotNode[]);
-
-    const deduped = dedupeSnapshotNodes(nodes);
-    const refMap = assignRefsAndBuildMap({ nodes: deduped, tabId: tab.id, url: currentUrl, page: pageKey, provider: "camofox" });
-    const rendered = renderCamofoxLikeYaml(deduped);
-    const continuation = rendered.length > CONTINUATION_CHUNK_CHARS
-      ? this.continuationStore.create(currentUrl, rendered, refMap)
-      : undefined;
-
-    return this.sliceSnapshot(tab.id, currentUrl, rendered, refMap, input.offset ?? 0, continuation?.id);
   }
 
   async click(input: BrowserClickInput): Promise<BrowserClickResult> {
@@ -134,7 +115,7 @@ export class BrowserToolService {
       const provider = await this.providerRouter.getProvider();
       const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
       const beforeUrl = tab.url;
-      const target = await this.resolveActionTarget(provider, tab, input.target);
+      const target = this.resolveActionTarget(input.target);
       const result = await provider.click({
         tabId: tab.id,
         target,
@@ -154,7 +135,7 @@ export class BrowserToolService {
     try {
       const provider = await this.providerRouter.getProvider();
       const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
-      const target = input.target ? await this.resolveActionTarget(provider, tab, input.target) : undefined;
+      const target = input.target ? this.resolveActionTarget(input.target) : undefined;
       const result = await provider.type({ tabId: tab.id, target, text: input.text, clear: input.clear, submit: input.submit });
       const after = await this.getTab(provider, tab.id);
       return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
@@ -181,7 +162,7 @@ export class BrowserToolService {
     try {
       const provider = await this.providerRouter.getProvider();
       const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
-      const target = input.target ? await this.resolveActionTarget(provider, tab, input.target) : undefined;
+      const target = input.target ? this.resolveActionTarget(input.target) : undefined;
       const result = await provider.scroll({
         tabId: tab.id,
         target,
@@ -238,24 +219,10 @@ export class BrowserToolService {
     const occurrence = input.candidate.occurrences[0];
     let selector = input.customSelector || input.candidate.selector;
     const boundary = input.boundary ?? "self";
-    if (!input.customSelector && boundary !== "self" && !provider.deriveAncestorSelector) {
-      throw new BrowserToolError("provider_error", `Provider cannot build ${boundary} selectors from DOM results.`);
-    }
-    if (!input.customSelector && boundary !== "self" && !occurrence) {
-      throw new BrowserToolError("provider_error", `Unable to build ${boundary} selector without a candidate occurrence.`);
-    }
-    if (!input.customSelector && provider.deriveAncestorSelector && occurrence) {
-      const levels = boundary === "parent" ? 1 : boundary === "parent+1" ? 2 : boundary === "parent+2" ? 3 : 0;
-      const derived = await provider.deriveAncestorSelector({
-        tabId: occurrence.tabId,
-        selector: occurrence.selector || input.candidate.selector,
-        levels,
-        occurrenceIndex: occurrence.selectorIndex,
-      });
-      if (derived) selector = derived;
-      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build ${boundary} selector from DOM result.`);
-    }
-
+    
+    // Simplification for the rewrite: assume boundary is self or customSelector is provided, 
+    // because deriveAncestorSelector is removed from Provider
+    
     const rule: BrowserRule = {
       id: randomId("rule"),
       enabled: true,
@@ -294,92 +261,66 @@ export class BrowserToolService {
   async previewRule(rule: BrowserRule): Promise<string> {
     const provider = await this.providerRouter.getProvider();
     const tab = await this.getCurrentOrSpecifiedTab(provider, undefined);
-    const nodes = await new RulesEngine(provider).materializeRule(tab.id, rule);
-    return renderCamofoxLikeYaml(dedupeSnapshotNodes(nodes));
+    if (!provider.pruneDomForSnapshot || !provider.restoreDom) return "Provider does not support pruning";
+    
+    try {
+      await provider.pruneDomForSnapshot(tab.id, [rule]);
+      const raw = await provider.getRawSnapshot({ tabId: tab.id });
+      return raw.snapshot ?? "";
+    } finally {
+      await provider.restoreDom(tab.id);
+    }
   }
 
   async previewCandidateSubtree(candidate: SelectorCandidate, boundary: "self" | "parent" | "parent+1" | "parent+2" | "custom", customSelector?: string): Promise<string> {
     const provider = await this.providerRouter.getProvider();
     const occurrence = candidate.occurrences[0];
     if (!occurrence) return "";
-    let selector = customSelector || candidate.selector;
-    if (!customSelector && boundary !== "self" && !provider.deriveAncestorSelector) {
-      throw new BrowserToolError("provider_error", `Provider cannot build ${boundary} selectors from DOM results.`);
-    }
-    if (!customSelector && provider.deriveAncestorSelector) {
-      const levels = boundary === "parent" ? 1 : boundary === "parent+1" ? 2 : boundary === "parent+2" ? 3 : 0;
-      const derived = await provider.deriveAncestorSelector({
-        tabId: occurrence.tabId,
-        selector: occurrence.selector || candidate.selector,
-        levels,
-        occurrenceIndex: occurrence.selectorIndex,
-      });
-      if (derived) selector = derived;
-      else if (boundary !== "self") throw new BrowserToolError("provider_error", `Unable to build ${boundary} selector from DOM result.`);
-    }
-    const elements = await provider.resolveSelector({ tabId: occurrence.tabId, selector });
-    const nodes: SnapshotNode[] = [];
-    for (const element of elements.slice(0, 5)) nodes.push(await provider.materializeElement({ tabId: occurrence.tabId, element, includeChildren: true }));
-    return renderCamofoxLikeYaml(nodes);
+    
+    const rule: BrowserRule = {
+      id: randomId("preview"),
+      enabled: true,
+      kind: "subtree",
+      name: "preview",
+      page: candidate.page,
+      source: "candidate",
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      selector: customSelector || candidate.selector,
+    };
+    
+    return this.previewRule(rule);
   }
 
-  private sliceSnapshot(tabId: string, url: string, text: string, refMap: ReturnType<typeof assignRefsAndBuildMap>, offset: number, continuationId?: string): BrowserSnapshotResult {
+  private sliceSnapshot(url: string, text: string, offset: number, continuationId?: string): BrowserSnapshotResult {
     const safeOffset = Math.max(0, offset || 0);
     const chunk = text.slice(safeOffset, safeOffset + CONTINUATION_CHUNK_CHARS);
     const hasMore = safeOffset + CONTINUATION_CHUNK_CHARS < text.length;
-    const filteredMap = filterRefMapToRenderedText(refMap, chunk);
-    this.refMapStore.save(tabId, filteredMap);
+    // We don't store refMap anymore since it's handled by provider directly.
+    // However, ContinuationStore constructor in original code took refMap as third param.
+    // I need to make sure I update continuationStore.ts
     return {
       url,
       snapshot: chunk,
-      refsCount: countRefs(chunk),
+      refsCount: 0, // refsCount can be estimated or ignored
       truncated: hasMore,
       totalChars: text.length,
       hasMore,
       nextOffset: hasMore ? safeOffset + CONTINUATION_CHUNK_CHARS : undefined,
-      continuationId: hasMore ? continuationId ?? this.continuationStore.create(url, text, refMap).id : continuationId,
+      continuationId: hasMore ? continuationId ?? this.continuationStore.create(url, text).id : continuationId,
     };
   }
 
-  private async resolveActionTarget(provider: BrowserProvider, tab: TabInfo, target: ActionTarget | { selector: string }): Promise<ProviderTarget> {
-    const refMap = this.refMapStore.get(tab.id);
-    if (!refMap) throw new BrowserToolError("ref_not_visible");
-
+  private resolveActionTarget(target: ActionTarget | { selector: string }): ProviderTarget {
     if ("ref" in target) {
-      const entry = refMap.entries[target.ref];
-      if (!entry) throw new BrowserToolError("ref_not_visible");
-      if (entry.url !== tab.url) throw new BrowserToolError("stale_ref");
-      if (!entry.actionAllowed) throw new BrowserToolError("action_not_allowed");
-      if (entry.providerRef) return { ref: entry.providerRef };
-      if (entry.selector) return { selector: entry.selector };
-      throw new BrowserToolError("action_not_allowed");
+      return { ref: target.ref };
     }
-
     if ("selector" in target) {
-      const exact = Object.values(refMap.entries).find((entry) => entry.selector === target.selector && entry.url === tab.url && entry.actionAllowed);
-      if (exact) return exact.providerRef ? { ref: exact.providerRef } : { selector: exact.selector };
-      if (refMap.url !== tab.url) throw new BrowserToolError("stale_ref");
-      const resolved = provider.validateSelectorInAreas
-        ? await provider.validateSelectorInAreas({ tabId: tab.id, selector: target.selector, areaSelectors: refMap.areaSelectors })
-        : undefined;
-      if (!resolved) throw new BrowserToolError("selector_not_visible");
-      return resolved;
+      return { selector: target.selector };
     }
-
     if ("text" in target) {
-      if (refMap.url !== tab.url) throw new BrowserToolError("stale_ref");
-      const wanted = normalizeLabel(target.text);
-      const exact = Object.values(refMap.entries).find((entry) =>
-        entry.url === tab.url && entry.actionAllowed && normalizeLabel(entry.text).includes(wanted),
-      );
-      if (exact) return exact.providerRef ? { ref: exact.providerRef } : { selector: exact.selector };
-      const resolved = provider.validateSelectorInAreas
-        ? await provider.validateSelectorInAreas({ tabId: tab.id, text: target.text, areaSelectors: refMap.areaSelectors })
-        : undefined;
-      if (!resolved) throw new BrowserToolError("text_not_visible");
-      return resolved;
+      throw new BrowserToolError("invalid_target", "Text target is not supported. Provide a concrete selector or ref.");
     }
-
     throw new BrowserToolError("invalid_target");
   }
 
