@@ -4,7 +4,11 @@
   "private": true,
   "description": "pi-coding-agent browser automation extension with filtered camofox snapshots",
   "pi": {
-    "extensions": ["./index.ts"]
+    "extensions": [
+      "./index.ts"
+    ]
   },
-  "dependencies": {}
+  "devDependencies": {
+    "@types/node": "^25.8.0"
+  }
 }

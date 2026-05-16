@@ -95,7 +95,7 @@ export class BrowserToolService {
     const pageKey = buildPageKey(currentUrl);
     const rules = await this.rulesStore.getEnabledRulesMatching(pageKey, currentUrl);
 
-    if (!state.debugRawSnapshot && rules.length > 0 && provider.pruneDomForSnapshot && provider.restoreDom) {
+    if (rules.length > 0 && provider.pruneDomForSnapshot && provider.restoreDom) {
       try {
         await provider.pruneDomForSnapshot(tab.id, rules);
         const raw = await provider.getRawSnapshot({ tabId: tab.id, offset: 0, includeScreenshot: input.includeScreenshot });

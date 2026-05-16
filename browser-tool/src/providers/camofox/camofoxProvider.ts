@@ -109,64 +109,83 @@ export class CamofoxProvider implements BrowserProvider {
     const expression = wrapDomHelpers(`
       const rules = ${JSON.stringify(rules)};
       
-      let style = document.getElementById('pi-prune-style');
-      if (!style) {
-        style = document.createElement('style');
-        style.id = 'pi-prune-style';
-        style.innerHTML = '.pi-pruned { display: none !important; }';
-        document.head.appendChild(style);
-      }
-
-      document.querySelectorAll('body *').forEach(el => el.classList.add('pi-pruned'));
-
-      const unprune = (el) => {
-        if (!el) return;
-        el.classList.remove('pi-pruned');
-        el.querySelectorAll('*').forEach(child => child.classList.remove('pi-pruned'));
-        let curr = el.parentElement;
-        while (curr && curr !== document.body && curr !== document.documentElement) {
-          curr.classList.remove('pi-pruned');
-          curr = curr.parentElement;
+      const findLocator = (loc) => {
+        if (loc.selector) {
+          const matches = queryAllSmart(loc.selector);
+          return matches[Math.max(0, (loc.occurrence || 1) - 1)] || matches[0];
         }
+        const matches = [];
+        for (const el of allElements()) {
+          if (loc.role && inferRole(el) !== loc.role) continue;
+          if (loc.headingLevel && headingLevel(el) !== loc.headingLevel) continue;
+          if (loc.text && !visibleText(el).toLowerCase().includes(loc.text.toLowerCase())) continue;
+          matches.push(el);
+        }
+        const occ = Math.max(0, (loc.occurrence || 1) - 1);
+        return matches[occ] || matches[0];
       };
 
+      // 1. Find all targets BEFORE hiding anything (so visibleText works)
+      const targetsToUnprune = new Set();
       for (const rule of rules) {
         if (rule.kind === 'subtree' && rule.selector) {
-          queryAllSmart(rule.selector).forEach(unprune);
+          queryAllSmart(rule.selector).forEach(el => targetsToUnprune.add(el));
         } else if (rule.kind === 'range') {
-          const findLocator = (loc) => {
-            if (loc.selector) return queryAllSmart(loc.selector)[0];
-            if (loc.text) {
-              const textLower = loc.text.toLowerCase();
-              for (const el of allElements()) {
-                if (visibleText(el).toLowerCase().includes(textLower)) return el;
-              }
-            }
-            return null;
-          };
-
           const startEl = findLocator(rule.start);
           const endEl = findLocator(rule.end);
-          
           if (startEl && endEl) {
              const all = allElements();
              let inRange = false;
              for (const el of all) {
                if (el === startEl) {
-                 if (rule.includeStart) unprune(el);
+                 if (rule.includeStart) targetsToUnprune.add(el);
                  inRange = true;
                  continue;
                }
                if (el === endEl) {
-                 if (rule.includeEnd) unprune(el);
+                 if (rule.includeEnd) targetsToUnprune.add(el);
                  inRange = false;
                  break;
                }
-               if (inRange) unprune(el);
+               if (inRange) targetsToUnprune.add(el);
              }
           }
         }
       }
+
+      // 2. Hide everything using inline styles to bypass CSP
+      document.querySelectorAll('body *').forEach(el => {
+        if (!el.hasAttribute('data-pi-pruned')) {
+          el.setAttribute('data-pi-pruned', 'true');
+          el.dataset.piD = el.style.getPropertyValue('display');
+          el.dataset.piDp = el.style.getPropertyPriority('display');
+        }
+        el.style.setProperty('display', 'none', 'important');
+      });
+
+      const restoreEl = (el) => {
+        if (el.dataset.piD) el.style.setProperty('display', el.dataset.piD, el.dataset.piDp);
+        else el.style.removeProperty('display');
+      };
+
+      // 3. Unprune the targets, their children, and their ancestors
+      const unprune = (el) => {
+        if (!el) return;
+        restoreEl(el);
+        
+        el.querySelectorAll('*').forEach(child => restoreEl(child));
+        
+        let curr = el.parentElement;
+        while (curr && curr !== document.body && curr !== document.documentElement) {
+          restoreEl(curr);
+          curr = curr.parentElement;
+        }
+      };
+
+      targetsToUnprune.forEach(unprune);
+      
+      // Force layout recalculation
+      document.body.offsetTop;
       return true;
     `);
 
@@ -175,9 +194,14 @@ export class CamofoxProvider implements BrowserProvider {
 
   async restoreDom(tabId: string): Promise<void> {
     const expression = wrapDomHelpers(`
-      const style = document.getElementById('pi-prune-style');
-      if (style) style.remove();
-      document.querySelectorAll('.pi-pruned').forEach(el => el.classList.remove('pi-pruned'));
+      document.querySelectorAll('[data-pi-pruned="true"]').forEach(el => {
+        if (el.dataset.piD) el.style.setProperty('display', el.dataset.piD, el.dataset.piDp);
+        else el.style.removeProperty('display');
+        
+        el.removeAttribute('data-pi-pruned');
+        delete el.dataset.piD;
+        delete el.dataset.piDp;
+      });
       return true;
     `);
     await this.internalEvaluate({ tabId, expression }).catch(() => {});
@@ -263,10 +287,13 @@ export class CamofoxProvider implements BrowserProvider {
   }
 
   async internalEvaluate<T>(input: InternalEvaluateInput): Promise<T> {
-    const response = await this.client.post<{ ok?: boolean; result?: T }>(`/tabs/${encodeURIComponent(input.tabId)}/evaluate`, {
+    const response = await this.client.post<{ ok?: boolean; result?: T; error?: string }>(`/tabs/${encodeURIComponent(input.tabId)}/evaluate`, {
       userId: this.options.userId,
       expression: input.expression,
     });
+    if (response.ok === false) {
+      throw new BrowserToolError("provider_error", `JS Evaluation failed: ${response.error}`);
+    }
     return response.result as T;
   }
 }

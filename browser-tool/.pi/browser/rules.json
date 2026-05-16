@@ -14,7 +14,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T11:57:32.083Z",
-      "updatedAt": "2026-05-15T11:57:32.083Z",
+      "updatedAt": "2026-05-16T07:17:34.962Z",
       "start": {
         "role": "heading",
         "headingLevel": 1,
@@ -32,7 +32,7 @@
     },
     {
       "id": "rule_mp6v6k9o_sz5bmll",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: Сейчас смотрят 8 человек DevOps инженер (Hadoop) Опыт 3-6 лет Можно удалённо ООО HeadHunter::Infrastructure engineers 4.5 • 243 отзыва МоскваБелорусская и еще 3 Развитие и поддержка сервисов платформы (HDFS, Trino, Airflow, Spark, Flink). Оптимизация процессов и технологий внутри платформы. Переезд мониторинга на prometheus. Опыт работы с Hadoop. Владение Python/Go/Bash и умение писать скрипты автоматизации. Желание осваивать новые технологии. Понимание важности документации. Откликнуться",
       "page": {
@@ -43,8 +43,56 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T11:58:59.868Z",
-      "updatedAt": "2026-05-15T11:58:59.868Z",
+      "updatedAt": "2026-05-15T13:21:36.818Z",
       "selector": "div[data-qa=\"vacancy-serp__vacancy\"]"
+    },
+    {
+      "id": "rule_mp6y56ik_kfq6jvn",
+      "enabled": false,
+      "kind": "subtree",
+      "name": "Область вокруг: DevOps инженер (Hadoop)",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/search/vacancy",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-15T13:21:54.234Z",
+      "updatedAt": "2026-05-15T15:49:06.022Z",
+      "selector": "a[data-qa=\"serp-item__title\"]"
+    },
+    {
+      "id": "rule_mp6y6whg_6lbh0za",
+      "enabled": false,
+      "kind": "subtree",
+      "name": "Область вокруг: перейти к поиску",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/search/vacancy",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-15T13:23:14.548Z",
+      "updatedAt": "2026-05-15T13:26:21.719Z",
+      "selector": "a[data-qa=\"a11y-search-input\"]"
+    },
+    {
+      "id": "rule_mp80jkik_6h5jlxv",
+      "enabled": false,
+      "kind": "subtree",
+      "name": "Область вокруг: В этой вакансии нужно будет тесно работать с технологиями Big Data (Hadoop). Прошу вас ответить на 1 вопрос Ответьте на вопросы Есть ли у вас опыт работы/знания/проходили ли вы обучение по Hadoop? Да Нет Резюме для отклика DevOps-инженер Сопроводительное письмо Добавить Откликнуться",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/applicant/vacancy_response",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-16T07:16:50.970Z",
+      "updatedAt": "2026-05-16T07:17:35.463Z",
+      "selector": "form[name=\"vacancy_response\"]"
     }
   ]
 }
