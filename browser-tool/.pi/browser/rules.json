@@ -3,7 +3,7 @@
   "rules": [
     {
       "id": "rule_mp6v4oj7_va1e7qi",
-      "enabled": true,
+      "enabled": false,
       "kind": "range",
       "name": "Диапазон: Отклик на вакансию",
       "page": {
@@ -14,7 +14,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T11:57:32.083Z",
-      "updatedAt": "2026-05-16T07:17:34.962Z",
+      "updatedAt": "2026-05-16T08:18:31.785Z",
       "start": {
         "role": "heading",
         "headingLevel": 1,
@@ -43,7 +43,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T11:58:59.868Z",
-      "updatedAt": "2026-05-15T13:21:36.818Z",
+      "updatedAt": "2026-05-16T08:19:54.020Z",
       "selector": "div[data-qa=\"vacancy-serp__vacancy\"]"
     },
     {
@@ -59,12 +59,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T13:21:54.234Z",
-      "updatedAt": "2026-05-15T15:49:06.022Z",
+      "updatedAt": "2026-05-16T08:20:49.573Z",
       "selector": "a[data-qa=\"serp-item__title\"]"
     },
     {
       "id": "rule_mp6y6whg_6lbh0za",
-      "enabled": false,
+      "enabled": true,
       "kind": "subtree",
       "name": "Область вокруг: перейти к поиску",
       "page": {
@@ -75,12 +75,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T13:23:14.548Z",
-      "updatedAt": "2026-05-15T13:26:21.719Z",
+      "updatedAt": "2026-05-16T08:20:55.129Z",
       "selector": "a[data-qa=\"a11y-search-input\"]"
     },
     {
       "id": "rule_mp80jkik_6h5jlxv",
-      "enabled": false,
+      "enabled": true,
       "kind": "subtree",
       "name": "Область вокруг: В этой вакансии нужно будет тесно работать с технологиями Big Data (Hadoop). Прошу вас ответить на 1 вопрос Ответьте на вопросы Есть ли у вас опыт работы/знания/проходили ли вы обучение по Hadoop? Да Нет Резюме для отклика DevOps-инженер Сопроводительное письмо Добавить Откликнуться",
       "page": {
@@ -91,7 +91,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-16T07:16:50.970Z",
-      "updatedAt": "2026-05-16T07:17:35.463Z",
+      "updatedAt": "2026-05-16T08:18:33.590Z",
       "selector": "form[name=\"vacancy_response\"]"
     }
   ]

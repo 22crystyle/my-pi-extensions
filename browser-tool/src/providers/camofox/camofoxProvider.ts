@@ -129,7 +129,10 @@ export class CamofoxProvider implements BrowserProvider {
       const targetsToUnprune = new Set();
       for (const rule of rules) {
         if (rule.kind === 'subtree' && rule.selector) {
-          queryAllSmart(rule.selector).forEach(el => targetsToUnprune.add(el));
+          queryAllSmart(rule.selector).forEach(el => {
+            targetsToUnprune.add(el);
+            el.querySelectorAll('*').forEach(child => targetsToUnprune.add(child));
+          });
         } else if (rule.kind === 'range') {
           const startEl = findLocator(rule.start);
           const endEl = findLocator(rule.end);
@@ -172,8 +175,6 @@ export class CamofoxProvider implements BrowserProvider {
       const unprune = (el) => {
         if (!el) return;
         restoreEl(el);
-        
-        el.querySelectorAll('*').forEach(child => restoreEl(child));
         
         let curr = el.parentElement;
         while (curr && curr !== document.body && curr !== document.documentElement) {
