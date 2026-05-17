@@ -64,7 +64,7 @@
     },
     {
       "id": "rule_mp6y6whg_6lbh0za",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: перейти к поиску",
       "page": {
@@ -75,12 +75,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-15T13:23:14.548Z",
-      "updatedAt": "2026-05-16T08:20:55.129Z",
+      "updatedAt": "2026-05-16T11:16:34.516Z",
       "selector": "a[data-qa=\"a11y-search-input\"]"
     },
     {
       "id": "rule_mp80jkik_6h5jlxv",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: В этой вакансии нужно будет тесно работать с технологиями Big Data (Hadoop). Прошу вас ответить на 1 вопрос Ответьте на вопросы Есть ли у вас опыт работы/знания/проходили ли вы обучение по Hadoop? Да Нет Резюме для отклика DevOps-инженер Сопроводительное письмо Добавить Откликнуться",
       "page": {
@@ -91,7 +91,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-16T07:16:50.970Z",
-      "updatedAt": "2026-05-16T08:18:33.590Z",
+      "updatedAt": "2026-05-16T11:16:33.484Z",
       "selector": "form[name=\"vacancy_response\"]"
     }
   ]

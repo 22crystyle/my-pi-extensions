@@ -116,15 +116,32 @@ export class BrowserToolService {
       const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
       const beforeUrl = tab.url;
       const target = this.resolveActionTarget(input.target);
-      const result = await provider.click({
-        tabId: tab.id,
-        target,
-        button: input.button,
-        clickCount: input.clickCount,
-        waitAfter: input.waitAfter,
-      });
-      const after = await this.getTab(provider, tab.id);
-      return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? beforeUrl, navigation: (after?.url ?? result.url) !== beforeUrl };
+
+      let needsRestore = false;
+      if ('ref' in target && target.ref && provider.pruneDomForSnapshot && provider.restoreDom) {
+        const pageKey = buildPageKey(tab.url);
+        const rules = await this.rulesStore.getEnabledRulesMatching(pageKey, tab.url);
+        if (rules.length > 0) {
+          await provider.pruneDomForSnapshot(tab.id, rules);
+          needsRestore = true;
+        }
+      }
+
+      try {
+        const result = await provider.click({
+          tabId: tab.id,
+          target,
+          button: input.button,
+          clickCount: input.clickCount,
+          waitAfter: input.waitAfter,
+        });
+        const after = await this.getTab(provider, tab.id);
+        return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? beforeUrl, navigation: (after?.url ?? result.url) !== beforeUrl };
+      } finally {
+        if (needsRestore) {
+          await provider.restoreDom(tab.id).catch(() => {});
+        }
+      }
     } catch (error) {
       const mapped = toActionError(error);
       return { ok: false, tabId: input.tabId ?? "", ...mapped };
@@ -136,9 +153,26 @@ export class BrowserToolService {
       const provider = await this.providerRouter.getProvider();
       const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
       const target = input.target ? this.resolveActionTarget(input.target) : undefined;
-      const result = await provider.type({ tabId: tab.id, target, text: input.text, clear: input.clear, submit: input.submit });
-      const after = await this.getTab(provider, tab.id);
-      return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+
+      let needsRestore = false;
+      if (target && 'ref' in target && target.ref && provider.pruneDomForSnapshot && provider.restoreDom) {
+        const pageKey = buildPageKey(tab.url);
+        const rules = await this.rulesStore.getEnabledRulesMatching(pageKey, tab.url);
+        if (rules.length > 0) {
+          await provider.pruneDomForSnapshot(tab.id, rules);
+          needsRestore = true;
+        }
+      }
+
+      try {
+        const result = await provider.type({ tabId: tab.id, target, text: input.text, clear: input.clear, submit: input.submit });
+        const after = await this.getTab(provider, tab.id);
+        return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+      } finally {
+        if (needsRestore) {
+          await provider.restoreDom(tab.id).catch(() => {});
+        }
+      }
     } catch (error) {
       const mapped = toActionError(error);
       return { ok: false, tabId: input.tabId ?? "", ...mapped };
@@ -163,14 +197,31 @@ export class BrowserToolService {
       const provider = await this.providerRouter.getProvider();
       const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
       const target = input.target ? this.resolveActionTarget(input.target) : undefined;
-      const result = await provider.scroll({
-        tabId: tab.id,
-        target,
-        direction: input.direction,
-        amount: normalizeScrollAmount(input.amount),
-      });
-      const after = await this.getTab(provider, tab.id);
-      return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+
+      let needsRestore = false;
+      if (target && 'ref' in target && target.ref && provider.pruneDomForSnapshot && provider.restoreDom) {
+        const pageKey = buildPageKey(tab.url);
+        const rules = await this.rulesStore.getEnabledRulesMatching(pageKey, tab.url);
+        if (rules.length > 0) {
+          await provider.pruneDomForSnapshot(tab.id, rules);
+          needsRestore = true;
+        }
+      }
+
+      try {
+        const result = await provider.scroll({
+          tabId: tab.id,
+          target,
+          direction: input.direction,
+          amount: normalizeScrollAmount(input.amount),
+        });
+        const after = await this.getTab(provider, tab.id);
+        return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+      } finally {
+        if (needsRestore) {
+          await provider.restoreDom(tab.id).catch(() => {});
+        }
+      }
     } catch (error) {
       const mapped = toActionError(error);
       return { ok: false, tabId: input.tabId ?? "", ...mapped };
