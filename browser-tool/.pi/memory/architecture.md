@@ -55,3 +55,7 @@ Generated range rules are snapshot-tree boundaries, not DOM selectors. Range sta
 ## Rule overlap handling
 
 All enabled rules matching the current URL are applied together. Broad page rules such as `*.hh.ru *` and specific page rules such as `spb.hh.ru /vacancies` do not override each other; their selected areas are unioned over the same source snapshot tree. Page specificity is used only as metadata/tie-breaker for rule ownership annotations, not for YAML ordering. YAML ordering and nesting are always inherited from the camofox source snapshot tree.
+
+## Known snapshot performance limitation
+
+On heavy hh.ru pages such as `https://spb.hh.ru/search/vacancy`, CSS-only pruning (`visibility: hidden` / `display: none` while keeping the original DOM attached) may not make `camofox-browser` `GET /tabs/{tabId}/snapshot` faster: the hidden DOM remains in the document and camofox/Playwright still spends ~28–30 seconds before returning/timeout. A diagnostic run showed that replacing `document.body` with a tiny temporary DOM makes snapshot return in ~0.7s, so future optimizations need real DOM detachment/backend-side root-scoped snapshotting rather than only CSS hiding.

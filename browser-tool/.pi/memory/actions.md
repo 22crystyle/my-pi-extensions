@@ -238,3 +238,33 @@
 Файлы: `src/core/browserToolService.ts`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`
 Результат: Клики/тайп/скролл по ref из снэпшота корректно резолвятся — DOM находится в том же фильтрованном состоянии, что и при снэпшоте.
 Как проверить: Вызвать `browser_snapshot` на странице с включенным правилом, затем `browser_click(ref: "e3")` на элемент из снэпшота — клик должен произойти по правильному элементу.
+
+## 2026-05-17 — исправление поломки динамических меню при In-Browser DOM Pruning
+Агент: AI Dev agent
+Действие:
+- Выявлена причина неработающих dropdown/списков (например, выбор резюме на hh.ru) при выполнении `browser_click`: In-Browser DOM Pruning использовал `display: none !important`, что ломало вычисления позиционирования (например, Popper.js/Floating UI) и скрывало родительские контейнеры меню во время повторного pruning перед кликом.
+- В `src/providers/camofox/camofoxProvider.ts` заменён `display: none !important` на `visibility: hidden !important` в методах `pruneDomForSnapshot` и `restoreDom`.
+- Обновлены `.pi/memory/actions.md` и `.pi/memory/decisions.md`.
+Файлы: `src/providers/camofox/camofoxProvider.ts`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`
+Результат: Элементы корректно удаляются из accessibility tree (сохраняя нативные индексы camofox), но их layout space (габариты) сохраняется, благодаря чему клики не ломают скрипты позиционирования динамических выпадающих меню.
+Как проверить: Вызвать `browser_click` по кнопке открытия меню выбора резюме на `hh.ru` — выпадающий список должен успешно открыться без визуальных/скриптовых поломок.
+
+## 2026-05-19 — многострочное отображение Candidates
+Агент: AI Dev agent
+Действие:
+- Изменено отображение строк Candidates в `/browser`: `Count`, `Rule` и `Text` теперь выводятся на отдельных уровнях/строках.
+- Сохранены курсор выбора `>` и иконка `[+]` на первой строке candidate item; переходы стрелками/PageUp/PageDown по-прежнему работают по candidate item, а не по внутренним строкам.
+- Для вкладки Candidates уменьшено окно прокрутки до 5 items, чтобы многострочные записи не раздували панель за пределы экрана; длинные rule/text строки обрезаются по ширине.
+Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
+Результат: Candidates читаются как вложенный блок `Count; Rule; Text`, не ломая выбор и навигацию.
+Как проверить: Открыть `/browser` → Candidates, нажать `g` при необходимости, проверить формат многострочных entries, стрелки/Enter и видимость `[+]`.
+
+## 2026-05-19 — диагностика таймаута browser-snapshot на hh search
+Агент: AI Dev agent
+Действие:
+- Измерен путь `/browser-snapshot hh.yaml` для `https://spb.hh.ru/search/vacancy`: matching rule один — `div[data-qa="vacancy-serp__vacancy"]`.
+- Проверено, что текущий CSS-pruning (`visibility: hidden`) занимает около 2 секунд, оставляет DOM из 6464 элементов на месте и после фильтра всё равно приводит `GET /snapshot` к 30-секундному timeout/500.
+- Проверено, что даже при видимой только 1 карточке (`~127` visible elements) или при `body { display: none }` camofox snapshot на этой hh-странице занимает ~28–30 секунд; при временной замене `body` на DOM из 2 элементов snapshot занимает ~0.7 секунды.
+Файлы: `.pi/memory/actions.md`
+Результат: Причина таймаута — CSS-only hiding не уменьшает стоимость camofox snapshot на hh.ru, потому что тяжёлый DOM остаётся в документе; фильтрация добавляет overhead поверх почти полного времени raw snapshot.
+Как проверить: Повторить профиль: `pruneDomForSnapshot` → `getRawSnapshot`; затем сравнить с временной заменой `document.body` на минимальный DOM.

@@ -4,7 +4,7 @@ import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-age
 import type { BrowserToolService } from "../core/browserToolService";
 import type { BrowserRule, BrowserSnapshotInput, BrowserSnapshotResult, SelectorCandidate } from "../core/types";
 import { formatPageMatcher, pageMatcherKey } from "../core/pageMatcher";
-import { fuzzyMatch, truncateMiddle } from "../core/utils";
+import { fuzzyMatch, normalizeWhitespace, truncateMiddle } from "../core/utils";
 import { Input, Key, matchesKey, truncateToWidth } from "@mariozechner/pi-tui";
 import { pickPageScope } from "./scopePicker";
 import { rangeEndBoundaryLocatorFromCandidate, rangeStartBoundaryLocatorFromCandidate } from "../core/selectorEngine";
@@ -171,7 +171,9 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
     let selected = 0;
     let scroll = 0;
     let candidateGroupByRule = false;
-    const pageSize = 20;
+    const rulesPageSize = 20;
+    const candidatePageSize = 5;
+    const currentPageSize = () => tab === "candidates" ? candidatePageSize : rulesPageSize;
 
     let filter = "";
     let filterMode = false;
@@ -232,6 +234,7 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
 
         // Auto-scroll logic to keep the selected item in view.
         const actionableItems = actionable();
+        const pageSize = currentPageSize();
         scroll = keepSelectedInView(selected, scroll, pageSize, actionableItems.length);
 
         for (const item of list) {
@@ -244,19 +247,19 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
           const isSelected = actionIndex === selected;
           const prefix = isSelected ? "> " : "  ";
           const marker = item.type === "rule" ? (item.rule.enabled ? "[x]" : "[ ]") : "[+]";
-          let text = "";
-          if (item.type === "rule") {
-            text = `${prefix}${marker} ${item.rule.name}  ${describeRule(item.rule)}`;
-          } else {
-            text = `${prefix}${marker} ${formatCandidatePanelItem(item)}`;
-          }
+          const itemLines = item.type === "rule"
+            ? [`${prefix}${marker} ${item.rule.name}  ${describeRule(item.rule)}`]
+            : formatCandidatePanelItemLines(item, prefix, marker, width);
 
           if (actionIndex >= scroll && actionIndex < scroll + pageSize) {
             if (!printedHeaderForCurrentGroup) {
               lines.push(themed.muted(`Page: ${lastHeader}`));
               printedHeaderForCurrentGroup = true;
             }
-            lines.push(isSelected ? themed.selected(truncateToWidth(text, width)) : truncateToWidth(text, width));
+            for (const itemLine of itemLines) {
+              const renderedLine = truncateToWidth(itemLine, width);
+              lines.push(isSelected ? themed.selected(renderedLine) : renderedLine);
+            }
           }
           
           actionIndex++;
@@ -282,15 +285,15 @@ async function showPanel(ctx: ExtensionContext, service: BrowserToolService): Pr
         }
 
         if (matchesKey(data, Key.escape)) return done({ type: "close" });
-        if (matchesKey(data, Key.tab)) { tab = tab === "rules" ? "candidates" : "rules"; selected = 0; tui.requestRender(); return; }
+        if (matchesKey(data, Key.tab)) { tab = tab === "rules" ? "candidates" : "rules"; selected = 0; scroll = 0; tui.requestRender(); return; }
         if (matchesKey(data, Key.slash)) { filterInput.setValue(filter); filterMode = true; tui.requestRender(); return; }
         if (matchesKey(data, "c")) return done({ type: "config" });
         if (matchesKey(data, "r") && tab === "candidates") return done({ type: "refresh" });
         if (matchesKey(data, "g") && tab === "candidates") { candidateGroupByRule = !candidateGroupByRule; selected = 0; scroll = 0; tui.requestRender(); return; }
         if (matchesKey(data, Key.up)) { selected = clampIndex(selected - 1, actionable().length); tui.requestRender(); return; }
         if (matchesKey(data, Key.down)) { selected = clampIndex(selected + 1, actionable().length); tui.requestRender(); return; }
-        if (matchesKey(data, Key.pageUp)) { selected = clampIndex(selected - pageSize, actionable().length); tui.requestRender(); return; }
-        if (matchesKey(data, Key.pageDown)) { selected = clampIndex(selected + pageSize, actionable().length); tui.requestRender(); return; }
+        if (matchesKey(data, Key.pageUp)) { selected = clampIndex(selected - currentPageSize(), actionable().length); tui.requestRender(); return; }
+        if (matchesKey(data, Key.pageDown)) { selected = clampIndex(selected + currentPageSize(), actionable().length); tui.requestRender(); return; }
         if (matchesKey(data, Key.home)) { selected = 0; tui.requestRender(); return; }
         if (matchesKey(data, Key.end)) { selected = clampIndex(actionable().length - 1, actionable().length); tui.requestRender(); return; }
 
@@ -649,16 +652,23 @@ function candidateRuleName(candidate: SelectorCandidate): string {
   return candidate.selector;
 }
 
-function formatCandidatePanelItem(item: Extract<PanelItem, { type: "candidate" }>): string {
-  const rule = truncateMiddle(candidateRuleName(item.candidate), CANDIDATE_RULE_MAX);
-  const text = truncateMiddle(candidateText(item.candidate), CANDIDATE_TEXT_MAX);
-  const prefix = item.grouped ? `Count: ${item.count}, ` : "";
-  const matches = !item.grouped && item.count > 1 ? `, Matches: ${item.count}` : "";
-  return `${prefix}Rule: ${rule}, Text: ${text}${matches}`;
+function formatCandidatePanelItemLines(item: Extract<PanelItem, { type: "candidate" }>, prefix: string, marker: string, width: number): string[] {
+  const nestedPrefix = `${" ".repeat(prefix.length + marker.length + 1)}  `;
+  const ruleLabel = "Rule: ";
+  const textLabel = "Text: ";
+  const nestedWidth = Math.max(12, width - nestedPrefix.length);
+  const rule = truncateMiddle(candidateRuleName(item.candidate), Math.min(CANDIDATE_RULE_MAX, Math.max(12, nestedWidth - ruleLabel.length - 1)));
+  const text = truncateMiddle(candidateText(item.candidate) || "(empty)", Math.min(CANDIDATE_TEXT_MAX, Math.max(12, nestedWidth - textLabel.length - 1)));
+
+  return [
+    `${prefix}${marker} Count: ${item.count};`,
+    `${nestedPrefix}${ruleLabel}${rule};`,
+    `${nestedPrefix}${textLabel}${text};`,
+  ];
 }
 
 function candidateText(candidate: SelectorCandidate): string {
-  return candidate.label || candidate.text || candidate.ariaLabel || candidate.placeholder || "";
+  return normalizeWhitespace(candidate.label || candidate.text || candidate.ariaLabel || candidate.placeholder || "");
 }
 
 function describeRule(rule: BrowserRule): string {

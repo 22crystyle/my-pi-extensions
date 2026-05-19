@@ -160,15 +160,15 @@ export class CamofoxProvider implements BrowserProvider {
       document.querySelectorAll('body *').forEach(el => {
         if (!el.hasAttribute('data-pi-pruned')) {
           el.setAttribute('data-pi-pruned', 'true');
-          el.dataset.piD = el.style.getPropertyValue('display');
-          el.dataset.piDp = el.style.getPropertyPriority('display');
+          el.dataset.piD = el.style.getPropertyValue('visibility');
+          el.dataset.piDp = el.style.getPropertyPriority('visibility');
         }
-        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('visibility', 'hidden', 'important');
       });
 
       const restoreEl = (el) => {
-        if (el.dataset.piD) el.style.setProperty('display', el.dataset.piD, el.dataset.piDp);
-        else el.style.removeProperty('display');
+        if (el.dataset.piD) el.style.setProperty('visibility', el.dataset.piD, el.dataset.piDp);
+        else el.style.removeProperty('visibility');
       };
 
       // 3. Unprune the targets, their children, and their ancestors
@@ -196,8 +196,8 @@ export class CamofoxProvider implements BrowserProvider {
   async restoreDom(tabId: string): Promise<void> {
     const expression = wrapDomHelpers(`
       document.querySelectorAll('[data-pi-pruned="true"]').forEach(el => {
-        if (el.dataset.piD) el.style.setProperty('display', el.dataset.piD, el.dataset.piDp);
-        else el.style.removeProperty('display');
+        if (el.dataset.piD) el.style.setProperty('visibility', el.dataset.piD, el.dataset.piDp);
+        else el.style.removeProperty('visibility');
         
         el.removeAttribute('data-pi-pruned');
         delete el.dataset.piD;
