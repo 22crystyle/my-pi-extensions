@@ -91,9 +91,9 @@ function parseSnapshotCommandArgs(args: string): { input: BrowserSnapshotInput; 
     } else if (token.startsWith("--file=")) {
       outputFile = token.slice("--file=".length);
     } else if (token === "--tab" && tokens[i + 1]) {
-      input.tabId = tokens[++i];
+      input.tabIndex = Number(tokens[++i]) || undefined;
     } else if (token.startsWith("--tab=")) {
-      input.tabId = token.slice("--tab=".length);
+      input.tabIndex = Number(token.slice("--tab=".length)) || undefined;
     } else if (token === "--offset" && tokens[i + 1]) {
       input.offset = Number(tokens[++i]) || 0;
     } else if (token.startsWith("--offset=")) {

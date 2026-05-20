@@ -3,6 +3,7 @@ import { BrowserToolError, toActionError } from "./errors";
 import { buildPageKey } from "./pageMatcher";
 import { ProviderRouter } from "./providerRouter";
 import type {
+  ActionResult,
   ActionTarget,
   BrowserClickInput,
   BrowserClickResult,
@@ -34,6 +35,7 @@ export class BrowserToolService {
 
   private readonly providerRouter: ProviderRouter;
   private readonly continuationStore = new ContinuationStore();
+  private readonly snapshotLinkUrls = new Map<string, Map<string, string>>();
 
   constructor(readonly cwd: string) {
     this.rulesStore = new RulesStore(cwd);
@@ -52,68 +54,100 @@ export class BrowserToolService {
 
       if (input.action === "new_tab") {
         const created = await provider.createTab({ url: input.url });
-        await this.uiStateStore.patch({ currentTabId: created.id });
-        return { ok: true, tabId: created.id, url: created.url, title: created.title };
+        await this.syncTabsState(provider);
+        const state = await this.uiStateStore.load();
+        const nextTabs = state.tabs.map(t => ({ ...t, active: t.id === created.id }));
+        await this.uiStateStore.patch({ tabs: nextTabs });
+        return { ok: true, url: created.url, title: created.title, tabs: this.formatTabs(nextTabs) };
       }
 
       if (input.action === "switch_tab") {
-        tab = await this.findTab(provider, input.tabTarget ?? input.tabId);
-        if (!tab) throw new BrowserToolError("tab_not_found");
-        await this.uiStateStore.patch({ currentTabId: tab.id });
-        return { ok: true, tabId: tab.id, url: tab.url, title: tab.title };
+        await this.syncTabsState(provider);
+        const state = await this.uiStateStore.load();
+        let targetId: string | undefined;
+        
+        if (input.tabTarget && !isNaN(Number(input.tabTarget))) {
+          const index = Number(input.tabTarget);
+          targetId = state.tabs.find(t => t.index === index)?.id;
+        }
+        if (!targetId) {
+          tab = await this.findTab(provider, input.tabTarget);
+          targetId = tab?.id;
+        }
+
+        if (!targetId) throw new BrowserToolError("tab_not_found");
+        const nextTabs = state.tabs.map(t => ({ ...t, active: t.id === targetId }));
+        await this.uiStateStore.patch({ tabs: nextTabs });
+        
+        const activated = state.tabs.find(t => t.id === targetId);
+        return { ok: true, url: activated?.url || "", title: activated?.title || "", tabs: this.formatTabs(nextTabs) };
       }
 
-      tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId, input.action === "url" ? input.url : undefined);
+      tab = await this.getCurrentOrSpecifiedTab(provider, input.tabIndex, input.action === "url" ? input.url : undefined);
       const result = await provider.navigate({
         tabId: tab.id,
         action: input.action,
         url: input.url,
         waitUntil: input.waitUntil,
       });
-      await this.uiStateStore.patch({ currentTabId: result.tabId });
-      return { ok: result.ok, tabId: result.tabId, url: result.url, title: result.title };
+      await this.syncTabsState(provider);
+      const state = await this.uiStateStore.load();
+      const nextTabs = state.tabs.map(t => ({ ...t, active: t.id === result.tabId }));
+      await this.uiStateStore.patch({ tabs: nextTabs });
+      return { ok: result.ok, url: result.url, title: result.title, tabs: this.formatTabs(nextTabs) };
     } catch (error) {
       const mapped = toActionError(error);
-      return { ok: false, tabId: input.tabId ?? "", url: "", ...mapped };
+      return { ok: false, url: "", ...mapped };
     }
   }
 
   async snapshot(input: BrowserSnapshotInput): Promise<BrowserSnapshotResult> {
     const provider = await this.providerRouter.getProvider();
-    const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
-    await this.uiStateStore.patch({ currentTabId: tab.id });
+    const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabIndex);
+    const state = await this.uiStateStore.load();
+    await this.uiStateStore.patch({ tabs: state.tabs.map(t => ({ ...t, active: t.id === tab.id })) });
 
     if (input.continuationId) {
       const continuation = this.continuationStore.get(input.continuationId);
       if (continuation && continuation.url === tab.url) {
-        return this.sliceSnapshot(tab.url, continuation.text, input.offset ?? 0, continuation.id);
+        const sliced = this.sliceSnapshot(tab.url, continuation.text, input.offset ?? 0, continuation.id);
+        sliced.tabs = this.formatTabs((await this.uiStateStore.load()).tabs);
+        return sliced;
       }
     }
 
-    const state = await this.uiStateStore.load();
     const currentUrl = tab.url;
     const pageKey = buildPageKey(currentUrl);
     const rules = await this.rulesStore.getEnabledRulesMatching(pageKey, currentUrl);
 
+    let rawSnapshot = "";
     if (rules.length > 0 && provider.pruneDomForSnapshot && provider.restoreDom) {
       try {
         await provider.pruneDomForSnapshot(tab.id, rules);
         const raw = await provider.getRawSnapshot({ tabId: tab.id, offset: 0, includeScreenshot: input.includeScreenshot });
-        return this.sliceSnapshot(currentUrl, raw.snapshot ?? "", input.offset ?? 0);
+        rawSnapshot = raw.snapshot ?? "";
       } finally {
         await provider.restoreDom(tab.id);
       }
     } else {
       const raw = await provider.getRawSnapshot({ tabId: tab.id, offset: 0, includeScreenshot: input.includeScreenshot });
-      if (!state.debugRawSnapshot && rules.length === 0) return { url: currentUrl, snapshot: "", refsCount: 0, truncated: false, hasMore: false };
-      return this.sliceSnapshot(currentUrl, raw.snapshot ?? "", input.offset ?? 0);
+      if (!state.debugRawSnapshot && rules.length === 0) rawSnapshot = "";
+      else rawSnapshot = raw.snapshot ?? "";
     }
+
+    if (!input.continuationId) {
+      this.snapshotLinkUrls.set(this.snapshotLinkKey(tab.id, currentUrl), extractLinkUrlsByRef(rawSnapshot));
+    }
+
+    const sliced = this.sliceSnapshot(currentUrl, rawSnapshot, input.offset ?? 0);
+    sliced.tabs = this.formatTabs((await this.uiStateStore.load()).tabs);
+    return sliced;
   }
 
   async click(input: BrowserClickInput): Promise<BrowserClickResult> {
     try {
       const provider = await this.providerRouter.getProvider();
-      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
+      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabIndex);
       const beforeUrl = tab.url;
       const target = this.resolveActionTarget(input.target);
 
@@ -127,31 +161,52 @@ export class BrowserToolService {
         }
       }
 
+      const beforeTabs = await provider.listTabs({}).catch(() => [tab]);
+      const beforeTabIds = new Set(beforeTabs.map(t => t.id));
+      const clickedRef = 'ref' in target ? target.ref : undefined;
+      const snapshotLinkUrl = clickedRef ? this.snapshotLinkUrls.get(this.snapshotLinkKey(tab.id, beforeUrl))?.get(normalizeRef(clickedRef)) : undefined;
+
+      let result: ActionResult;
       try {
-        const result = await provider.click({
+        result = await provider.click({
           tabId: tab.id,
           target,
           button: input.button,
           clickCount: input.clickCount,
           waitAfter: input.waitAfter,
         });
-        const after = await this.getTab(provider, tab.id);
-        return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? beforeUrl, navigation: (after?.url ?? result.url) !== beforeUrl };
       } finally {
         if (needsRestore) {
           await provider.restoreDom(tab.id).catch(() => {});
         }
       }
+
+      const waitTimeoutMs = snapshotLinkUrl && input.waitAfter !== false ? 5000 : input.waitAfter === false ? 300 : 2000;
+      const observedTabs = await this.waitForTabsAfterAction(provider, beforeTabIds, tab.id, beforeUrl, waitTimeoutMs, snapshotLinkUrl);
+      await this.syncTabsState(provider, observedTabs);
+
+      const openedTab = observedTabs.find(t => !beforeTabIds.has(t.id));
+      let after = await this.getTab(provider, tab.id);
+
+      if (openedTab) {
+        const state = await this.uiStateStore.load();
+        await this.uiStateStore.patch({ tabs: state.tabs.map(t => ({ ...t, active: t.id === openedTab.id })) });
+      }
+
+      after = await this.getTab(provider, tab.id);
+      const tabs = this.formatTabs((await this.uiStateStore.load()).tabs);
+      const currentUrl = openedTab?.url ?? after?.url ?? result.url ?? beforeUrl;
+      return { ok: result.ok, url: currentUrl, navigation: Boolean(openedTab) || (after?.url ?? result.url) !== beforeUrl, tabs };
     } catch (error) {
       const mapped = toActionError(error);
-      return { ok: false, tabId: input.tabId ?? "", ...mapped };
+      return { ok: false, ...mapped };
     }
   }
 
   async type(input: BrowserTypeInput): Promise<BrowserTypeResult> {
     try {
       const provider = await this.providerRouter.getProvider();
-      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
+      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabIndex);
       const target = input.target ? this.resolveActionTarget(input.target) : undefined;
 
       let needsRestore = false;
@@ -166,8 +221,10 @@ export class BrowserToolService {
 
       try {
         const result = await provider.type({ tabId: tab.id, target, text: input.text, clear: input.clear, submit: input.submit });
+        await this.syncTabsState(provider);
         const after = await this.getTab(provider, tab.id);
-        return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+        const tabs = this.formatTabs((await this.uiStateStore.load()).tabs);
+        return { ok: result.ok, url: after?.url ?? result.url ?? tab.url, tabs };
       } finally {
         if (needsRestore) {
           await provider.restoreDom(tab.id).catch(() => {});
@@ -175,27 +232,29 @@ export class BrowserToolService {
       }
     } catch (error) {
       const mapped = toActionError(error);
-      return { ok: false, tabId: input.tabId ?? "", ...mapped };
+      return { ok: false, ...mapped };
     }
   }
 
   async press(input: BrowserPressInput): Promise<BrowserPressResult> {
     try {
       const provider = await this.providerRouter.getProvider();
-      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
+      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabIndex);
       const result = await provider.press({ tabId: tab.id, key: input.key });
+      await this.syncTabsState(provider);
       const after = await this.getTab(provider, tab.id);
-      return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+      const tabs = this.formatTabs((await this.uiStateStore.load()).tabs);
+      return { ok: result.ok, url: after?.url ?? result.url ?? tab.url, tabs };
     } catch (error) {
       const mapped = toActionError(error);
-      return { ok: false, tabId: input.tabId ?? "", ...mapped };
+      return { ok: false, ...mapped };
     }
   }
 
   async scroll(input: BrowserScrollInput): Promise<BrowserScrollResult> {
     try {
       const provider = await this.providerRouter.getProvider();
-      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabId);
+      const tab = await this.getCurrentOrSpecifiedTab(provider, input.tabIndex);
       const target = input.target ? this.resolveActionTarget(input.target) : undefined;
 
       let needsRestore = false;
@@ -215,8 +274,10 @@ export class BrowserToolService {
           direction: input.direction,
           amount: normalizeScrollAmount(input.amount),
         });
+        await this.syncTabsState(provider);
         const after = await this.getTab(provider, tab.id);
-        return { ok: result.ok, tabId: tab.id, url: after?.url ?? result.url ?? tab.url };
+        const tabs = this.formatTabs((await this.uiStateStore.load()).tabs);
+        return { ok: result.ok, url: after?.url ?? result.url ?? tab.url, tabs };
       } finally {
         if (needsRestore) {
           await provider.restoreDom(tab.id).catch(() => {});
@@ -224,13 +285,14 @@ export class BrowserToolService {
       }
     } catch (error) {
       const mapped = toActionError(error);
-      return { ok: false, tabId: input.tabId ?? "", ...mapped };
+      return { ok: false, ...mapped };
     }
   }
 
   async collectCandidates(): Promise<SelectorCandidate[]> {
     const provider = await this.providerRouter.getProvider();
-    return new CandidatesEngine(provider).collect();
+    const tab = await this.getCurrentOrSpecifiedTab(provider);
+    return new CandidatesEngine(provider).collect([tab]);
   }
 
   async listTabs(): Promise<TabInfo[]> {
@@ -362,6 +424,10 @@ export class BrowserToolService {
     };
   }
 
+  private snapshotLinkKey(tabId: string, url: string): string {
+    return `${tabId}\n${url}`;
+  }
+
   private resolveActionTarget(target: ActionTarget | { selector: string }): ProviderTarget {
     if ("ref" in target) {
       return { ref: target.ref };
@@ -375,28 +441,91 @@ export class BrowserToolService {
     throw new BrowserToolError("invalid_target");
   }
 
-  private async getCurrentOrSpecifiedTab(provider: BrowserProvider, tabId?: string, createUrl?: string): Promise<TabInfo> {
-    if (tabId) {
-      const tab = await this.getTab(provider, tabId);
-      if (!tab) throw new BrowserToolError("tab_not_found");
-      return tab;
+  private async waitForTabsAfterAction(provider: BrowserProvider, beforeTabIds: Set<string>, tabId: string, beforeUrl: string, timeoutMs: number, expectedUrl?: string): Promise<TabInfo[]> {
+    const deadline = Date.now() + Math.max(0, timeoutMs);
+    let lastTabs = await provider.listTabs({}).catch(() => [] as TabInfo[]);
+
+    while (Date.now() <= deadline) {
+      const openedTab = lastTabs.find(t => !beforeTabIds.has(t.id));
+      const expectedTab = expectedUrl ? lastTabs.find(t => urlsEquivalent(t.url, expectedUrl)) : undefined;
+      const currentTab = lastTabs.find(t => t.id === tabId);
+      if (openedTab || expectedTab || (currentTab && currentTab.url !== beforeUrl)) return lastTabs;
+      if (timeoutMs <= 0) break;
+      await sleep(100);
+      lastTabs = await provider.listTabs({}).catch(() => lastTabs);
     }
 
+    return lastTabs;
+  }
+
+  async syncTabsState(provider: BrowserProvider, knownTabs?: TabInfo[]): Promise<void> {
+    const tabs = knownTabs ?? await provider.listTabs({});
+    let state = await this.uiStateStore.load();
+    const currentTabs = [...state.tabs];
+
+    // Remove closed tabs
+    const activeProviderIds = new Set(tabs.map(t => t.id));
+    let nextTabs = currentTabs.filter(t => activeProviderIds.has(t.id));
+
+    // Add new tabs
+    const existingIds = new Set(nextTabs.map(t => t.id));
+    for (const t of tabs) {
+      if (!existingIds.has(t.id)) {
+        const nextIndex = nextTabs.length > 0 ? Math.max(...nextTabs.map(x => x.index)) + 1 : 1;
+        nextTabs.push({ index: nextIndex, id: t.id, title: t.title || "New Tab", url: t.url, active: false });
+      } else {
+        // Update URL/title of existing tab
+        const existing = nextTabs.find(x => x.id === t.id);
+        if (existing) {
+          existing.url = t.url;
+          existing.title = t.title || existing.title;
+        }
+      }
+    }
+
+    // Ensure one active tab
+    if (nextTabs.length > 0 && !nextTabs.some(t => t.active)) {
+      nextTabs[0].active = true;
+    }
+
+    await this.uiStateStore.patch({ tabs: nextTabs });
+  }
+
+  private async getCurrentOrSpecifiedTab(provider: BrowserProvider, tabIndex?: number, createUrl?: string): Promise<TabInfo> {
+    await this.syncTabsState(provider);
     const state = await this.uiStateStore.load();
-    if (state.currentTabId) {
-      const current = await this.getTab(provider, state.currentTabId).catch(() => undefined);
+
+    if (tabIndex !== undefined) {
+      const specified = state.tabs.find(t => t.index === tabIndex);
+      if (specified) {
+        const tab = await this.getTab(provider, specified.id);
+        if (tab) return tab;
+      }
+      throw new BrowserToolError("tab_not_found");
+    }
+
+    const activeTab = state.tabs.find(t => t.active);
+    if (activeTab) {
+      const current = await this.getTab(provider, activeTab.id).catch(() => undefined);
       if (current) return current;
     }
 
     const tabs = await provider.listTabs({});
     const first = tabs[0];
     if (first) {
-      await this.uiStateStore.patch({ currentTabId: first.id });
+      await this.syncTabsState(provider);
+      const updatedState = await this.uiStateStore.load();
+      const newActive = updatedState.tabs.find(t => t.id === first.id);
+      if (newActive) {
+        await this.uiStateStore.patch({ tabs: updatedState.tabs.map(t => ({ ...t, active: t.id === first.id })) });
+      }
       return first;
     }
 
     const created = await provider.createTab({ url: createUrl });
-    await this.uiStateStore.patch({ currentTabId: created.id });
+    await this.syncTabsState(provider);
+    const postState = await this.uiStateStore.load();
+    await this.uiStateStore.patch({ tabs: postState.tabs.map(t => ({ ...t, active: t.id === created.id })) });
     return { id: created.id, url: created.url, title: created.title };
   }
 
@@ -410,6 +539,10 @@ export class BrowserToolService {
     if (!target) return tabs[0];
     return tabs.find((tab) => tab.id === target || tab.targetId === target || tab.url.includes(target) || (tab.title ?? "").includes(target));
   }
+
+  private formatTabs(tabs: Array<{ index: number; id: string; title: string; url: string; active: boolean }>) {
+    return tabs.map(t => ({ index: t.index, title: t.title, url: t.url, active: t.active }));
+  }
 }
 
 function normalizeScrollAmount(amount: BrowserScrollInput["amount"]): number | undefined {
@@ -418,4 +551,46 @@ function normalizeScrollAmount(amount: BrowserScrollInput["amount"]): number | u
   if (amount === "large") return 1600;
   if (amount === "medium") return 800;
   return undefined;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function normalizeRef(ref: string): string {
+  return ref.replace(/^\[/, "").replace(/\]$/, "");
+}
+
+function urlsEquivalent(left: string, right: string): boolean {
+  try {
+    const a = new URL(left);
+    const b = new URL(right, a.origin);
+    return a.href === b.href;
+  } catch {
+    return left === right;
+  }
+}
+
+function extractLinkUrlsByRef(snapshot: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const stack: Array<{ indent: number; ref: string; role: string }> = [];
+
+  for (const line of snapshot.split(/\r?\n/)) {
+    const indent = line.match(/^\s*/)?.[0].length ?? 0;
+    while (stack.length > 0 && stack[stack.length - 1].indent >= indent) stack.pop();
+
+    const nodeMatch = line.match(/^\s*-\s+([^\s:]+).*\[([^\]]+)\]:\s*$/);
+    if (nodeMatch) {
+      stack.push({ indent, role: nodeMatch[1], ref: normalizeRef(nodeMatch[2]) });
+      continue;
+    }
+
+    const urlMatch = line.match(/^\s*-\s+\/url:\s*(\S+)\s*$/);
+    if (!urlMatch) continue;
+
+    const parent = [...stack].reverse().find(item => item.role === "link");
+    if (parent) out.set(parent.ref, urlMatch[1]);
+  }
+
+  return out;
 }

@@ -235,13 +235,22 @@ export class CamofoxProvider implements BrowserProvider {
   }
 
   async click(input: ProviderClickInput): Promise<ActionResult> {
+    const beforeStats = await this.getTabStats(input.tabId).catch(() => undefined);
+    const beforeUrl = beforeStats?.url;
+    const beforeVisitedCount = beforeStats?.visitedUrls?.length ?? 0;
+
     const body: Record<string, unknown> = {
       userId: this.options.userId,
       doubleClick: input.clickCount === 2,
     };
     assignTarget(body, input.target);
     await this.client.post(`/tabs/${encodeURIComponent(input.tabId)}/click`, body);
-    return { ok: true };
+
+    const afterStats = await this.waitForPostClickStats(input.tabId, beforeUrl, beforeVisitedCount, input.waitAfter === false ? 300 : 2000).catch(() => undefined);
+    const currentUrl = afterStats?.url;
+    const lastVisitedUrl = afterStats?.visitedUrls?.[afterStats.visitedUrls.length - 1];
+    const actionUrl = lastVisitedUrl && lastVisitedUrl !== currentUrl ? lastVisitedUrl : currentUrl;
+    return { ok: true, url: actionUrl, navigation: Boolean(actionUrl && actionUrl !== beforeUrl) };
   }
 
   async type(input: ProviderTypeInput): Promise<ActionResult> {
@@ -287,6 +296,29 @@ export class CamofoxProvider implements BrowserProvider {
     return { ok: true };
   }
 
+  private async getTabStats(tabId: string): Promise<{ url?: string; visitedUrls?: string[] }> {
+    return this.client.get<{ url?: string; visitedUrls?: string[] }>(`/tabs/${encodeURIComponent(tabId)}/stats`, {
+      userId: this.options.userId,
+    });
+  }
+
+  private async waitForPostClickStats(tabId: string, beforeUrl: string | undefined, beforeVisitedCount: number, timeoutMs: number): Promise<{ url?: string; visitedUrls?: string[] }> {
+    const deadline = Date.now() + Math.max(0, timeoutMs);
+    let lastStats = await this.getTabStats(tabId);
+
+    while (Date.now() <= deadline) {
+      const lastVisitedUrl = lastStats.visitedUrls?.[lastStats.visitedUrls.length - 1];
+      if ((lastStats.url && lastStats.url !== beforeUrl) || (lastStats.visitedUrls?.length ?? 0) > beforeVisitedCount || (lastVisitedUrl && lastVisitedUrl !== beforeUrl)) {
+        return lastStats;
+      }
+      if (timeoutMs <= 0) break;
+      await sleep(100);
+      lastStats = await this.getTabStats(tabId).catch(() => lastStats);
+    }
+
+    return lastStats;
+  }
+
   async internalEvaluate<T>(input: InternalEvaluateInput): Promise<T> {
     const response = await this.client.post<{ ok?: boolean; result?: T; error?: string }>(`/tabs/${encodeURIComponent(input.tabId)}/evaluate`, {
       userId: this.options.userId,
@@ -303,6 +335,10 @@ function assignTarget(body: Record<string, unknown>, target: ProviderTarget): vo
   if (target.ref) body.ref = target.ref;
   else if (target.selector) body.selector = target.selector;
   else if (target.text !== undefined) throw new BrowserToolError("provider_error", "Text targets must be resolved to a concrete selector before reaching CamofoxProvider.");
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function makeScrollSelectorExpression(selector: string, direction: string, amount: number): string {

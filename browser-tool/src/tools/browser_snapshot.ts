@@ -14,7 +14,7 @@ export function registerBrowserSnapshotTool(pi: ExtensionAPI, getService: (ctx: 
       "browser_snapshot returns only refs that are currently actionable by browser tools.",
     ],
     parameters: objectSchema({
-      tabId: optionalString("Optional browser tab id."),
+      tabIndex: { type: "integer", description: "Optional browser tab index (1, 2, ...)." },
       offset: numberSchema("Optional continuation offset from a previous browser_snapshot result."),
       includeScreenshot: booleanSchema("Reserved for provider support; does not change agent-visible filtering."),
       continuationId: optionalString("Continuation id from a previous truncated browser_snapshot result."),

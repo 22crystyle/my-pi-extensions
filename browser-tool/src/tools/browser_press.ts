@@ -11,7 +11,7 @@ export function registerBrowserPressTool(pi: ExtensionAPI, getService: (ctx: Ext
     promptSnippet: "Press browser keys or hotkeys",
     promptGuidelines: ["Use browser_press for Enter, Escape, Tab, dropdowns, autocomplete, modals, and hotkeys."],
     parameters: objectSchema({
-      tabId: optionalString("Optional browser tab id."),
+      tabIndex: { type: "integer", description: "Optional browser tab index (1, 2, ...)." },
       key: { type: "string", description: "Key or hotkey, e.g. Enter, Escape, Tab, Control+L." },
     }, ["key"]),
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {

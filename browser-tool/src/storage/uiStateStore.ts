@@ -39,7 +39,7 @@ function normalizeUiState(input: Partial<UiState>): UiState {
     userId: input.userId || process.env.CAMOFOX_USER_ID || "pi-browser-tool",
     sessionKey: input.sessionKey || process.env.CAMOFOX_SESSION_KEY || "pi-browser-tool",
     debugRawSnapshot: Boolean(input.debugRawSnapshot),
-    currentTabId: input.currentTabId,
+    tabs: input.tabs || [],
   };
 }
 

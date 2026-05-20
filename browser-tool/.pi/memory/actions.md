@@ -268,3 +268,43 @@
 Файлы: `.pi/memory/actions.md`
 Результат: Причина таймаута — CSS-only hiding не уменьшает стоимость camofox snapshot на hh.ru, потому что тяжёлый DOM остаётся в документе; фильтрация добавляет overhead поверх почти полного времени raw snapshot.
 Как проверить: Повторить профиль: `pruneDomForSnapshot` → `getRawSnapshot`; затем сравнить с временной заменой `document.body` на минимальный DOM.
+
+## 2026-05-19 — исправление обнаружения новых вкладок после клика
+Агент: AI Dev agent
+Действие:
+- Проверена цепочка `browser_click` для `https://spb.hh.ru/search/vacancy`.
+- Найдена причина: после `provider.click()` сервис сразу синхронизировал вкладки и возвращал состояние старой вкладки; для ссылок hh.ru, открывающих popup/new tab, новая вкладка может появляться асинхронно и не попадать в немедленный `listTabs()`.
+- Добавлено ожидание post-action состояния вкладок после клика: сервис сравнивает список вкладок до/после, коротко polling'ует появление нового tab или изменение URL текущего tab, а новую вкладку помечает активной в UI state.
+- DOM restore теперь выполняется сразу после клика до ожидания/синхронизации вкладок.
+Файлы: `src/core/browserToolService.ts`, `.pi/memory/actions.md`
+Результат: `browser_click` должен возвращать новую вкладку в `tabs` и делать её активной, если клик открыл новый tab.
+Как проверить: Открыть `https://spb.hh.ru/search/vacancy`, сделать `browser_snapshot`, кликнуть по ссылке вакансии, которая открывается в новой вкладке, и проверить наличие новой вкладки в поле `tabs` результата `browser_click`.
+
+## 2026-05-19 — диагностика исчезновения вкладок из ui-state
+Агент: AI Dev agent
+Действие:
+- Проверено использование close/delete endpoints в проекте: browser-tool не вызывает `DELETE /tabs/*`, `DELETE /tabs/group/*` или `DELETE /sessions/*`; на `session_shutdown` очищается только in-memory service state.
+- Найдено место, где вкладки могли пропадать из `.pi/browser/ui-state.json`: `BrowserToolService.syncTabsState()` фильтровал сохранённые tabs по текущему ответу provider `listTabs()`.
+- Изменено поведение `syncTabsState()`: ранее известные tabs больше не удаляются из UI state только потому, что backend временно не вернул их в `listTabs()` после popup/new-tab действия.
+Файлы: `src/core/browserToolService.ts`, `.pi/memory/actions.md`
+Результат: browser-tool не должен «забывать» первый tab в `.pi/browser/ui-state.json` при неполном/транзиентном ответе camofox `listTabs()`.
+Как проверить: Выполнить `/reload`, открыть search page, кликнуть ссылку вакансии, проверить что `.pi/browser/ui-state.json` сохраняет оба tab.
+
+## 2026-05-19 — возврат удаления закрытых вкладок из ui-state
+Агент: AI Dev agent
+Действие:
+- По запросу пользователя возвращено прежнее поведение `BrowserToolService.syncTabsState()`.
+- `.pi/browser/ui-state.json` снова очищается от вкладок, которых нет в текущем ответе provider `listTabs()`.
+Файлы: `src/core/browserToolService.ts`, `.pi/memory/actions.md`
+Результат: UI state снова отражает только вкладки, которые camofox-browser вернул в текущем списке tabs.
+Как проверить: Выполнить `/reload`, закрыть вкладку на стороне browser backend или дождаться отсутствия вкладки в `GET /tabs?userId=...`, вызвать любой browser tool с синхронизацией tabs и проверить удаление вкладки из `.pi/browser/ui-state.json`.
+
+## 2026-05-19 — удаление fallback ручного создания вкладки после click
+Агент: AI Dev agent
+Действие:
+- Удалён fallback из `BrowserToolService.click()`, который вручную создавал вкладку через `provider.createTab()` / `POST /tabs`, если после клика по ссылке новая вкладка не появилась в `GET /tabs`.
+- Для клика по известной ссылке из последнего snapshot теперь выполняется ожидание появления соответствующей вкладки в `GET /tabs` с таймаутом 5 секунд.
+- Поведение удаления отсутствующих вкладок из `.pi/browser/ui-state.json` сохранено: `syncTabsState()` фильтрует UI state по текущему списку provider tabs.
+Файлы: `src/core/browserToolService.ts`, `.pi/memory/actions.md`
+Результат: `browser_click` больше не открывает вкладки вручную; он только ожидает вкладку, созданную backend/browser, и затем синхронизирует UI state с `GET /tabs`.
+Как проверить: Выполнить `/reload`, открыть `https://spb.hh.ru/search/vacancy`, сделать snapshot, кликнуть по ссылке вакансии и убедиться, что в течение 5 секунд новая вкладка появляется только если её вернул `GET /tabs?userId=...`.

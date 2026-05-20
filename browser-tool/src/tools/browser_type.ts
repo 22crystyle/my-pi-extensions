@@ -16,7 +16,7 @@ export function registerBrowserTypeTool(pi: ExtensionAPI, getService: (ctx: Exte
     promptSnippet: "Type text into a visible browser field or focused element",
     promptGuidelines: ["Use browser_type with a target.ref from browser_snapshot when typing into a specific field."],
     parameters: objectSchema({
-      tabId: optionalString("Optional browser tab id."),
+      tabIndex: { type: "integer", description: "Optional browser tab index (1, 2, ...)." },
       target: targetSchema,
       text: { type: "string", description: "Text to type." },
       clear: booleanSchema("Clear the field before typing."),

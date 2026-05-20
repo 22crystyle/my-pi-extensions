@@ -16,7 +16,7 @@ export function registerBrowserScrollTool(pi: ExtensionAPI, getService: (ctx: Ex
     promptSnippet: "Scroll the browser page or a visible area",
     promptGuidelines: ["Use browser_scroll without a target to scroll the page; targeted scroll requires a visible ref or selector."],
     parameters: objectSchema({
-      tabId: optionalString("Optional browser tab id."),
+      tabIndex: { type: "integer", description: "Optional browser tab index (1, 2, ...)." },
       target: targetSchema,
       direction: stringEnum(["up", "down", "left", "right"], "Scroll direction."),
       amount: unionSchema([

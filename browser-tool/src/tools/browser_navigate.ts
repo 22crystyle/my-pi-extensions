@@ -11,10 +11,10 @@ export function registerBrowserNavigateTool(pi: ExtensionAPI, getService: (ctx: 
     promptSnippet: "Navigate browser tabs without returning page content",
     promptGuidelines: ["Use browser_snapshot after browser_navigate when page content is needed."],
     parameters: objectSchema({
-      tabId: optionalString("Optional browser tab id."),
+      tabIndex: { type: "integer", description: "Optional browser tab index (1, 2, ...)." },
       action: stringEnum(["url", "back", "forward", "reload", "new_tab", "switch_tab"], "Navigation action."),
       url: optionalString("URL for action=url or action=new_tab."),
-      tabTarget: optionalString("Tab id, target id, URL fragment, or title fragment for switch_tab."),
+      tabTarget: optionalString("Tab index, URL fragment, or title fragment for switch_tab."),
       waitUntil: stringEnum(["none", "domcontentloaded", "load", "networkidle"], "Optional wait mode."),
     }, ["action"]),
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {

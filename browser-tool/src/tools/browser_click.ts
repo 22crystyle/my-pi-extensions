@@ -17,7 +17,7 @@ export function registerBrowserClickTool(pi: ExtensionAPI, getService: (ctx: Ext
     promptSnippet: "Click a visible browser element by snapshot ref",
     promptGuidelines: ["Prefer browser_click with target.ref values returned by the latest browser_snapshot."],
     parameters: objectSchema({
-      tabId: optionalString("Optional browser tab id."),
+      tabIndex: { type: "integer", description: "Optional browser tab index (1, 2, ...)." },
       target: targetSchema,
       button: stringEnum(["left", "right", "middle"], "Mouse button."),
       clickCount: { type: "integer", enum: [1, 2], description: "Single or double click." },

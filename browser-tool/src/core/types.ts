@@ -1,7 +1,7 @@
 export type WaitUntil = "none" | "domcontentloaded" | "load" | "networkidle";
 
 export type BrowserNavigateInput = {
-  tabId?: string;
+  tabIndex?: number;
   action: "url" | "back" | "forward" | "reload" | "new_tab" | "switch_tab";
   url?: string;
   tabTarget?: string;
@@ -10,15 +10,15 @@ export type BrowserNavigateInput = {
 
 export type BrowserNavigateResult = {
   ok: boolean;
-  tabId: string;
   url: string;
   title?: string;
   error?: string;
   message?: string;
+  tabs?: Array<Omit<UiTab, "id">>;
 };
 
 export type BrowserSnapshotInput = {
-  tabId?: string;
+  tabIndex?: number;
   offset?: number;
   includeScreenshot?: boolean;
   continuationId?: string;
@@ -33,12 +33,13 @@ export type BrowserSnapshotResult = {
   hasMore?: boolean;
   nextOffset?: number;
   continuationId?: string;
+  tabs?: Array<Omit<UiTab, "id">>;
 };
 
 export type ActionTarget = { ref: string } | { selector: string } | { text: string };
 
 export type BrowserClickInput = {
-  tabId?: string;
+  tabIndex?: number;
   target: ActionTarget;
   button?: "left" | "right" | "middle";
   clickCount?: 1 | 2;
@@ -47,15 +48,15 @@ export type BrowserClickInput = {
 
 export type BrowserClickResult = {
   ok: boolean;
-  tabId: string;
   url?: string;
   navigation?: boolean;
   error?: string;
   message?: string;
+  tabs?: Array<Omit<UiTab, "id">>;
 };
 
 export type BrowserTypeInput = {
-  tabId?: string;
+  tabIndex?: number;
   target?: { ref: string } | { selector: string };
   text: string;
   clear?: boolean;
@@ -64,27 +65,27 @@ export type BrowserTypeInput = {
 
 export type BrowserTypeResult = {
   ok: boolean;
-  tabId: string;
   url?: string;
   error?: string;
   message?: string;
+  tabs?: Array<Omit<UiTab, "id">>;
 };
 
 export type BrowserPressInput = {
-  tabId?: string;
+  tabIndex?: number;
   key: string;
 };
 
 export type BrowserPressResult = {
   ok: boolean;
-  tabId: string;
   url?: string;
   error?: string;
   message?: string;
+  tabs?: Array<Omit<UiTab, "id">>;
 };
 
 export type BrowserScrollInput = {
-  tabId?: string;
+  tabIndex?: number;
   target?: { ref: string } | { selector: string };
   direction: "up" | "down" | "left" | "right";
   amount?: "small" | "medium" | "large" | number;
@@ -92,10 +93,10 @@ export type BrowserScrollInput = {
 
 export type BrowserScrollResult = {
   ok: boolean;
-  tabId: string;
   url?: string;
   error?: string;
   message?: string;
+  tabs?: Array<Omit<UiTab, "id">>;
 };
 
 export type BrowserCapabilities = {
@@ -256,11 +257,13 @@ export type CandidateOccurrence = {
   enabled?: boolean;
 };
 
+export type UiTab = { index: number; id: string; title: string; url: string; active: boolean };
+
 export type UiState = {
   version: 1;
   camofoxBaseUrl: string;
   userId: string;
   sessionKey: string;
   debugRawSnapshot: boolean;
-  currentTabId?: string;
+  tabs: UiTab[];
 };

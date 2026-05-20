@@ -6,11 +6,11 @@ import { normalizeWhitespace, randomId } from "./utils";
 export class CandidatesEngine {
   constructor(private readonly provider: BrowserProvider) {}
 
-  async collect(): Promise<SelectorCandidate[]> {
-    const tabs = await this.provider.listTabs({});
+  async collect(tabs?: TabInfo[]): Promise<SelectorCandidate[]> {
+    const targetTabs = tabs ?? await this.provider.listTabs({});
     const grouped = new Map<string, SelectorCandidate>();
 
-    for (const tab of tabs) {
+    for (const tab of targetTabs) {
       const candidates = await this.collectFromTab(tab).catch(() => [] as SelectorCandidate[]);
       for (const candidate of candidates) {
         const key = candidateGroupingKey(candidate);
