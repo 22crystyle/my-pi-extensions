@@ -329,3 +329,26 @@
 Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
 Результат: `Count` виден только там, где есть явная группировка candidates.
 Как проверить: Открыть `/browser` → Candidates: без `g` не должно быть `Count`; нажать `g` и проверить, что `Count` отображается в `[Candidates grouped]`.
+
+## 2026-05-20 — добавление listbox/option/radio в Candidates
+Агент: AI Dev agent
+Действие:
+- Диагностирована причина отсутствия элементов выпадающего списка резюме hh.ru в `/browser` → Candidates: DOM collector видел их в accessibility snapshot, но не признавал роли `listbox`, `option`, `radio` допустимыми candidate roles/kinds.
+- Расширен `SelectorCandidate.kind` новыми значениями `radio`, `listbox`, `option`.
+- Обновлён Camofox DOM candidates collector: роли `radio`, `listbox`, `option` теперь проходят `isCandidateElement()`, получают kind в `candidateKind()`, допускаются без label в техническом fallback и могут строить reusable selector по атрибуту `role`.
+Файлы: `src/core/types.ts`, `src/providers/camofox/camofoxProvider.ts`, `.pi/memory/actions.md`
+Результат: Элементы динамических listbox/dropdown, включая option и radio в списке выбора резюме hh.ru, могут попадать в Candidates.
+Как проверить: Открыть страницу отклика hh.ru, раскрыть список резюме, открыть `/browser` → Candidates, нажать `r` и убедиться, что видны кандидаты для `listbox`, `option`/названий резюме и `radio`.
+
+- 2026-05-20: Investigated hh.ru popup snapshot rule `rule_mpdtffqt_qs0gu5n`; found range start `button` text `Отмена` is an aria-label-only close button, so DOM pruning locator using visibleText cannot match it, causing the popup range to be ignored.
+
+## 2026-05-20 — диагностика неудачного клика по финальной кнопке отклика hh.ru
+Агент: AI Dev agent
+Действие:
+- Изучены `AGENTS.md`, `.pi/memory/*`, `.pi/browser/rules.json`, `src/core/browserToolService.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/tools/browser_click.ts` и `openapi.json`.
+- Установлено, что agent-facing snapshot возвращает нативные camofox refs, но `refsCount` в `BrowserToolService.sliceSnapshot()` всегда равен `0`, а action tools не имеют собственной проверки соответствия ref элементу из последнего snapshot.
+- Проверено, что перед `browser_click` по `ref` сервис повторно применяет все matching rules (`pruneDomForSnapshot`) и затем отправляет ref в `POST /tabs/{tabId}/click`; результат `ok: true` означает только успешный ответ backend click endpoint, а не подтверждение бизнес-действия на странице.
+- Для `*.hh.ru /vacancy/:id` одновременно включено несколько overlapping rules (`range`, `form[name="vacancy_response"]`, `button[data-qa="vacancy-response-submit-popup"]`, `button[data-qa="generate-cover-letter"]`, `div[role="button"]`, `div[data-qa="drop-base"]` и др.), поэтому после динамических изменений формы (выбор резюме, генерация письма, закрытие dropdown) повторно pruned accessibility tree может отличаться от дерева, в котором агент видел `e68`.
+Файлы: `AGENTS.md`, `.pi/memory/actions.md`, `.pi/browser/rules.json`, `src/core/browserToolService.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/tools/browser_click.ts`, `openapi.json`
+Результат: Вероятная причина неудачи — клик был выполнен по волатильному нативному ref `e68` без post-click verification; browser-tool вернул `ok: true`, но не проверил, что форма отклика закрылась/отклик отправлен. Для финального submit на hh.ru надёжнее использовать стабильный selector `button[data-qa="vacancy-response-submit-popup"]` и после клика проверять snapshot/URL/исчезновение dialog.
+Как проверить: В открытом popup выполнить `browser_click` по selector `button[data-qa="vacancy-response-submit-popup"]`, затем `browser_snapshot` и убедиться, что dialog исчез или появился статус успешного отклика; сравнить с кликом по ref из snapshot при включённых overlapping rules.

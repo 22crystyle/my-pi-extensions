@@ -373,7 +373,7 @@ const CANDIDATES_EXPRESSION = wrapDomHelpers(`
     const kind = candidateKind(el, role);
     if (!kind) continue;
     const label = labelFor(el, role);
-    if (!label && !['input','textarea','select','form','table','list','region'].includes(kind)) continue;
+    if (!label && !['input','textarea','select','radio','listbox','option','form','table','list','region'].includes(kind)) continue;
     const selector = reusableSelector(el);
     if (!selector) continue;
     const selectorIndex = selectorIndexForElement(el, selector);
@@ -482,7 +482,7 @@ function wrapDomHelpers(body: string): string {
     function isCandidateElement(el) {
       const tag = el.tagName.toLowerCase();
       const role = inferRole(el);
-      return ['button','link','heading','paragraph','list','listitem','textbox','combobox','checkbox','form','table','main','article','region'].includes(role)
+      return ['button','link','heading','paragraph','list','listitem','textbox','combobox','checkbox','radio','listbox','option','form','table','main','article','region'].includes(role)
         || ['input','textarea','select','form','table','main','article','section','ul','ol','p'].includes(tag);
     }
 
@@ -493,6 +493,9 @@ function wrapDomHelpers(body: string): string {
       if (role === 'heading') return 'heading';
       if (role === 'paragraph') return 'paragraph';
       if (role === 'list') return 'list';
+      if (role === 'listbox') return 'listbox';
+      if (role === 'option') return 'option';
+      if (role === 'radio') return 'radio';
       if (role === 'textbox' || role === 'combobox' || tag === 'input') return tag === 'textarea' ? 'textarea' : 'input';
       if (tag === 'textarea') return 'textarea';
       if (tag === 'select') return 'select';
@@ -513,7 +516,7 @@ function wrapDomHelpers(body: string): string {
 
     function attributeSelector(el, requireUnique) {
       const tag = el.tagName.toLowerCase();
-      const attrs = ['data-testid', 'data-test', 'data-qa', 'aria-label', 'name', 'type', 'placeholder', 'href'];
+      const attrs = ['data-testid', 'data-test', 'data-qa', 'aria-label', 'role', 'name', 'type', 'placeholder', 'href'];
       for (const attr of attrs) {
         const value = el.getAttribute(attr);
         if (!value || value.length > 160) continue;

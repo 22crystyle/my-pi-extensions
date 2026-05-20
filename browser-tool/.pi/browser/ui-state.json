@@ -1,23 +1,16 @@
 {
   "version": 1,
   "camofoxBaseUrl": "http://192.168.0.105:9377",
-  "userId": "gpt5",
+  "userId": "tool",
   "sessionKey": "key",
   "debugRawSnapshot": true,
   "tabs": [
     {
       "index": 1,
-      "id": "3b6cec18-5890-4a2f-8308-5a70e4df10ef",
-      "title": "1 ・ Работа в Санкт-Петербурге, поиск персонала и публикация вакансий - spb.hh.ru",
-      "url": "https://spb.hh.ru/search/vacancy",
+      "id": "ff8bb17b-2401-422b-8a96-f6e94d177817",
+      "title": "Вакансия DevOps engineer в Санкт-Петербурге, работа в компании АЙТИ ТЕСТ",
+      "url": "https://spb.hh.ru/vacancy/133193979",
       "active": true
-    },
-    {
-      "index": 2,
-      "id": "bdcc2e00-1aef-4076-ae7d-82bae505309f",
-      "title": "1 ・ Вакансия AI Engineer / AI Automation Specialist / AI Workflow Engineer в Санкт-Петербурге, работа в компании Матузова Олеся Васильевна",
-      "url": "https://spb.hh.ru/vacancy/133218911?utm_medium=cpc_hh&utm_source=clickmehhru&utm_campaign=1211801&utm_local_campaign=1700629&utm_content=1260487",
-      "active": false
     }
   ]
 }
