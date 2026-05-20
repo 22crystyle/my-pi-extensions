@@ -660,6 +660,13 @@ function formatCandidatePanelItemLines(item: Extract<PanelItem, { type: "candida
   const rule = truncateMiddle(candidateRuleName(item.candidate), Math.min(CANDIDATE_RULE_MAX, Math.max(12, nestedWidth - ruleLabel.length - 1)));
   const text = truncateMiddle(candidateText(item.candidate) || "(empty)", Math.min(CANDIDATE_TEXT_MAX, Math.max(12, nestedWidth - textLabel.length - 1)));
 
+  if (!item.grouped) {
+    return [
+      `${prefix}${marker} ${ruleLabel}${rule};`,
+      `${nestedPrefix}${textLabel}${text};`,
+    ];
+  }
+
   return [
     `${prefix}${marker} Count: ${item.count};`,
     `${nestedPrefix}${ruleLabel}${rule};`,

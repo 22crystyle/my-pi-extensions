@@ -1,6 +1,5 @@
 import type { BrowserProvider, SelectorCandidate, TabInfo } from "./types";
 import { buildPageKey } from "./pageMatcher";
-import { candidateGroupingKey } from "./selectorEngine";
 import { normalizeWhitespace, randomId } from "./utils";
 
 export class CandidatesEngine {
@@ -8,22 +7,14 @@ export class CandidatesEngine {
 
   async collect(tabs?: TabInfo[]): Promise<SelectorCandidate[]> {
     const targetTabs = tabs ?? await this.provider.listTabs({});
-    const grouped = new Map<string, SelectorCandidate>();
+    const out: SelectorCandidate[] = [];
 
     for (const tab of targetTabs) {
       const candidates = await this.collectFromTab(tab).catch(() => [] as SelectorCandidate[]);
-      for (const candidate of candidates) {
-        const key = candidateGroupingKey(candidate);
-        const existing = grouped.get(key);
-        if (!existing) {
-          grouped.set(key, candidate);
-        } else {
-          existing.occurrences.push(...candidate.occurrences);
-        }
-      }
+      out.push(...candidates);
     }
 
-    return Array.from(grouped.values());
+    return out;
   }
 
   private async collectFromTab(tab: TabInfo): Promise<SelectorCandidate[]> {

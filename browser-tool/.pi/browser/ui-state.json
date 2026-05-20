@@ -7,17 +7,17 @@
   "tabs": [
     {
       "index": 1,
-      "id": "c57ffbca-5ea4-4d79-a1fe-1d63302fa6a5",
+      "id": "3b6cec18-5890-4a2f-8308-5a70e4df10ef",
       "title": "1 ・ Работа в Санкт-Петербурге, поиск персонала и публикация вакансий - spb.hh.ru",
-      "url": "https://spb.hh.ru/",
-      "active": false
+      "url": "https://spb.hh.ru/search/vacancy",
+      "active": true
     },
     {
       "index": 2,
-      "id": "5382bf81-38db-4b81-ab90-34f6e028d839",
-      "title": "Вакансия DevOps Engineer (Cloud XDR) в Москве, работа в компании Лаборатория Касперского",
-      "url": "https://spb.hh.ru/vacancy/133269472?from=applicant_recommended&hhtmFrom=main",
-      "active": true
+      "id": "bdcc2e00-1aef-4076-ae7d-82bae505309f",
+      "title": "1 ・ Вакансия AI Engineer / AI Automation Specialist / AI Workflow Engineer в Санкт-Петербурге, работа в компании Матузова Олеся Васильевна",
+      "url": "https://spb.hh.ru/vacancy/133218911?utm_medium=cpc_hh&utm_source=clickmehhru&utm_campaign=1211801&utm_local_campaign=1700629&utm_content=1260487",
+      "active": false
     }
   ]
 }

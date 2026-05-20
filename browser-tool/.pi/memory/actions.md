@@ -308,3 +308,24 @@
 Файлы: `src/core/browserToolService.ts`, `.pi/memory/actions.md`
 Результат: `browser_click` больше не открывает вкладки вручную; он только ожидает вкладку, созданную backend/browser, и затем синхронизирует UI state с `GET /tabs`.
 Как проверить: Выполнить `/reload`, открыть `https://spb.hh.ru/search/vacancy`, сделать snapshot, кликнуть по ссылке вакансии и убедиться, что в течение 5 секунд новая вкладка появляется только если её вернул `GET /tabs?userId=...`.
+
+## 2026-05-20 — исправление скрытой группировки обычного Candidates
+Агент: AI Dev agent
+Действие:
+- Убрана безусловная группировка candidates в `CandidatesEngine.collect()` через `candidateGroupingKey()` и `Map`.
+- `CandidatesEngine.collect()` теперь возвращает плоский список кандидатов из provider в исходном порядке tabs/backend/DOM.
+- Явная grouped-view во вкладке `/browser` → Candidates сохранена: группировка по rule selector по-прежнему включается только клавишей `g`.
+- Обновлена проектная память с решением не выполнять скрытый dedup/grouping до TUI.
+Файлы: `src/core/candidatesEngine.ts`, `.pi/memory/actions.md`, `.pi/memory/decisions.md`
+Результат: Обычный `[Candidates]` больше не объединяет одинаковые значения заранее; `[Candidates grouped]` остаётся отдельным режимом по `g`.
+Как проверить: Открыть `/browser` → Candidates и убедиться, что без `g` candidates идут отдельными DOM occurrences; нажать `g` и проверить объединение одинаковых rule selectors с суммарным `Count`.
+
+## 2026-05-20 — скрытие Count в обычном режиме Candidates
+Агент: AI Dev agent
+Действие:
+- Изменено отображение candidate item во вкладке `/browser` → Candidates: в обычном режиме больше не выводится строка `Count`.
+- В обычном режиме первая строка теперь содержит `[+] Rule: ...`, вторая — вложенный `Text: ...`.
+- В grouped-view (`g`, `[Candidates grouped]`) прежний блок `Count`, `Rule`, `Text` сохранён.
+Файлы: `src/tui-extension/browserPanel.ts`, `.pi/memory/actions.md`
+Результат: `Count` виден только там, где есть явная группировка candidates.
+Как проверить: Открыть `/browser` → Candidates: без `g` не должно быть `Count`; нажать `g` и проверить, что `Count` отображается в `[Candidates grouped]`.
