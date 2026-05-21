@@ -346,6 +346,7 @@ export class BrowserToolService {
       createdAt: now,
       updatedAt: now,
       selector,
+      selectorIndex: input.customSelector ? undefined : occurrence?.selectorIndex,
     };
     await this.rulesStore.addRule(rule);
     return rule;
@@ -400,6 +401,7 @@ export class BrowserToolService {
       createdAt: nowIso(),
       updatedAt: nowIso(),
       selector: customSelector || candidate.selector,
+      selectorIndex: customSelector ? undefined : occurrence.selectorIndex,
     };
     
     return this.previewRule(rule);

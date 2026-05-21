@@ -118,7 +118,10 @@ export class CamofoxProvider implements BrowserProvider {
         for (const el of allElements()) {
           if (loc.role && inferRole(el) !== loc.role) continue;
           if (loc.headingLevel && headingLevel(el) !== loc.headingLevel) continue;
-          if (loc.text && !visibleText(el).toLowerCase().includes(loc.text.toLowerCase())) continue;
+          if (loc.text) {
+            const haystack = (visibleText(el) || labelFor(el, inferRole(el))).toLowerCase();
+            if (!haystack.includes(loc.text.toLowerCase())) continue;
+          }
           matches.push(el);
         }
         const occ = Math.max(0, (loc.occurrence || 1) - 1);
@@ -129,9 +132,15 @@ export class CamofoxProvider implements BrowserProvider {
       const targetsToUnprune = new Set();
       for (const rule of rules) {
         if (rule.kind === 'subtree' && rule.selector) {
-          queryAllSmart(rule.selector).forEach(el => {
+          const matches = queryAllSmart(rule.selector).filter(isVisible);
+          const selected = Number.isInteger(rule.selectorIndex) ? [matches[rule.selectorIndex]].filter(Boolean) : matches;
+          selected.forEach(el => {
             targetsToUnprune.add(el);
             el.querySelectorAll('*').forEach(child => targetsToUnprune.add(child));
+            associatedLabelElements(el).forEach(labelEl => {
+              targetsToUnprune.add(labelEl);
+              labelEl.querySelectorAll('*').forEach(child => targetsToUnprune.add(child));
+            });
           });
         } else if (rule.kind === 'range') {
           const startEl = findLocator(rule.start);
@@ -467,9 +476,46 @@ function wrapDomHelpers(body: string): string {
     function labelFor(el, role) {
       const aria = el.getAttribute('aria-label') || el.getAttribute('title') || el.getAttribute('alt');
       if (aria) return aria.replace(/\\s+/g, ' ').trim();
-      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return el.placeholder || el.name || el.value || visibleText(el);
+      const labelledBy = el.getAttribute('aria-labelledby');
+      if (labelledBy) {
+        const text = labelledBy.split(/\\s+/).map(id => document.getElementById(id)).filter(Boolean).map(visibleText).join(' ').trim();
+        if (text) return text;
+      }
+      if (el.id) {
+        const label = document.querySelector('label[for="' + cssEscape(el.id) + '"]');
+        if (label && visibleText(label)) return visibleText(label);
+      }
+      const closestLabel = el.closest('label');
+      if (closestLabel && visibleText(closestLabel)) return visibleText(closestLabel);
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+        const type = el instanceof HTMLInputElement ? (el.getAttribute('type') || 'text').toLowerCase() : '';
+        if ((type === 'radio' || type === 'checkbox') && el.parentElement) {
+          const parentText = visibleText(el.parentElement);
+          if (parentText && parentText !== el.value) return parentText;
+          const siblingText = Array.from(el.parentElement.children).filter(child => child !== el).map(visibleText).filter(Boolean).join(' ').trim();
+          if (siblingText) return siblingText;
+        }
+        return el.placeholder || el.name || (el.value && el.value !== 'on' ? el.value : '') || visibleText(el);
+      }
       if (role === 'img') return el.getAttribute('alt') || '';
       return visibleText(el) || ownText(el);
+    }
+
+    function associatedLabelElements(el) {
+      const out = [];
+      const add = (node) => { if (node && !out.includes(node)) out.push(node); };
+      if (el.id) add(document.querySelector('label[for="' + cssEscape(el.id) + '"]'));
+      add(el.closest('label'));
+      const labelledBy = el.getAttribute('aria-labelledby');
+      if (labelledBy) labelledBy.split(/\\s+/).map(id => document.getElementById(id)).forEach(add);
+      if (el instanceof HTMLInputElement) {
+        const type = (el.getAttribute('type') || 'text').toLowerCase();
+        if ((type === 'radio' || type === 'checkbox') && el.parentElement) {
+          add(el.parentElement);
+          Array.from(el.parentElement.children).forEach(add);
+        }
+      }
+      return out;
     }
 
     function isAccessibleElement(el) {

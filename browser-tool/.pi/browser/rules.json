@@ -3,7 +3,7 @@
   "rules": [
     {
       "id": "rule_mpbehipa_h0fzrxs",
-      "enabled": true,
+      "enabled": false,
       "kind": "range",
       "name": "Диапазон: DevOps инженер (Hadoop)",
       "page": {
@@ -14,7 +14,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-18T16:10:28.462Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "start": {
         "role": "heading",
         "headingLevel": 1,
@@ -33,7 +33,7 @@
     },
     {
       "id": "rule_mpdsyfm3_36irt9b",
-      "enabled": true,
+      "enabled": false,
       "kind": "range",
       "name": "Диапазон: Отклик на вакансию",
       "page": {
@@ -44,7 +44,7 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T08:31:04.587Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "start": {
         "role": "heading",
         "headingLevel": 1,
@@ -62,7 +62,7 @@
     },
     {
       "id": "rule_mpdt0c37_tezcoy7",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: Системный администратор Linux DevOps-инженер",
       "page": {
@@ -73,12 +73,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T08:32:33.330Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "div[data-qa=\"drop-base\"]"
     },
     {
       "id": "rule_mpdt48yq_zin82t7",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: AI Engineer / AI Automation Specialist / AI Workflow Engineer",
       "page": {
@@ -89,12 +89,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T08:35:35.906Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "a[data-qa=\"serp-item__title\"]"
     },
     {
       "id": "rule_mpdus804_yr98b0f",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: Добавить сопроводительное",
       "page": {
@@ -105,12 +105,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:22:14.019Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "button[data-qa=\"add-cover-letter\"]"
     },
     {
       "id": "rule_mpdusd38_az4c86b",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: Откликнуться",
       "page": {
@@ -121,12 +121,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:22:20.611Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "button[data-qa=\"vacancy-response-submit-popup\"]"
     },
     {
       "id": "rule_mpdut0x5_r75ajh4",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: textarea[data-qa=\"vacancy-response-popup-form-letter-input\"]",
       "page": {
@@ -137,12 +137,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:22:51.497Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "textarea[data-qa=\"vacancy-response-popup-form-letter-input\"]"
     },
     {
       "id": "rule_mpdutg74_ro3fa2e",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: DevOps-инженер",
       "page": {
@@ -153,12 +153,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:23:11.295Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "div[role=\"button\"]"
     },
     {
       "id": "rule_mpdutlqg_dn95yje",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: Сгенерировать",
       "page": {
@@ -169,12 +169,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:23:18.471Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "button[data-qa=\"generate-cover-letter\"]"
     },
     {
       "id": "rule_mpduv5w0_enncftt",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: DevOps-инженер Сопроводительное письмо Сгенерировать",
       "page": {
@@ -185,12 +185,12 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:24:31.248Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "form[name=\"vacancy_response\"]"
     },
     {
       "id": "rule_mpduweh3_az84kgh",
-      "enabled": true,
+      "enabled": false,
       "kind": "subtree",
       "name": "Область вокруг: DevOps-инженер Java-разработчик Инженер автоматизации Системный администратор Linux",
       "page": {
@@ -201,8 +201,37 @@
       },
       "source": "candidate",
       "createdAt": "2026-05-20T09:25:29.031Z",
-      "updatedAt": "2026-05-20T09:52:04.093Z",
+      "updatedAt": "2026-05-20T12:24:18.470Z",
       "selector": "div[data-qa=\"drop-base\"]"
+    },
+    {
+      "id": "rule_mpe1yhax_03fkrwn",
+      "enabled": true,
+      "kind": "range",
+      "name": "Диапазон: DevOps-инженер",
+      "page": {
+        "host": "*.hh.ru",
+        "path": "/vacancy/:id",
+        "query": "ignore",
+        "hash": "ignore"
+      },
+      "source": "candidate",
+      "createdAt": "2026-05-20T12:43:03.321Z",
+      "updatedAt": "2026-05-20T12:49:02.954Z",
+      "start": {
+        "role": "radio",
+        "text": "DevOps-инженер",
+        "occurrence": 1,
+        "match": "text"
+      },
+      "end": {
+        "role": "radio",
+        "text": "Java-разработчик",
+        "occurrence": 1,
+        "match": "text"
+      },
+      "includeStart": true,
+      "includeEnd": false
     }
   ]
 }

@@ -174,3 +174,9 @@
 Контекст: Во вкладке `/browser` → Candidates обычный режим `[Candidates]` показывал уже объединённые значения с `Count > 1`, потому что `CandidatesEngine.collect()` безусловно дедуплицировал кандидатов до попадания в TUI. Это делало обычное состояние визуально похожим на `[Candidates grouped]` без нажатия `g`.
 Решение: `CandidatesEngine.collect()` возвращает плоский список кандидатов в исходном backend/DOM order без dedup/grouping. Явная группировка candidates выполняется только в TUI grouped-view при включённом `candidateGroupByRule` (`g`).
 Причина: Обычный режим Candidates должен показывать реальные DOM occurrences без скрытой агрегации; группировка должна быть явным пользовательским режимом.
+
+---
+Дата: 2026-05-20
+Контекст: На hh.ru в диалоге выбора резюме несколько radio/input элементов имеют одинаковые reusable selectors и браузерное значение radio по умолчанию `on`, из-за чего Candidates были неинформативны, а generated subtree rules не попадали в выбранный occurrence.
+Решение: Candidate labels для form controls извлекаются из доступных DOM label-источников (`aria-labelledby`, `label[for]`, closest label, surrounding text), а generated subtree rules могут хранить `selectorIndex` occurrence и применять pruning только к этому совпадению selector.
+Причина: Persistent selector остаётся reusable и стабильным, но для выбора конкретного повторяющегося элемента нужен occurrence index; label должен отражать доступное имя элемента, а не техническое default value `on`.

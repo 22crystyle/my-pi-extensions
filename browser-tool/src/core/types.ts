@@ -198,6 +198,7 @@ export type BaseRule = {
 export type SubtreeRule = BaseRule & {
   kind: "subtree";
   selector: string;
+  selectorIndex?: number;
 };
 
 export type BoundaryLocator = {

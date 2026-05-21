@@ -352,3 +352,24 @@
 Файлы: `AGENTS.md`, `.pi/memory/actions.md`, `.pi/browser/rules.json`, `src/core/browserToolService.ts`, `src/providers/camofox/camofoxProvider.ts`, `src/tools/browser_click.ts`, `openapi.json`
 Результат: Вероятная причина неудачи — клик был выполнен по волатильному нативному ref `e68` без post-click verification; browser-tool вернул `ok: true`, но не проверил, что форма отклика закрылась/отклик отправлен. Для финального submit на hh.ru надёжнее использовать стабильный selector `button[data-qa="vacancy-response-submit-popup"]` и после клика проверять snapshot/URL/исчезновение dialog.
 Как проверить: В открытом popup выполнить `browser_click` по selector `button[data-qa="vacancy-response-submit-popup"]`, затем `browser_snapshot` и убедиться, что dialog исчез или появился статус успешного отклика; сравнить с кликом по ref из snapshot при включённых overlapping rules.
+
+## 2026-05-20 — диагностика и исправление Candidates radio/rules
+Агент: AI Dev agent
+Действие:
+- Найдена причина отображения `radio` как `on`: сбор Candidates брал `HTMLInputElement.value`, а для radio без явного value браузер возвращает дефолтное `on`, не извлекая связанный label.
+- Обновлён `labelFor()` в Camofox provider: учитываются `aria-labelledby`, `label[for]`, ближайший `label`, текст родителя/соседей для radio/checkbox; значение `on` больше не используется как label.
+- Найдена причина неработающих правил для повторяющихся radio: generated subtree rule сохранял только общий selector (`input[type="radio"]` и т.п.), а pruning применял правило ко всем совпадениям или не выделял нужное DOM occurrence.
+- Добавлен `selectorIndex` в `SubtreeRule`; generated/preview rules сохраняют индекс occurrence, а pruning применяет subtree к конкретному совпадению selector при наличии индекса.
+Файлы: `src/providers/camofox/camofoxProvider.ts`, `src/core/browserToolService.ts`, `src/core/types.ts`
+Результат: Candidates для radio должны показывать человеческие labels резюме вместо `on`; новые candidate-based rules для повторяющихся radio должны применяться к выбранному occurrence.
+Как проверить: Открыть `/browser` → Candidates на диалоге выбора резюме hh.ru, убедиться что radio имеют labels резюме, создать/preview правило для конкретного radio и проверить `/browser-snapshot`.
+
+## 2026-05-20 — диагностика последнего radio rule
+Агент: AI Dev agent
+Действие:
+- Выполнен `browser_snapshot` для текущей страницы hh.ru: результат `- dialog:\n  - radio [e1] [checked]` подтвердил, что включённые правила оставляют только сам `input[type="radio"]` без текстовых label-узлов.
+- Проверен последний rule в `.pi/browser/rules.json`: `subtree`, selector `input[type="radio"]`, `selectorIndex: 0`; поэтому snapshot видит только input occurrence, а не контейнер/соседний текст резюме.
+- Дополнительно исправлен provider: subtree pruning для form controls теперь добавляет связанные label-элементы/родительский контейнер, а range locator text matching для inputs использует `labelFor()`, а не только `visibleText()`.
+Файлы: `.pi/browser/rules.json`, `src/providers/camofox/camofoxProvider.ts`, `.pi/memory/actions.md`
+Результат: Причина определена; после перезагрузки extension новые snapshots/rules для radio должны включать связанный текст, а не только технический radio input.
+Как проверить: Перезапустить/перезагрузить browser-tool extension, открыть диалог выбора резюме, выполнить `browser_snapshot` или preview последнего rule.
